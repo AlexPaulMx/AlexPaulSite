@@ -7,7 +7,7 @@ export default function TheLab() {
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white">
       {/* Hero Section */}
       <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/hero-background.jpg')] bg-cover bg-center opacity-20" />
+        <div className="absolute inset-0 bg-[url('/images/hero-background.svg')] bg-cover bg-center opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/80" />
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
