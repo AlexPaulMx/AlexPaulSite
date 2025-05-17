@@ -1,267 +1,220 @@
 "use client";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Music, 
-  Users, 
-  Trophy, 
-  Package, 
-  MessageCircle, 
-  DollarSign, 
-  Globe, 
-  Heart, 
-  Star, 
-  Gift,
-  X,
-  Minimize2,
-  Maximize2,
-  Folder,
-  FileText,
-  Settings,
-  HelpCircle
-} from "lucide-react";
-
-// Tipos de apps disponibles
-type AppType = {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
-  content: React.ReactNode;
-  isOpen: boolean;
-  isMinimized: boolean;
-  position: { x: number; y: number };
-};
+import { motion } from "framer-motion";
+import { Music, Users, Trophy, Package, MessageCircle, DollarSign, Globe, Heart, Star, Gift } from "lucide-react";
 
 export default function TheLab() {
-  const [activeApps, setActiveApps] = useState<AppType[]>([
-    {
-      id: "about",
-      title: "About The Lab",
-      icon: <FileText className="w-6 h-6" />,
-      content: (
-        <div className="p-6 text-gray-300">
-          <h2 className="text-2xl font-bold mb-4">About The Lab</h2>
-          <p className="mb-4">
-            Hi, my name is Alejandro A.k.a. Alex Paul. I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain.
-          </p>
-          <p className="mb-4">
-            Right now, I'm pouring my heart and mind into an audiovisual album titled "The Lab." This project is important to me because it represents an opportunity to collaborate with people who believe in my music and to support other creators involved in making this vision a reality.
-          </p>
-          <p>
-            I plan to release my this album independently, without the backing of a major record label but to bring this vision to life, I'm aiming to raise $10K USD to cover the album's production costs.
-          </p>
-        </div>
-      ),
-      isOpen: true,
-      isMinimized: false,
-      position: { x: 100, y: 100 }
-    },
-    {
-      id: "rewards",
-      title: "Rewards",
-      icon: <Gift className="w-6 h-6" />,
-      content: (
-        <div className="p-6 text-gray-300">
-          <h2 className="text-2xl font-bold mb-4">Rewards</h2>
-          <div className="space-y-6">
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Top Supporter</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Executive Producer Credits</li>
-                <li>Exclusive Merch</li>
-              </ul>
-            </div>
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Top 5 Supporters</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Executive Producer Credits</li>
-                <li>Exclusive Merch</li>
-                <li>Full Album CD</li>
-              </ul>
-            </div>
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Top 10 Supporters</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>The Lab Crew Character</li>
-                <li>Full Album Airdrop</li>
-              </ul>
-            </div>
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">All Contributors</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>The Lab Gang Badge</li>
-                <li>Release Party Invitation</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      ),
-      isOpen: false,
-      isMinimized: false,
-      position: { x: 200, y: 200 }
-    },
-    {
-      id: "funding",
-      title: "Funding Details",
-      icon: <DollarSign className="w-6 h-6" />,
-      content: (
-        <div className="p-6 text-gray-300">
-          <h2 className="text-2xl font-bold mb-4">Funds Allocation</h2>
-          <div className="space-y-4">
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Production Costs</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Studio Rent</li>
-                <li>Session Musician Fees</li>
-                <li>Equipment Rental/Purchase</li>
-                <li>Music Videos Production</li>
-              </ul>
-            </div>
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Distribution and Manufacturing</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Physical Distribution</li>
-                <li>Licensing and Copyright</li>
-                <li>Promotion and Distribution</li>
-              </ul>
-            </div>
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Technologies</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Mint Site Development</li>
-                <li>Merchandise Design</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      ),
-      isOpen: false,
-      isMinimized: false,
-      position: { x: 300, y: 300 }
-    }
-  ]);
-
-  const [draggedApp, setDraggedApp] = useState<string | null>(null);
-
-  const handleAppAction = (appId: string, action: 'open' | 'close' | 'minimize') => {
-    setActiveApps(apps => apps.map(app => {
-      if (app.id === appId) {
-        switch (action) {
-          case 'open':
-            return { ...app, isOpen: true, isMinimized: false };
-          case 'close':
-            return { ...app, isOpen: false, isMinimized: false };
-          case 'minimize':
-            return { ...app, isMinimized: !app.isMinimized };
-          default:
-            return app;
-        }
-      }
-      return app;
-    }));
-  };
-
-  const handleDragStart = (appId: string) => {
-    setDraggedApp(appId);
-  };
-
-  const handleDragEnd = (appId: string, position: { x: number; y: number }) => {
-    setActiveApps(apps => apps.map(app => 
-      app.id === appId ? { ...app, position } : app
-    ));
-    setDraggedApp(null);
-  };
+  // Meta de crowdfunding: $10,000 USD
+  const goal = 10000;
+  const currentAmount = 0; // Esto se actualizará con la integración real
+  const progress = (currentAmount / goal) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white overflow-hidden">
-      {/* Desktop Background */}
-      <div className="absolute inset-0 bg-[url('/images/hero-background.svg')] bg-cover bg-center opacity-10" />
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white">
+      {/* Hero Section */}
+      <div className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-purple-900/20" />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center px-4 max-w-4xl mx-auto"
+        >
+          <h1 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+            THE LAB
+          </h1>
+          <p className="text-xl text-gray-300 mb-8">
+            Un álbum audiovisual experimental que fusiona música multicultural con tecnología blockchain.
+          </p>
+          
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex justify-between text-sm text-gray-400 mb-2">
+              <span>Meta: ${goal.toLocaleString()} USD</span>
+              <span>Recaudado: ${currentAmount.toLocaleString()} USD</span>
+            </div>
+            <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+              />
+            </div>
+          </div>
 
-      {/* Taskbar */}
-      <div className="fixed bottom-0 left-0 right-0 h-12 bg-gray-800/80 backdrop-blur-sm border-t border-gray-700 flex items-center px-4 z-50">
-        <div className="flex space-x-2">
-          {activeApps.map(app => (
-            <button
-              key={app.id}
-              onClick={() => handleAppAction(app.id, app.isOpen ? 'minimize' : 'open')}
-              className={`p-2 rounded hover:bg-gray-700 transition-colors ${
-                app.isOpen && !app.isMinimized ? 'bg-gray-700' : ''
-              }`}
+          {/* Support Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold text-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
+          >
+            Apoya el Proyecto
+          </motion.button>
+        </motion.div>
+      </div>
+
+      {/* About Section */}
+      <div className="max-w-4xl mx-auto px-4 py-20">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="prose prose-invert max-w-none"
+        >
+          <h2 className="text-4xl font-bold mb-6 text-center">Sobre el Proyecto</h2>
+          <p className="text-lg text-gray-300 mb-8">
+            Hi, my name is Alejandro A.k.a. Alex Paul. I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain.
+          </p>
+          <p className="text-lg text-gray-300 mb-8">
+            Right now, I'm pouring my heart and mind into an audiovisual album titled "The Lab." This project is important to me because it represents an opportunity to collaborate with people who believe in my music and to support other creators involved in making this vision a reality.
+          </p>
+        </motion.div>
+      </div>
+
+      {/* Rewards Section */}
+      <div className="bg-gray-800/50 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold mb-12 text-center">Recompensas</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Top Supporter */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-blue-500/20"
             >
-              {app.icon}
-            </button>
-          ))}
+              <Trophy className="w-12 h-12 text-blue-500 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">Top Supporter</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li>• Executive Producer Credits</li>
+                <li>• Exclusive Merch</li>
+              </ul>
+            </motion.div>
+
+            {/* Top 5 Supporters */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20"
+            >
+              <Star className="w-12 h-12 text-purple-500 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">Top 5 Supporters</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li>• Executive Producer Credits</li>
+                <li>• Exclusive Merch</li>
+                <li>• Full Album CD</li>
+              </ul>
+            </motion.div>
+
+            {/* Top 10 Supporters */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-pink-500/20"
+            >
+              <Users className="w-12 h-12 text-pink-500 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">Top 10 Supporters</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li>• The Lab Crew Character</li>
+                <li>• Full Album Airdrop</li>
+              </ul>
+            </motion.div>
+
+            {/* All Contributors */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-green-500/20"
+            >
+              <Gift className="w-12 h-12 text-green-500 mb-4" />
+              <h3 className="text-2xl font-bold mb-4">All Contributors</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li>• The Lab Gang Badge</li>
+                <li>• Release Party Invitation</li>
+              </ul>
+            </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* App Windows */}
-      <AnimatePresence>
-        {activeApps.map(app => app.isOpen && (
+      {/* Funding Details Section */}
+      <div className="max-w-7xl mx-auto px-4 py-20">
+        <h2 className="text-4xl font-bold mb-12 text-center">Distribución de Fondos</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <motion.div
-            key={app.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ 
-              opacity: app.isMinimized ? 0 : 1,
-              scale: app.isMinimized ? 0.9 : 1,
-              x: app.position.x,
-              y: app.position.y
-            }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            drag={!app.isMinimized}
-            dragMomentum={false}
-            onDragStart={() => handleDragStart(app.id)}
-            onDragEnd={(_, info) => handleDragEnd(app.id, {
-              x: app.position.x + info.offset.x,
-              y: app.position.y + info.offset.y
-            })}
-            className={`absolute w-[600px] bg-gray-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 ${
-              draggedApp === app.id ? 'z-50' : 'z-40'
-            }`}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6"
           >
-            {/* Window Title Bar */}
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-800/50 rounded-t-lg border-b border-gray-700">
-              <div className="flex items-center space-x-2">
-                {app.icon}
-                <span className="text-sm font-medium">{app.title}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleAppAction(app.id, 'minimize')}
-                  className="p-1 hover:bg-gray-700 rounded"
-                >
-                  <Minimize2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleAppAction(app.id, 'close')}
-                  className="p-1 hover:bg-red-500 rounded"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Window Content */}
-            <div className="overflow-auto max-h-[70vh]">
-              {app.content}
-            </div>
+            <DollarSign className="w-12 h-12 text-blue-500 mb-4" />
+            <h3 className="text-2xl font-bold mb-4">Costos de Producción</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li>• Alquiler de Estudio</li>
+              <li>• Honorarios de Músicos</li>
+              <li>• Equipamiento</li>
+              <li>• Producción de Videos</li>
+            </ul>
           </motion.div>
-        ))}
-      </AnimatePresence>
 
-      {/* Desktop Icons */}
-      <div className="absolute top-8 left-8 space-y-4">
-        {activeApps.map(app => (
-          <button
-            key={app.id}
-            onClick={() => handleAppAction(app.id, 'open')}
-            className="flex flex-col items-center space-y-1 group"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6"
           >
-            <div className="w-12 h-12 bg-gray-800/50 rounded-lg flex items-center justify-center group-hover:bg-gray-700/50 transition-colors">
-              {app.icon}
-            </div>
-            <span className="text-sm text-gray-300">{app.title}</span>
-          </button>
-        ))}
+            <Package className="w-12 h-12 text-purple-500 mb-4" />
+            <h3 className="text-2xl font-bold mb-4">Distribución</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li>• Distribución Física</li>
+              <li>• Licencias y Copyright</li>
+              <li>• Promoción</li>
+            </ul>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6"
+          >
+            <Globe className="w-12 h-12 text-pink-500 mb-4" />
+            <h3 className="text-2xl font-bold mb-4">Tecnología</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li>• Desarrollo del Sitio Mint</li>
+              <li>• Diseño de Merchandise</li>
+            </ul>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="relative py-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
+        <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+              ¡Hagamos una fiesta!
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Si alcanzamos nuestra meta, ¡te invitaremos a una fiesta de lanzamiento exclusiva!
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold text-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
+            >
+              Apoya el Proyecto
+            </motion.button>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
