@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { 
   Music, 
   Users, 
@@ -26,7 +26,8 @@ import {
   Map,
   MapPin,
   ShoppingBag,
-  Disc
+  Disc,
+  GripVertical
 } from "lucide-react";
 import Image from "next/image";
 
@@ -45,6 +46,8 @@ export default function TheLab() {
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [progressPosition, setProgressPosition] = useState({ x: 0, y: 0 });
+  const dragControls = useDragControls();
 
   // Meta de crowdfunding: $10,000 USD
   const goal = 10000;
@@ -320,17 +323,17 @@ export default function TheLab() {
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          className="absolute inset-0 w-full h-full object-cover opacity-10"
         >
           <source src="/videos/background.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" />
       </div>
 
       {/* Cursor Effect */}
       <div className="fixed inset-0 pointer-events-none z-50">
         <div
-          className="absolute w-96 h-96 rounded-full bg-blue-500/10 blur-3xl"
+          className="absolute w-96 h-96 rounded-full bg-blue-500/5 blur-3xl"
           style={{
             left: mousePosition.x - 192,
             top: mousePosition.y - 192,
@@ -380,18 +383,21 @@ export default function TheLab() {
       {/* Interactive Map */}
       <div className="relative w-full h-screen">
         {/* Map Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20">
-          <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-black/20">
+          <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-5" />
         </div>
 
         {/* Project Points */}
-        {projectPoints.map((point) => (
+        {!isMobile && projectPoints.map((point) => (
           <motion.button
             key={point.id}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             whileHover={{ scale: 1.1 }}
-            className={`absolute ${isMobile ? 'hidden' : ''}`}
+            drag
+            dragControls={dragControls}
+            dragMomentum={false}
+            className="absolute"
             style={{
               left: `${point.position.x}%`,
               top: `${point.position.y}%`,
@@ -453,14 +459,31 @@ export default function TheLab() {
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 transform hover:scale-105 transition-transform duration-300"
+        drag
+        dragControls={dragControls}
+        dragMomentum={false}
+        dragElastic={0.1}
+        style={{
+          x: progressPosition.x,
+          y: progressPosition.y
+        }}
+        onDragEnd={(event, info) => {
+          setProgressPosition({
+            x: progressPosition.x + info.offset.x,
+            y: progressPosition.y + info.offset.y
+          });
+        }}
+        className={`fixed ${isMobile ? 'bottom-4 left-4 right-4' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md'} bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 transform hover:scale-105 transition-transform duration-300`}
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold flex items-center gap-2">
-              <Music className="w-6 h-6 text-blue-400" />
-              The Lab Progress
-            </h3>
+            <div className="flex items-center gap-2">
+              <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Music className="w-6 h-6 text-blue-400" />
+                The Lab Progress
+              </h3>
+            </div>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setIsMuted(!isMuted)}
@@ -500,6 +523,24 @@ export default function TheLab() {
           </div>
         </div>
       </motion.div>
+
+      {/* Mobile Progress Bar */}
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-800/90 backdrop-blur-sm p-4 z-40">
+          <div className="flex justify-between text-sm text-gray-400 mb-2">
+            <span>Goal: ${goal.toLocaleString()} USD</span>
+            <span>Raised: ${currentAmount.toLocaleString()} USD</span>
+          </div>
+          <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
