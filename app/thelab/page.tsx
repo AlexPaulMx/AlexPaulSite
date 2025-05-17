@@ -27,7 +27,11 @@ import {
   MapPin,
   ShoppingBag,
   Disc,
-  GripVertical
+  GripVertical,
+  Instagram,
+  Twitter,
+  Youtube,
+  Music2
 } from "lucide-react";
 import Image from "next/image";
 
@@ -86,7 +90,7 @@ export default function TheLab() {
       content: (
         <div className="space-y-6">
           <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-            Hi, my name is Alejandro A.k.a. Alex Paul. I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain.
+            Hi, my name is Alex Paul. I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain.
           </p>
           <p className="text-gray-300 text-sm md:text-base leading-relaxed">
             Right now, I'm pouring my heart and mind into an audiovisual album titled "The Lab." This project is important to me because it represents an opportunity to collaborate with people who believe in my music and to support other creators involved in making this vision a reality.
@@ -97,13 +101,47 @@ export default function TheLab() {
           <p className="text-gray-300 text-sm md:text-base leading-relaxed">
             This album will showcase a multicultural soundscape, introducing my first English songs and experimenting with various genres, including pop, hip hop/R&B, synthpop, Latin rhythms, and house.
           </p>
+          <div className="flex items-center justify-center space-x-6 pt-4">
+            <a
+              href="https://www.instagram.com/alexpaulmx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Instagram className="w-6 h-6" />
+            </a>
+            <a
+              href="https://twitter.com/alexpaulmx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Twitter className="w-6 h-6" />
+            </a>
+            <a
+              href="https://www.youtube.com/@alexpaulmx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Youtube className="w-6 h-6" />
+            </a>
+            <a
+              href="https://open.spotify.com/artist/alexpaulmx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Music2 className="w-6 h-6" />
+            </a>
+          </div>
         </div>
       )
     },
     {
       id: "rewards",
       title: "Rewards",
-      icon: <Gift className="w-6 h-6 text-yellow-400" />,
+      icon: <Gift className="w-6 h-6 text-red-400" />,
       position: { x: 60, y: 30 },
       content: (
         <div className="space-y-6">
@@ -328,19 +366,25 @@ export default function TheLab() {
           <source src="/videos/background.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" />
+        {/* Noise Effect */}
+        <div className="absolute inset-0 opacity-20 mix-blend-overlay">
+          <div className="absolute inset-0 bg-[url('/images/noise.png')] bg-repeat opacity-50" />
+        </div>
       </div>
 
-      {/* Cursor Effect */}
-      <div className="fixed inset-0 pointer-events-none z-50">
-        <div
-          className="absolute w-96 h-96 rounded-full bg-blue-500/5 blur-3xl"
-          style={{
-            left: mousePosition.x - 192,
-            top: mousePosition.y - 192,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      </div>
+      {/* Cursor Effect - Solo en desktop */}
+      {!isMobile && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <div
+            className="absolute w-96 h-96 rounded-full bg-blue-500/5 blur-3xl"
+            style={{
+              left: mousePosition.x - 192,
+              top: mousePosition.y - 192,
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        </div>
+      )}
 
       {/* Mobile Menu Button */}
       {isMobile && (
@@ -385,9 +429,13 @@ export default function TheLab() {
         {/* Map Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-black/20">
           <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-5" />
+          {/* Noise Effect */}
+          <div className="absolute inset-0 opacity-20 mix-blend-overlay">
+            <div className="absolute inset-0 bg-[url('/images/noise.png')] bg-repeat opacity-50" />
+          </div>
         </div>
 
-        {/* Project Points */}
+        {/* Project Points - Solo en desktop */}
         {!isMobile && projectPoints.map((point) => (
           <motion.button
             key={point.id}
@@ -433,10 +481,10 @@ export default function TheLab() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className={`fixed ${isMobile ? 'bottom-0 left-0 right-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl'} bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 p-6`}
+              className={`fixed ${isMobile ? 'bottom-0 left-0 right-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl'} bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 p-4 md:p-6`}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
                   {projectPoints.find(p => p.id === selectedPoint)?.icon}
                   {projectPoints.find(p => p.id === selectedPoint)?.title}
                 </h2>
@@ -444,10 +492,10 @@ export default function TheLab() {
                   onClick={() => setSelectedPoint(null)}
                   className="p-2 hover:bg-gray-800 rounded-lg"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
               </div>
-              <div className="max-h-[60vh] overflow-y-auto">
+              <div className="max-h-[50vh] md:max-h-[60vh] overflow-y-auto">
                 {projectPoints.find(p => p.id === selectedPoint)?.content}
               </div>
             </motion.div>
@@ -455,74 +503,76 @@ export default function TheLab() {
         </AnimatePresence>
       </div>
 
-      {/* Fixed Progress Card */}
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        drag
-        dragControls={dragControls}
-        dragMomentum={false}
-        dragElastic={0.1}
-        style={{
-          x: progressPosition.x,
-          y: progressPosition.y
-        }}
-        onDragEnd={(event, info) => {
-          setProgressPosition({
-            x: progressPosition.x + info.offset.x,
-            y: progressPosition.y + info.offset.y
-          });
-        }}
-        className={`fixed ${isMobile ? 'bottom-4 left-4 right-4' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md'} bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 transform hover:scale-105 transition-transform duration-300`}
-      >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Music className="w-6 h-6 text-blue-400" />
-                The Lab Progress
-              </h3>
+      {/* Fixed Progress Card - Solo en desktop */}
+      {!isMobile && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          drag
+          dragControls={dragControls}
+          dragMomentum={false}
+          dragElastic={0.1}
+          style={{
+            x: progressPosition.x,
+            y: progressPosition.y
+          }}
+          onDragEnd={(event, info) => {
+            setProgressPosition({
+              x: progressPosition.x + info.offset.x,
+              y: progressPosition.y + info.offset.y
+            });
+          }}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 transform hover:scale-105 transition-transform duration-300"
+        >
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <Music className="w-6 h-6 text-blue-400" />
+                  The Lab Progress
+                </h3>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setIsMuted(!isMuted)}
+                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                </button>
+                <button
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsMuted(!isMuted)}
-                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            
+            <div className="space-y-4">
+              <div className="flex justify-between text-sm text-gray-400">
+                <span>Goal: ${goal.toLocaleString()} USD</span>
+                <span>Raised: ${currentAmount.toLocaleString()} USD</span>
+              </div>
+              <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                />
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
               >
-                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-              </button>
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-              </button>
+                Support Now
+              </motion.button>
             </div>
           </div>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between text-sm text-gray-400">
-              <span>Goal: ${goal.toLocaleString()} USD</span>
-              <span>Raised: ${currentAmount.toLocaleString()} USD</span>
-            </div>
-            <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-              />
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
-            >
-              Support Now
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Mobile Progress Bar */}
       {isMobile && (
@@ -539,6 +589,12 @@ export default function TheLab() {
               className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
             />
           </div>
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
+          >
+            Support Now
+          </motion.button>
         </div>
       )}
     </div>
