@@ -1,4 +1,5 @@
 'use client';
+export const dynamicParam = "force-dynamic";
 import React from 'react';
 import dynamic from 'next/dynamic';
 
