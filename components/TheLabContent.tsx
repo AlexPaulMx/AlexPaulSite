@@ -141,11 +141,25 @@ export default function TheLabContent() {
 
       const handleMouseMove = (e: MouseEvent) => {
         if (!dragRef.current.dragging) return;
-        dragRef.current.pos.x = e.clientX - startX;
-        dragRef.current.pos.y = e.clientY - startY;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        dragRef.current.pos.x = dragRef.current.pos.x + dx;
+        dragRef.current.pos.y = dragRef.current.pos.y + dy;
         if (dragRef.current.ref.current) {
           dragRef.current.ref.current.style.transform = `translate(${dragRef.current.pos.x}px, ${dragRef.current.pos.y}px)`;
         }
+        // Guardar posición en tiempo real durante el drag
+        const state = JSON.parse(localStorage.getItem('theLabCards') || '{}');
+        if (!state.positions) state.positions = {};
+        if (dragRef.current === introDrag.current) state.positions.intro = { ...dragRef.current.pos };
+        else if (dragRef.current === rewardsDrag.current) state.positions.rewards = { ...dragRef.current.pos };
+        else if (dragRef.current === fundDrag.current) state.positions.fund = { ...dragRef.current.pos };
+        else if (dragRef.current === topSupportersDrag.current) state.positions.topSupporters = { ...dragRef.current.pos };
+        else if (dragRef.current === merchMinDrag.current) state.positions.merch = { ...dragRef.current.pos };
+        else if (dragRef.current === musicNFTsMinDrag.current) state.positions.musicNFTs = { ...dragRef.current.pos };
+        else if (dragRef.current === telegramDrag.current) state.positions.telegram = { ...dragRef.current.pos };
+        else if (dragRef.current === whyDrag.current) state.positions.why = { ...dragRef.current.pos };
+        localStorage.setItem('theLabCards', JSON.stringify(state));
       };
 
       const handleMouseUp = () => {
