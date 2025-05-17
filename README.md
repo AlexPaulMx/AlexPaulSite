@@ -15,7 +15,7 @@
 ## 📦 Instalación local
 1. Clona el repositorio:
    ```sh
-   git clone https://github.com/TU_USUARIO/TU_REPO.git
+   git clone https://github.com/AlexPaulMx/AlexPaulSite.git
    cd TU_REPO
    ```
 2. Instala las dependencias:
