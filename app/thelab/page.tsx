@@ -22,25 +22,27 @@ import {
   Pause,
   Volume2,
   VolumeX,
-  PartyPopper
+  PartyPopper,
+  Map,
+  MapPin,
+  ShoppingBag,
+  Disc
 } from "lucide-react";
 
-type SectionType = {
+type ProjectPoint = {
+  id: string;
   title: string;
   icon: React.ReactNode;
+  position: { x: number; y: number };
   content: React.ReactNode;
-};
-
-type SectionsType = {
-  [key: string]: SectionType;
 };
 
 export default function TheLab() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [currentSection, setCurrentSection] = useState<keyof SectionsType>("about");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Meta de crowdfunding: $10,000 USD
   const goal = 10000;
@@ -58,10 +60,12 @@ export default function TheLab() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const sections: SectionsType = {
-    about: {
+  const projectPoints: ProjectPoint[] = [
+    {
+      id: "intro",
       title: "About The Lab",
       icon: <Info className="w-6 h-6" />,
+      position: { x: 20, y: 20 },
       content: (
         <div className="space-y-6">
           <p className="text-gray-300 text-sm md:text-base leading-relaxed">
@@ -79,9 +83,11 @@ export default function TheLab() {
         </div>
       )
     },
-    rewards: {
+    {
+      id: "rewards",
       title: "Rewards",
       icon: <Gift className="w-6 h-6" />,
+      position: { x: 60, y: 30 },
       content: (
         <div className="space-y-6">
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
@@ -143,9 +149,28 @@ export default function TheLab() {
         </div>
       )
     },
-    funding: {
-      title: "Funding Details",
+    {
+      id: "why-support",
+      title: "Why Support",
+      icon: <Heart className="w-6 h-6" />,
+      position: { x: 40, y: 60 },
+      content: (
+        <div className="space-y-6">
+          <ol className="list-decimal text-gray-200 space-y-4 ml-6 text-lg">
+            <li><b>Empowerment of Independent Artists:</b> Your contribution helps support independent creators, allowing us to thrive outside traditional music industry constraints.</li>
+            <li><b>Join a Creative Community:</b> When you contribute, you're not just donating—you're becoming part of a community that values collaboration and creativity.</li>
+            <li><b>Exclusive Access:</b> As a supporter, you'll gain exclusive insights into the creative process, behind-the-scenes content, and the opportunity to engage with the project on a personal level.</li>
+            <li><b>Cool Rewards:</b> I've lined up some awesome rewards to show my appreciation, connecting you directly to the music and the journey.</li>
+            <li><b>Make a F*cking Party!</b> If we reach our goal, you'll be invited to an exclusive release party!</li>
+          </ol>
+        </div>
+      )
+    },
+    {
+      id: "funds",
+      title: "Funds Allocation",
       icon: <DollarSign className="w-6 h-6" />,
+      position: { x: 80, y: 40 },
       content: (
         <div className="space-y-6">
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
@@ -186,26 +211,75 @@ export default function TheLab() {
               </li>
             </ul>
           </div>
+        </div>
+      )
+    },
+    {
+      id: "nfts",
+      title: "Music NFTs",
+      icon: <Disc className="w-6 h-6" />,
+      position: { x: 70, y: 70 },
+      content: (
+        <div className="space-y-6">
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
-            <h3 className="text-xl font-bold mb-4 text-white">Technologies</h3>
+            <h3 className="text-xl font-bold mb-4 text-white">NFT Benefits</h3>
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                Mint Site Development
+                Exclusive Access to Digital Content
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                Merchandise Design
+                Royalty Sharing
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Special Edition Tracks
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Behind-the-scenes Content
+              </li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "merch",
+      title: "Merchandise",
+      icon: <ShoppingBag className="w-6 h-6" />,
+      position: { x: 30, y: 80 },
+      content: (
+        <div className="space-y-6">
+          <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
+            <h3 className="text-xl font-bold mb-4 text-white">Limited Edition Collection</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Exclusive T-Shirts
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Custom Hoodies
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Collectible Pins
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Signed Posters
               </li>
             </ul>
           </div>
         </div>
       )
     }
-  };
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[url('/images/hero-background.svg')] bg-cover bg-center opacity-5" />
 
@@ -229,17 +303,17 @@ export default function TheLab() {
             className="fixed top-0 left-0 h-full w-64 bg-gray-900/95 backdrop-blur-sm z-40 p-4"
           >
             <div className="space-y-4">
-              {Object.entries(sections).map(([key, section]) => (
+              {projectPoints.map((point) => (
                 <button
-                  key={key}
+                  key={point.id}
                   onClick={() => {
-                    setCurrentSection(key as keyof SectionsType);
+                    setSelectedPoint(point.id);
                     setIsMenuOpen(false);
                   }}
                   className="flex items-center space-x-2 w-full p-2 hover:bg-gray-800 rounded-lg"
                 >
-                  {section.icon}
-                  <span>{section.title}</span>
+                  {point.icon}
+                  <span>{point.title}</span>
                 </button>
               ))}
             </div>
@@ -247,200 +321,67 @@ export default function TheLab() {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 md:py-16">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-            <div className="flex items-center space-x-4 mb-4 md:mb-0">
-              <Music className="w-8 h-8 text-blue-400" />
-              <h1 className="text-2xl md:text-3xl font-bold">The Lab</h1>
-            </div>
-            {!isMobile && (
-              <div className="flex space-x-4">
-                {Object.entries(sections).map(([key, section]) => (
-                  <button
-                    key={key}
-                    onClick={() => setCurrentSection(key as keyof SectionsType)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                      currentSection === key
-                        ? 'bg-blue-500 text-white'
-                        : 'hover:bg-gray-800 text-gray-300'
-                    }`}
-                  >
-                    {section.icon}
-                    <span>{section.title}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Content */}
-          <div className="bg-gray-800/30 rounded-xl backdrop-blur-sm p-6 md:p-8">
-            <div className="flex items-center space-x-2 mb-6">
-              {sections[currentSection].icon}
-              <h2 className="text-xl md:text-2xl font-bold">{sections[currentSection].title}</h2>
-            </div>
-            {sections[currentSection].content}
-          </div>
+      {/* Interactive Map */}
+      <div className="relative w-full h-screen">
+        {/* Map Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20">
+          <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10" />
         </div>
-      </div>
 
-      {/* HERO / INTRO */}
-      <section className="relative px-4 py-16 md:py-24 flex flex-col items-center text-center bg-gradient-to-b from-black/80 to-transparent">
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="text-4xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-          The Lab
-        </motion.h1>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-2xl text-lg md:text-2xl text-gray-200 mb-8">
-          Hi, my name is Alejandro A.k.a. Alex Paul. I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain.
-        </motion.p>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.1 }} className="max-w-2xl text-base md:text-lg text-gray-400 mb-4">
-          Right now, I'm pouring my heart and mind into an audiovisual album titled <b>"The Lab"</b>. This project is important to me because it represents an opportunity to collaborate with people who believe in my music and to support other creators involved in making this vision a reality.
-        </motion.p>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.3 }} className="max-w-2xl text-base md:text-lg text-gray-400 mb-4">
-          I plan to release this album independently, without the backing of a major record label. To bring this vision to life, I'm aiming to raise <b>$10K USD</b> to cover the album's production costs. While a single release can be a significant investment, creating a full album demands even more resources. Your support will help us achieve this goal more effectively, allowing me to break free from industry conventions, sustain my indie career, and share my music with the world.
-        </motion.p>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.5 }} className="max-w-2xl text-base md:text-lg text-gray-400 mb-4">
-          This album will showcase a multicultural soundscape, introducing my first English songs and experimenting with experimental genres, pop, hip hop/R&B, synthpop, latin rhythms, and house. By blending crypto-native platforms with traditional music services, I aim to ensure my music reaches a global audience while also onboarding new users to the blockchain.
-        </motion.p>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.7 }} className="max-w-2xl text-base md:text-lg text-gray-400">
-          Every contribution counts, and I've lined up some amazing rewards to show my appreciation.
-        </motion.p>
-      </section>
-
-      {/* PROGRESS BAR & SUPPORT BUTTON */}
-      <section className="w-full flex flex-col items-center px-4 py-8">
-        <div className="w-full max-w-xl bg-gray-900/80 rounded-xl shadow-lg p-6 flex flex-col gap-4">
-          <div className="flex justify-between text-sm text-gray-400">
-            <span>Goal: ${goal.toLocaleString()} USD</span>
-            <span>Raised: ${currentAmount.toLocaleString()} USD</span>
-          </div>
-          <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-            />
-          </div>
+        {/* Project Points */}
+        {projectPoints.map((point) => (
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold text-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
+            key={point.id}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            whileHover={{ scale: 1.1 }}
+            className={`absolute ${isMobile ? 'hidden' : ''}`}
+            style={{
+              left: `${point.position.x}%`,
+              top: `${point.position.y}%`,
+              transform: 'translate(-50%, -50%)'
+            }}
+            onClick={() => setSelectedPoint(point.id)}
           >
-            Support Now
+            <div className="relative">
+              <div className="w-12 h-12 bg-gray-800/80 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-blue-500/50 shadow-lg shadow-blue-500/20">
+                {point.icon}
+              </div>
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-sm font-medium text-gray-300">
+                {point.title}
+              </div>
+            </div>
           </motion.button>
-        </div>
-      </section>
+        ))}
 
-      {/* REWARDS */}
-      <section className="px-4 py-12 max-w-4xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center flex items-center justify-center gap-2"><Gift className="w-8 h-8 text-yellow-400" /> Rewards</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="bg-gray-800/70 rounded-xl p-6 flex flex-col gap-2">
-            <h3 className="text-xl font-bold mb-2 flex items-center gap-2"><Trophy className="w-6 h-6 text-blue-400" /> Top Supporter</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>Executive Producer Credits: Your name will shine in the album credits—how cool is that?</li>
-              <li>Exclusive Merch: Be the first to rock my first line of limited-edition merch.</li>
-            </ul>
-          </div>
-          <div className="bg-gray-800/70 rounded-xl p-6 flex flex-col gap-2">
-            <h3 className="text-xl font-bold mb-2 flex items-center gap-2"><Star className="w-6 h-6 text-purple-400" /> Top 5 Supporters</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>Executive Producer Credits: You'll be recognized in one track of the album credits for your support.</li>
-              <li>Exclusive Merch: Get some of our first-line merch.</li>
-              <li>Full Album CD: Receive a physical copy of the album on CD.</li>
-            </ul>
-          </div>
-          <div className="bg-gray-800/70 rounded-xl p-6 flex flex-col gap-2">
-            <h3 className="text-xl font-bold mb-2 flex items-center gap-2"><Users className="w-6 h-6 text-pink-400" /> Top 10 Supporters</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>The Lab Crew Character: Become part of the story with your very own character!</li>
-              <li>Full Album Airdrop: Have the album delivered right to your wallet.</li>
-            </ul>
-          </div>
-          <div className="bg-gray-800/70 rounded-xl p-6 flex flex-col gap-2">
-            <h3 className="text-xl font-bold mb-2 flex items-center gap-2"><Heart className="w-6 h-6 text-green-400" /> All Contributors</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>The Lab Gang Badge: A special badge airdrop to celebrate your support.</li>
-              <li>Release Party Invitation: If we reach our goal, you'll be invited to an exclusive release party!</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* FUNDS ALLOCATION */}
-      <section className="px-4 py-12 max-w-5xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center flex items-center justify-center gap-2"><DollarSign className="w-8 h-8 text-green-400" /> Funds Allocation</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div className="bg-gray-800/70 rounded-xl p-6">
-            <h3 className="text-lg font-bold mb-2">Production Costs</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>Studio Rent: Renting a studio for recording.</li>
-              <li>Session Musician Fees: Fees for additional musicians if required.</li>
-              <li>Equipment Rental/Purchase: Renting or purchasing specialized equipment.</li>
-              <li>Music Videos: <br />
-                <ul className="ml-4 list-disc">
-                  <li>Director and Production Team</li>
-                  <li>Location Fees</li>
-                  <li>Set Design and Props</li>
-                  <li>Costume and Makeup</li>
-                  <li>Post-Production</li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-          <div className="bg-gray-800/70 rounded-xl p-6">
-            <h3 className="text-lg font-bold mb-2">Distribution and Manufacturing</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>Physical Distribution: Budget for manufacturing and distribution costs.</li>
-              <li>Licensing and Copyright: Expenses for licenses and copyright registrations.</li>
-              <li>Promotion and Distribution: Allocating funds for marketing.</li>
-            </ul>
-          </div>
-          <div className="bg-gray-800/70 rounded-xl p-6">
-            <h3 className="text-lg font-bold mb-2">Release Party</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>Event Costs: Budget for venue rental, catering, and other expenses.</li>
-            </ul>
-            <h3 className="text-lg font-bold mt-4 mb-2">Technologies</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>Hire a developer to create the mint site for the album.</li>
-            </ul>
-            <h3 className="text-lg font-bold mt-4 mb-2">Merchandise Design</h3>
-            <ul className="text-gray-300 list-disc list-inside ml-4">
-              <li>First Line of Clothing Design: Funds allocated for designing the first line of limited-edition merchandise.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* WHY SUPPORT */}
-      <section className="px-4 py-12 max-w-3xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center flex items-center justify-center gap-2"><PartyPopper className="w-8 h-8 text-pink-400" /> Why Support This Project?</h2>
-        <ol className="list-decimal text-gray-200 space-y-4 ml-6 text-lg">
-          <li><b>Empowerment of Independent Artists:</b> Your contribution helps support independent creators, allowing us to thrive outside traditional music industry constraints.</li>
-          <li><b>Join a Creative Community:</b> When you contribute, you're not just donating—you're becoming part of a community that values collaboration and creativity.</li>
-          <li><b>Exclusive Access:</b> As a supporter, you'll gain exclusive insights into the creative process, behind-the-scenes content, and the opportunity to engage with the project on a personal level.</li>
-          <li><b>Cool Rewards:</b> I've lined up some awesome rewards to show my appreciation, connecting you directly to the music and the journey.</li>
-          <li><b>Make a F*cking Party!</b> If we reach our goal, you'll be invited to an exclusive release party!</li>
-        </ol>
-      </section>
-
-      {/* FINAL CTA */}
-      <section className="w-full flex flex-col items-center px-4 py-12">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
-          className="w-full max-w-xs px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold text-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
-        >
-          Support The Lab Now
-        </motion.button>
-        <p className="mt-4 text-gray-400 text-center max-w-lg">
-          Every contribution brings us closer to making this vision a reality. Thank you for believing in independent music!
-        </p>
-      </section>
+        {/* Content Panel */}
+        <AnimatePresence>
+          {selectedPoint && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className={`fixed ${isMobile ? 'bottom-0 left-0 right-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl'} bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 p-6`}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  {projectPoints.find(p => p.id === selectedPoint)?.icon}
+                  {projectPoints.find(p => p.id === selectedPoint)?.title}
+                </h2>
+                <button
+                  onClick={() => setSelectedPoint(null)}
+                  className="p-2 hover:bg-gray-800 rounded-lg"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto">
+                {projectPoints.find(p => p.id === selectedPoint)?.content}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Fixed Progress Card */}
       <motion.div
