@@ -80,8 +80,10 @@ function Highlight({icon, text}:{icon:React.ReactNode, text:string}) {
 // Fondo de ruido animado
 function NoiseBg() {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setIsMounted(true);
     const canvas = canvasRef.current;
     if (!canvas) return;
     let w = canvas.width = window.innerWidth;
@@ -104,6 +106,7 @@ function NoiseBg() {
     }
     loop();
     function handleResize() {
+      if (!canvas) return;
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
     }
@@ -116,6 +119,9 @@ function NoiseBg() {
     };
   }, []);
 
-  // Usa valores fijos para el render inicial (no window aquí)
+  if (!isMounted) {
+    return <div style={{position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:0,opacity:0.18,background:'#111'}} />;
+  }
+
   return <canvas ref={canvasRef} width={1920} height={1080} style={{position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:0,opacity:0.18,background:'#111'}} />;
 } 
