@@ -914,7 +914,7 @@ function NoiseBg() {
       ctx = null;
     };
   }, []);
-  return <canvas ref={canvasRef} width={window.innerWidth} height={420} style={{position:'absolute',inset:0,width:'100%',height:'100%',zIndex:0,opacity:0.22,background:'#111'}} />;
+  return <canvas ref={canvasRef} width={1920} height={1080} style={{position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:0,opacity:0.18,background:'#111'}} />;
 }
 
 <style jsx global>{`
