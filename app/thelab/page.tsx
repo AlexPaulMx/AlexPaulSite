@@ -305,6 +305,25 @@ const TheLab = () => {
     };
   }, []);
 
+  // Estados para valores dependientes de window
+  const [fundInit, setFundInit] = useState({ x: 0, y: 320 });
+  const [fundBounds, setFundBounds] = useState({ minX: 0, minY: 0, maxX: 0, maxY: 0 });
+  const [topSupportersMinInit, setTopSupportersMinInit] = useState({ x: 0, y: 80 });
+  const [topSupportersMinBounds, setTopSupportersMinBounds] = useState({ minX: 0, minY: 0, maxX: 0, maxY: 200 });
+  const [musicNFTsMinInit, setMusicNFTsMinInit] = useState({ x: 0, y: 260 });
+  const [musicNFTsMinBounds, setMusicNFTsMinBounds] = useState({ minX: 0, minY: 200, maxX: 0, maxY: 400 });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setFundInit({ x: window.innerWidth - 340, y: 320 });
+      setFundBounds({ minX: 0, minY: 0, maxX: window.innerWidth - 340, maxY: window.innerHeight - 80 });
+      setTopSupportersMinInit({ x: window.innerWidth - 320, y: 80 });
+      setTopSupportersMinBounds({ minX: 0, minY: 0, maxX: window.innerWidth - 220, maxY: 200 });
+      setMusicNFTsMinInit({ x: window.innerWidth - 320, y: 260 });
+      setMusicNFTsMinBounds({ minX: 0, minY: 200, maxX: window.innerWidth - 220, maxY: 400 });
+    }
+  }, []);
+
   return (
     <div className="lobby-area" ref={lobbyRef} style={{position:'relative',zIndex:1}}>
       <HeatmapBackground />
