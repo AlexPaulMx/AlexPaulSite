@@ -38,14 +38,14 @@ export default function TheLabContent() {
   const [animWhy, setAnimWhy] = useState('');
 
   // Refs para drag de cada card/chip
-  const introDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 50, y: 50 }, dragging: false, onMouseDown: () => {} });
-  const rewardsDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 180, y: 90 }, dragging: false, onMouseDown: () => {} });
-  const fundDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 310, y: 130 }, dragging: false, onMouseDown: () => {} });
-  const topSupportersDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 440, y: 170 }, dragging: false, onMouseDown: () => {} });
-  const merchMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 570, y: 210 }, dragging: false, onMouseDown: () => {} });
-  const musicNFTsMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 700, y: 250 }, dragging: false, onMouseDown: () => {} });
-  const telegramDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 830, y: 290 }, dragging: false, onMouseDown: () => {} });
-  const whyDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 960, y: 330 }, dragging: false, onMouseDown: () => {} });
+  const introDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 20 }, dragging: false, onMouseDown: () => {} });
+  const rewardsDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 100 }, dragging: false, onMouseDown: () => {} });
+  const fundDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 180 }, dragging: false, onMouseDown: () => {} });
+  const topSupportersDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 260 }, dragging: false, onMouseDown: () => {} });
+  const merchMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 340 }, dragging: false, onMouseDown: () => {} });
+  const musicNFTsMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 420 }, dragging: false, onMouseDown: () => {} });
+  const telegramDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 500 }, dragging: false, onMouseDown: () => {} });
+  const whyDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 20, y: 580 }, dragging: false, onMouseDown: () => {} });
 
   // Estados para visibilidad
   const [showIntro, setShowIntro] = useState(true);
@@ -59,14 +59,14 @@ export default function TheLabContent() {
 
   // Posiciones originales
   const originalPositions = {
-    intro: { x: 50, y: 50 },
-    rewards: { x: 180, y: 90 },
-    fund: { x: 310, y: 130 },
-    topSupporters: { x: 440, y: 170 },
-    merch: { x: 570, y: 210 },
-    musicNFTs: { x: 700, y: 250 },
-    telegram: { x: 830, y: 290 },
-    why: { x: 960, y: 330 }
+    intro: { x: 20, y: 20 },
+    rewards: { x: 20, y: 100 },
+    fund: { x: 20, y: 180 },
+    topSupporters: { x: 20, y: 260 },
+    merch: { x: 20, y: 340 },
+    musicNFTs: { x: 20, y: 420 },
+    telegram: { x: 20, y: 500 },
+    why: { x: 20, y: 580 }
   };
 
   // Marcar que estamos en el cliente
@@ -381,93 +381,101 @@ export default function TheLabContent() {
     <div className="lobby-area" ref={lobbyRef} style={{position:'relative',zIndex:1}}>
       <style jsx global>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          from { opacity: 0; transform: scale(0.98) translateY(5px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
         @keyframes fadeOut {
           from { opacity: 1; transform: scale(1) translateY(0); }
-          to { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 0; transform: scale(0.98) translateY(5px); }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .animate-fadeOut {
-          animation: fadeOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: fadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .draggable-card {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          backdrop-filter: blur(12px);
-          background: rgba(20, 20, 20, 0.9);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          backdrop-filter: blur(8px);
+          background: rgba(15, 15, 15, 0.95);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+          width: 300px;
+          min-height: 56px;
+          max-height: 400px;
         }
         .draggable-card:hover {
-          transform: translateY(-4px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
         .draggable-header {
-          backdrop-filter: blur(16px);
-          background: rgba(0, 0, 0, 0.6);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-          padding: 12px 16px;
+          backdrop-filter: blur(12px);
+          background: rgba(0, 0, 0, 0.5);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 8px 12px;
+          height: 56px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
         .draggable-header button {
-          opacity: 0.8;
+          opacity: 0.7;
           transition: all 0.2s ease;
-          width: 28px;
-          height: 28px;
+          width: 24px;
+          height: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 6px;
-          font-size: 16px;
+          border-radius: 4px;
+          font-size: 14px;
         }
         .draggable-header button:hover {
           opacity: 1;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.1);
           transform: scale(1.1);
         }
         .draggable-content {
-          padding: 20px;
-          font-size: 15px;
-          line-height: 1.6;
+          padding: 16px;
+          font-size: 14px;
+          line-height: 1.5;
+          overflow-y: auto;
+          max-height: 344px;
         }
         .reset-button {
           position: fixed;
-          bottom: 24px;
-          right: 24px;
-          background: rgba(0, 0, 0, 0.9);
+          bottom: 20px;
+          right: 20px;
+          background: rgba(0, 0, 0, 0.8);
           color: white;
           border: 1px solid rgba(255, 255, 255, 0.2);
-          padding: 14px 28px;
-          border-radius: 12px;
+          padding: 10px 20px;
+          border-radius: 8px;
           cursor: pointer;
           font-family: monospace;
-          font-size: 15px;
-          transition: all 0.3s ease;
+          font-size: 13px;
+          transition: all 0.2s ease;
           z-index: 1000;
-          backdrop-filter: blur(12px);
-          letter-spacing: 1px;
+          backdrop-filter: blur(8px);
         }
         .reset-button:hover {
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.1);
           transform: translateY(-2px);
-          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
       `}</style>
       <HeatmapBackground />
       <div className="lobby-header">
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ display: 'flex', alignItems: 'center' }}>
-              <svg width="52" height="52" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="48" height="48" fill="none" />
                 <path d="M16 8h16v4c0 1.1-.9 2-2 2h-1v15.1c0 .53.21 1.04.59 1.41l6.3 6.3A4.978 4.978 0 0 1 40 40v2a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2c0-1.32.53-2.59 1.47-3.53l6.3-6.3c.38-.37.59-.88.59-1.41V14h-1a2 2 0 0 1-2-2V8Zm2 0v4h12V8H18Zm2 6v15.1c0 1.32-.53 2.59-1.47 3.53l-6.3 6.3A2.978 2.978 0 0 0 8 40v2h32v-2c0-.8-.32-1.56-.88-2.12l-6.3-6.3A4.978 4.978 0 0 1 30 29.1V14H18Z" fill="#fff"/>
               </svg>
             </span>
-            <h1 className="lobby-title" style={{ margin: 0, fontSize: '2.8rem', fontWeight: 800, letterSpacing: '0.15em', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>THE LAB</h1>
+            <h1 className="lobby-title" style={{ margin: 0, fontSize: '2rem', fontWeight: 700, letterSpacing: '0.1em' }}>THE LAB</h1>
           </div>
-          <p className="lobby-subtitle" style={{ fontSize: '1.2rem', letterSpacing: '0.25em', opacity: 0.9, fontWeight: 500 }}>BY ALEX PAUL</p>
+          <p className="lobby-subtitle" style={{ fontSize: '1rem', letterSpacing: '0.2em', opacity: 0.8 }}>BY ALEX PAUL</p>
         </div>
       </div>
       <div className="lobby-content" ref={lobbyRef}>
