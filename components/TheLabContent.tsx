@@ -127,6 +127,110 @@ export default function TheLabContent() {
     }
   };
 
+  // Guardar y restaurar estado de las cards (posición, minimizado, visibilidad)
+  useEffect(() => {
+    // Solo ejecutar en el cliente
+    if (typeof window === 'undefined') return;
+
+    try {
+      // Restaurar estado al montar
+      const saved = localStorage.getItem('theLabCards');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Restaurar posiciones
+        if (parsed.positions) {
+          if (introDrag.current && parsed.positions.intro) introDrag.current.pos = { ...parsed.positions.intro };
+          if (rewardsDrag.current && parsed.positions.rewards) rewardsDrag.current.pos = { ...parsed.positions.rewards };
+          if (fundDrag.current && parsed.positions.fund) fundDrag.current.pos = { ...parsed.positions.fund };
+          if (topSupportersDrag.current && parsed.positions.topSupporters) topSupportersDrag.current.pos = { ...parsed.positions.topSupporters };
+          if (merchMinDrag.current && parsed.positions.merch) merchMinDrag.current.pos = { ...parsed.positions.merch };
+          if (musicNFTsMinDrag.current && parsed.positions.musicNFTs) musicNFTsMinDrag.current.pos = { ...parsed.positions.musicNFTs };
+          if (telegramDrag.current && parsed.positions.telegram) telegramDrag.current.pos = { ...parsed.positions.telegram };
+          if (whyDrag.current && parsed.positions.why) whyDrag.current.pos = { ...parsed.positions.why };
+        }
+        // Restaurar minimizados
+        if (parsed.min) {
+          setMinIntro(!!parsed.min.intro);
+          setMinRewards(!!parsed.min.rewards);
+          setMinFund(!!parsed.min.fund);
+          setMinTopSupporters(!!parsed.min.topSupporters);
+          setMinMerch(!!parsed.min.merch);
+          setMinMusicNFTs(!!parsed.min.musicNFTs);
+          setMinTelegram(!!parsed.min.telegram);
+          setMinWhy(!!parsed.min.why);
+        }
+        // Restaurar visibilidad
+        if (parsed.show) {
+          setShowIntro(parsed.show.intro !== false);
+          setShowRewards(parsed.show.rewards !== false);
+          setShowFund(parsed.show.fund !== false);
+          setShowTopSupporters(parsed.show.topSupporters !== false);
+          setShowMerch(parsed.show.merch !== false);
+          setShowMusicNFTs(parsed.show.musicNFTs !== false);
+          setShowTelegram(parsed.show.telegram !== false);
+          setShowWhy(parsed.show.why !== false);
+        }
+      }
+      // Actualizar posiciones visualmente
+      setTimeout(() => {
+        if (introDrag.current.ref.current) introDrag.current.ref.current.style.transform = `translate(${introDrag.current.pos.x}px, ${introDrag.current.pos.y}px)`;
+        if (rewardsDrag.current.ref.current) rewardsDrag.current.ref.current.style.transform = `translate(${rewardsDrag.current.pos.x}px, ${rewardsDrag.current.pos.y}px)`;
+        if (fundDrag.current.ref.current) fundDrag.current.ref.current.style.transform = `translate(${fundDrag.current.pos.x}px, ${fundDrag.current.pos.y}px)`;
+        if (topSupportersDrag.current.ref.current) topSupportersDrag.current.ref.current.style.transform = `translate(${topSupportersDrag.current.pos.x}px, ${topSupportersDrag.current.pos.y}px)`;
+        if (merchMinDrag.current.ref.current) merchMinDrag.current.ref.current.style.transform = `translate(${merchMinDrag.current.pos.x}px, ${merchMinDrag.current.pos.y}px)`;
+        if (musicNFTsMinDrag.current.ref.current) musicNFTsMinDrag.current.ref.current.style.transform = `translate(${musicNFTsMinDrag.current.pos.x}px, ${musicNFTsMinDrag.current.pos.y}px)`;
+        if (telegramDrag.current.ref.current) telegramDrag.current.ref.current.style.transform = `translate(${telegramDrag.current.pos.x}px, ${telegramDrag.current.pos.y}px)`;
+        if (whyDrag.current.ref.current) whyDrag.current.ref.current.style.transform = `translate(${whyDrag.current.pos.x}px, ${whyDrag.current.pos.y}px)`;
+      }, 100);
+    } catch (error) {
+      console.error('Error restoring card state:', error);
+    }
+  }, []);
+
+  // Guardar estado cada vez que cambie algo relevante
+  useEffect(() => {
+    // Solo ejecutar en el cliente
+    if (typeof window === 'undefined') return;
+
+    try {
+      const state = {
+        positions: {
+          intro: introDrag.current.pos,
+          rewards: rewardsDrag.current.pos,
+          fund: fundDrag.current.pos,
+          topSupporters: topSupportersDrag.current.pos,
+          merch: merchMinDrag.current.pos,
+          musicNFTs: musicNFTsMinDrag.current.pos,
+          telegram: telegramDrag.current.pos,
+          why: whyDrag.current.pos
+        },
+        min: {
+          intro: minIntro,
+          rewards: minRewards,
+          fund: minFund,
+          topSupporters: minTopSupporters,
+          merch: minMerch,
+          musicNFTs: minMusicNFTs,
+          telegram: minTelegram,
+          why: minWhy
+        },
+        show: {
+          intro: showIntro,
+          rewards: showRewards,
+          fund: showFund,
+          topSupporters: showTopSupporters,
+          merch: showMerch,
+          musicNFTs: showMusicNFTs,
+          telegram: showTelegram,
+          why: showWhy
+        }
+      };
+      localStorage.setItem('theLabCards', JSON.stringify(state));
+    } catch (error) {
+      console.error('Error saving card state:', error);
+    }
+  }, [minIntro, minRewards, minFund, minTopSupporters, minMerch, minMusicNFTs, minTelegram, minWhy, showIntro, showRewards, showFund, showTopSupporters, showMerch, showMusicNFTs, showTelegram, showWhy]);
+
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -141,25 +245,31 @@ export default function TheLabContent() {
 
       const handleMouseMove = (e: MouseEvent) => {
         if (!dragRef.current.dragging) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        dragRef.current.pos.x = dragRef.current.pos.x + dx;
-        dragRef.current.pos.y = dragRef.current.pos.y + dy;
-        if (dragRef.current.ref.current) {
-          dragRef.current.ref.current.style.transform = `translate(${dragRef.current.pos.x}px, ${dragRef.current.pos.y}px)`;
+        try {
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          dragRef.current.pos.x = dragRef.current.pos.x + dx;
+          dragRef.current.pos.y = dragRef.current.pos.y + dy;
+          if (dragRef.current.ref.current) {
+            dragRef.current.ref.current.style.transform = `translate(${dragRef.current.pos.x}px, ${dragRef.current.pos.y}px)`;
+          }
+          // Guardar posición en tiempo real durante el drag
+          if (typeof window !== 'undefined') {
+            const state = JSON.parse(localStorage.getItem('theLabCards') || '{}');
+            if (!state.positions) state.positions = {};
+            if (dragRef.current === introDrag.current) state.positions.intro = { ...dragRef.current.pos };
+            else if (dragRef.current === rewardsDrag.current) state.positions.rewards = { ...dragRef.current.pos };
+            else if (dragRef.current === fundDrag.current) state.positions.fund = { ...dragRef.current.pos };
+            else if (dragRef.current === topSupportersDrag.current) state.positions.topSupporters = { ...dragRef.current.pos };
+            else if (dragRef.current === merchMinDrag.current) state.positions.merch = { ...dragRef.current.pos };
+            else if (dragRef.current === musicNFTsMinDrag.current) state.positions.musicNFTs = { ...dragRef.current.pos };
+            else if (dragRef.current === telegramDrag.current) state.positions.telegram = { ...dragRef.current.pos };
+            else if (dragRef.current === whyDrag.current) state.positions.why = { ...dragRef.current.pos };
+            localStorage.setItem('theLabCards', JSON.stringify(state));
+          }
+        } catch (error) {
+          console.error('Error during drag:', error);
         }
-        // Guardar posición en tiempo real durante el drag
-        const state = JSON.parse(localStorage.getItem('theLabCards') || '{}');
-        if (!state.positions) state.positions = {};
-        if (dragRef.current === introDrag.current) state.positions.intro = { ...dragRef.current.pos };
-        else if (dragRef.current === rewardsDrag.current) state.positions.rewards = { ...dragRef.current.pos };
-        else if (dragRef.current === fundDrag.current) state.positions.fund = { ...dragRef.current.pos };
-        else if (dragRef.current === topSupportersDrag.current) state.positions.topSupporters = { ...dragRef.current.pos };
-        else if (dragRef.current === merchMinDrag.current) state.positions.merch = { ...dragRef.current.pos };
-        else if (dragRef.current === musicNFTsMinDrag.current) state.positions.musicNFTs = { ...dragRef.current.pos };
-        else if (dragRef.current === telegramDrag.current) state.positions.telegram = { ...dragRef.current.pos };
-        else if (dragRef.current === whyDrag.current) state.positions.why = { ...dragRef.current.pos };
-        localStorage.setItem('theLabCards', JSON.stringify(state));
       };
 
       const handleMouseUp = () => {
