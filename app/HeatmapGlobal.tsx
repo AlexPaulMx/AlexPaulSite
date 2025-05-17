@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import React from "react";
-const TheLabHeatmapBackground = dynamic(() => import("./thelab/page").then(mod => mod.HeatmapBackground), { ssr: false });
+const TheLabHeatmapBackground = dynamic(() => import("../components/HeatmapBackground"), { ssr: false });
 
 export default function HeatmapGlobal() {
   // Debug: muestra si el componente se monta

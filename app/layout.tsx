@@ -6,7 +6,7 @@ import { Home, User, FlaskConical } from 'lucide-react'
 import LogoCursor from "../components/LogoCursor"
 import { FloatingPlayer } from "./components/FloatingPlayer"
 import { Providers } from "./providers"
-// import HeatmapGlobal from "./HeatmapGlobal"
+import HeatmapGlobal from "./HeatmapGlobal"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Sidebar links solo iconos
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <PlayerProvider>
           <Providers>
-            {/* <HeatmapGlobal /> */}
+            <HeatmapGlobal />
             <LogoCursor />
             {/* Sidebar minimalista */}
             <aside style={{
