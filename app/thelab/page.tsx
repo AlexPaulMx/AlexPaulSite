@@ -1,10 +1,16 @@
 "use client";
-export const dynamic = "force-dynamic";
 import dynamic from "next/dynamic";
 import React from 'react';
 
-const TheLabContent = dynamic(() => import("../../components/TheLabContent"), { ssr: false });
+const TheLabContent = dynamic(() => import("../../components/TheLabContent"), { 
+  ssr: false,
+  loading: () => <div>Loading...</div>
+});
 
 export default function TheLab() {
-  return <TheLabContent />;
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <TheLabContent />
+    </React.Suspense>
+  );
 } 
