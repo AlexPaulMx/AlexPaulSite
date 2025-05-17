@@ -38,14 +38,14 @@ export default function TheLabContent() {
   const [animWhy, setAnimWhy] = useState('');
 
   // Refs para drag de cada card/chip
-  const introDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 100, y: 80 }, dragging: false, onMouseDown: () => {} });
-  const rewardsDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 220, y: 120 }, dragging: false, onMouseDown: () => {} });
-  const fundDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 340, y: 160 }, dragging: false, onMouseDown: () => {} });
-  const topSupportersDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 460, y: 200 }, dragging: false, onMouseDown: () => {} });
-  const merchMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 580, y: 240 }, dragging: false, onMouseDown: () => {} });
-  const musicNFTsMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 700, y: 280 }, dragging: false, onMouseDown: () => {} });
-  const telegramDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 820, y: 320 }, dragging: false, onMouseDown: () => {} });
-  const whyDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 940, y: 360 }, dragging: false, onMouseDown: () => {} });
+  const introDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 50, y: 50 }, dragging: false, onMouseDown: () => {} });
+  const rewardsDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 180, y: 90 }, dragging: false, onMouseDown: () => {} });
+  const fundDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 310, y: 130 }, dragging: false, onMouseDown: () => {} });
+  const topSupportersDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 440, y: 170 }, dragging: false, onMouseDown: () => {} });
+  const merchMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 570, y: 210 }, dragging: false, onMouseDown: () => {} });
+  const musicNFTsMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 700, y: 250 }, dragging: false, onMouseDown: () => {} });
+  const telegramDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 830, y: 290 }, dragging: false, onMouseDown: () => {} });
+  const whyDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 960, y: 330 }, dragging: false, onMouseDown: () => {} });
 
   // Estados para visibilidad
   const [showIntro, setShowIntro] = useState(true);
@@ -59,14 +59,14 @@ export default function TheLabContent() {
 
   // Posiciones originales
   const originalPositions = {
-    intro: { x: 100, y: 80 },
-    rewards: { x: 220, y: 120 },
-    fund: { x: 340, y: 160 },
-    topSupporters: { x: 460, y: 200 },
-    merch: { x: 580, y: 240 },
-    musicNFTs: { x: 700, y: 280 },
-    telegram: { x: 820, y: 320 },
-    why: { x: 940, y: 360 }
+    intro: { x: 50, y: 50 },
+    rewards: { x: 180, y: 90 },
+    fund: { x: 310, y: 130 },
+    topSupporters: { x: 440, y: 170 },
+    merch: { x: 570, y: 210 },
+    musicNFTs: { x: 700, y: 250 },
+    telegram: { x: 830, y: 290 },
+    why: { x: 960, y: 330 }
   };
 
   // Marcar que estamos en el cliente
@@ -381,81 +381,105 @@ export default function TheLabContent() {
     <div className="lobby-area" ref={lobbyRef} style={{position:'relative',zIndex:1}}>
       <style jsx global>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
         }
         @keyframes fadeOut {
-          from { opacity: 1; transform: scale(1); }
-          to { opacity: 0; transform: scale(0.95); }
+          from { opacity: 1; transform: scale(1) translateY(0); }
+          to { opacity: 0; transform: scale(0.95) translateY(10px); }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease forwards;
+          animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .animate-fadeOut {
-          animation: fadeOut 0.3s ease forwards;
+          animation: fadeOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .draggable-card {
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          backdrop-filter: blur(12px);
+          background: rgba(20, 20, 20, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
         .draggable-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .draggable-header {
+          backdrop-filter: blur(16px);
+          background: rgba(0, 0, 0, 0.6);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+          padding: 12px 16px;
         }
         .draggable-header button {
-          opacity: 0.7;
+          opacity: 0.8;
           transition: all 0.2s ease;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 6px;
+          font-size: 16px;
         }
         .draggable-header button:hover {
           opacity: 1;
+          background: rgba(255, 255, 255, 0.15);
           transform: scale(1.1);
+        }
+        .draggable-content {
+          padding: 20px;
+          font-size: 15px;
+          line-height: 1.6;
         }
         .reset-button {
           position: fixed;
-          bottom: 20px;
-          right: 20px;
-          background: rgba(0, 0, 0, 0.8);
+          bottom: 24px;
+          right: 24px;
+          background: rgba(0, 0, 0, 0.9);
           color: white;
-          border: 2px solid #3b82f6;
-          padding: 10px 20px;
-          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 14px 28px;
+          border-radius: 12px;
           cursor: pointer;
           font-family: monospace;
-          font-size: 14px;
+          font-size: 15px;
           transition: all 0.3s ease;
           z-index: 1000;
+          backdrop-filter: blur(12px);
+          letter-spacing: 1px;
         }
         .reset-button:hover {
-          background: #3b82f6;
+          background: rgba(255, 255, 255, 0.15);
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
         }
       `}</style>
       <HeatmapBackground />
       <div className="lobby-header">
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <span style={{ display: 'flex', alignItems: 'center' }}>
-              {/* Logo matraz minimalista blanco */}
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="52" height="52" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="48" height="48" fill="none" />
                 <path d="M16 8h16v4c0 1.1-.9 2-2 2h-1v15.1c0 .53.21 1.04.59 1.41l6.3 6.3A4.978 4.978 0 0 1 40 40v2a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2c0-1.32.53-2.59 1.47-3.53l6.3-6.3c.38-.37.59-.88.59-1.41V14h-1a2 2 0 0 1-2-2V8Zm2 0v4h12V8H18Zm2 6v15.1c0 1.32-.53 2.59-1.47 3.53l-6.3 6.3A2.978 2.978 0 0 0 8 40v2h32v-2c0-.8-.32-1.56-.88-2.12l-6.3-6.3A4.978 4.978 0 0 1 30 29.1V14H18Z" fill="#fff"/>
               </svg>
             </span>
-            <h1 className="lobby-title" style={{ margin: 0 }}>THE LAB</h1>
+            <h1 className="lobby-title" style={{ margin: 0, fontSize: '2.8rem', fontWeight: 800, letterSpacing: '0.15em', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>THE LAB</h1>
           </div>
-          <p className="lobby-subtitle">BY ALEX PAUL</p>
+          <p className="lobby-subtitle" style={{ fontSize: '1.2rem', letterSpacing: '0.25em', opacity: 0.9, fontWeight: 500 }}>BY ALEX PAUL</p>
         </div>
       </div>
       <div className="lobby-content" ref={lobbyRef}>
         {/* Welcome Message */}
         <div className="text-center mb-8">
-          <p className="text-lg text-neutral-400">Click on the stations to explore the album.</p>
+          <p className="text-lg text-neutral-400" style={{ fontSize: '1.2rem', letterSpacing: '0.05em' }}>Click on the stations to explore the album.</p>
         </div>
 
         {/* Fixed Crowdfunding Progress Section - Old Computer Style */}
         <div className="max-w-2xl mx-auto mb-12 relative">
           {/* Monitor Frame */}
-          <div className="bg-[#1a1a1a] border-4 border-[#333] rounded-lg p-6 relative overflow-hidden">
+          <div className="bg-[#1a1a1a] border-4 border-[#333] rounded-lg p-6 relative overflow-hidden" style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
             {/* CRT Screen Effect */}
             <div className="absolute inset-0 bg-gradient-to-b from-[#33ff33]/5 to-transparent pointer-events-none"></div>
             <div className="absolute inset-0 bg-[#33ff33]/[0.03] pointer-events-none" style={{
@@ -472,7 +496,7 @@ export default function TheLabContent() {
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm">PROGRESS:</span>
-                  <span className="text-sm">{(0).toFixed(1)}%</span> {/* Sustituye 0 por el valor real de progreso si tienes lógica */}
+                  <span className="text-sm">{(0).toFixed(1)}%</span>
                 </div>
                 {/* ASCII Progress Bar */}
                 <div className="bg-black border border-[#33ff33] p-2 mb-2">
