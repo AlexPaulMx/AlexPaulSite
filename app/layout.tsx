@@ -1,10 +1,13 @@
 import type React from "react"
+import { PlayerProvider } from "./context/PlayerContext"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        {children}
+        <PlayerProvider>
+          {children}
+        </PlayerProvider>
       </body>
     </html>
   )
