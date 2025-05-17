@@ -1,10 +1,10 @@
 'use client';
-export const dynamicParam = "force-dynamic";
+export const dynamic = "force-dynamic";
 import React from 'react';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 
 // Importa NoiseBg dinámicamente, ahora sí funciona porque está en otro archivo
-const NoiseBg = dynamic(() => import('../../components/NoiseBg'), { ssr: false });
+const NoiseBg = dynamicImport(() => import('../../components/NoiseBg'), { ssr: false });
 
 export default function AboutPage() {
   return (
