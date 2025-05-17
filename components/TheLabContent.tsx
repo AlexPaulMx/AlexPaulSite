@@ -18,14 +18,14 @@ export default function TheLabContent() {
   const [isClient, setIsClient] = useState(false);
 
   // Estados para drag y minimizado de chips/cards
-  const [minIntro, setMinIntro] = useState(false);
-  const [minRewards, setMinRewards] = useState(false);
-  const [minFund, setMinFund] = useState(false);
-  const [minTopSupporters, setMinTopSupporters] = useState(false);
-  const [minMerch, setMinMerch] = useState(false);
-  const [minMusicNFTs, setMinMusicNFTs] = useState(false);
-  const [minTelegram, setMinTelegram] = useState(false);
-  const [minWhy, setMinWhy] = useState(false);
+  const [minIntro, setMinIntro] = useState(true);
+  const [minRewards, setMinRewards] = useState(true);
+  const [minFund, setMinFund] = useState(true);
+  const [minTopSupporters, setMinTopSupporters] = useState(true);
+  const [minMerch, setMinMerch] = useState(true);
+  const [minMusicNFTs, setMinMusicNFTs] = useState(true);
+  const [minTelegram, setMinTelegram] = useState(true);
+  const [minWhy, setMinWhy] = useState(true);
 
   // Estados para animaciones
   const [animIntro, setAnimIntro] = useState('');
@@ -111,14 +111,14 @@ export default function TheLabContent() {
     setShowWhy(true);
 
     // Restaurar estado minimizado
-    setMinIntro(false);
-    setMinRewards(false);
-    setMinFund(false);
-    setMinTopSupporters(false);
-    setMinMerch(false);
-    setMinMusicNFTs(false);
-    setMinTelegram(false);
-    setMinWhy(false);
+    setMinIntro(true);
+    setMinRewards(true);
+    setMinFund(true);
+    setMinTopSupporters(true);
+    setMinMerch(true);
+    setMinMusicNFTs(true);
+    setMinTelegram(true);
+    setMinWhy(true);
 
     // Actualizar posiciones visualmente
     if (introDrag.current.ref.current) {
@@ -489,7 +489,7 @@ export default function TheLabContent() {
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-black border border-[#33ff33] p-3">
                   <div className="text-sm mb-1">TARGET AMOUNT</div>
-                  <div className="text-xl font-bold">8000 USDC</div>
+                  <div className="text-xl font-bold">10000 USDC</div>
                 </div>
                 <div className="bg-black border border-[#33ff33] p-3">
                   <div className="text-sm mb-1">CURRENT AMOUNT</div>
