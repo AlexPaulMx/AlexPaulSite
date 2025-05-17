@@ -1,6 +1,6 @@
 "use client";
 import TheLabContent from "../../components/TheLabContent";
 
-export default function TheLabPage() {
+export default function TheLab() {
   return <TheLabContent />;
 } 
