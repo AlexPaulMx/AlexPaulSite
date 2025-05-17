@@ -4,9 +4,19 @@ import HeatmapBackground from "./HeatmapBackground";
 import { User, Users, Trophy, Award, DollarSign, Disc3, Video, Package, MessageCircle, HelpCircle, Settings } from 'lucide-react';
 import { collectibles } from '../app/page';
 
+// Definir el tipo para las referencias de arrastre
+interface DragRef {
+  ref: React.RefObject<HTMLDivElement | null>;
+  pos: { x: number; y: number };
+  dragging: boolean;
+  onMouseDown: (e: MouseEvent) => void;
+}
+
 export default function TheLabContent() {
   const lobbyRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
   // Estados para drag y minimizado de chips/cards
   const [minIntro, setMinIntro] = useState(false);
   const [minRewards, setMinRewards] = useState(false);
@@ -16,6 +26,7 @@ export default function TheLabContent() {
   const [minMusicNFTs, setMinMusicNFTs] = useState(false);
   const [minTelegram, setMinTelegram] = useState(false);
   const [minWhy, setMinWhy] = useState(false);
+
   // Estados para animaciones
   const [animIntro, setAnimIntro] = useState('');
   const [animRewards, setAnimRewards] = useState('');
@@ -25,27 +36,16 @@ export default function TheLabContent() {
   const [animMusicNFTs, setAnimMusicNFTs] = useState('');
   const [animTelegram, setAnimTelegram] = useState('');
   const [animWhy, setAnimWhy] = useState('');
-  // Refs para drag de cada card/chip
-  const introDrag = useRef<any>({ ref: useRef(null), pos: { x: 100, y: 80 }, dragging: false, onMouseDown: () => {} });
-  const rewardsDrag = useRef<any>({ ref: useRef(null), pos: { x: 220, y: 120 }, dragging: false, onMouseDown: () => {} });
-  const fundDrag = useRef<any>({ ref: useRef(null), pos: { x: 340, y: 160 }, dragging: false, onMouseDown: () => {} });
-  const topSupportersDrag = useRef<any>({ ref: useRef(null), pos: { x: 460, y: 200 }, dragging: false, onMouseDown: () => {} });
-  const merchMinDrag = useRef<any>({ ref: useRef(null), pos: { x: 580, y: 240 }, dragging: false, onMouseDown: () => {} });
-  const musicNFTsMinDrag = useRef<any>({ ref: useRef(null), pos: { x: 700, y: 280 }, dragging: false, onMouseDown: () => {} });
-  const telegramDrag = useRef<any>({ ref: useRef(null), pos: { x: 820, y: 320 }, dragging: false, onMouseDown: () => {} });
-  const whyDrag = useRef<any>({ ref: useRef(null), pos: { x: 940, y: 360 }, dragging: false, onMouseDown: () => {} });
-  // Handlers para minimizar/maximizar
-  const handleMinimize = (setMin: React.Dispatch<React.SetStateAction<boolean>>, setAnim: React.Dispatch<React.SetStateAction<string>>) => {
-    setMin(true);
-    setAnim('animate-fadeOut');
-    setTimeout(() => setAnim(''), 300);
-  };
 
-  const handleMaximize = (setMin: React.Dispatch<React.SetStateAction<boolean>>, setAnim: React.Dispatch<React.SetStateAction<string>>) => {
-    setAnim('animate-fadeIn');
-    setMin(false);
-    setTimeout(() => setAnim(''), 300);
-  };
+  // Refs para drag de cada card/chip
+  const introDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 100, y: 80 }, dragging: false, onMouseDown: () => {} });
+  const rewardsDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 220, y: 120 }, dragging: false, onMouseDown: () => {} });
+  const fundDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 340, y: 160 }, dragging: false, onMouseDown: () => {} });
+  const topSupportersDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 460, y: 200 }, dragging: false, onMouseDown: () => {} });
+  const merchMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 580, y: 240 }, dragging: false, onMouseDown: () => {} });
+  const musicNFTsMinDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 700, y: 280 }, dragging: false, onMouseDown: () => {} });
+  const telegramDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 820, y: 320 }, dragging: false, onMouseDown: () => {} });
+  const whyDrag = useRef<DragRef>({ ref: React.createRef<HTMLDivElement | null>(), pos: { x: 940, y: 360 }, dragging: false, onMouseDown: () => {} });
 
   // Estados para visibilidad
   const [showIntro, setShowIntro] = useState(true);
@@ -69,8 +69,28 @@ export default function TheLabContent() {
     why: { x: 940, y: 360 }
   };
 
+  // Marcar que estamos en el cliente
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Handlers para minimizar/maximizar
+  const handleMinimize = (setMin: React.Dispatch<React.SetStateAction<boolean>>, setAnim: React.Dispatch<React.SetStateAction<string>>) => {
+    setMin(true);
+    setAnim('animate-fadeOut');
+    setTimeout(() => setAnim(''), 300);
+  };
+
+  const handleMaximize = (setMin: React.Dispatch<React.SetStateAction<boolean>>, setAnim: React.Dispatch<React.SetStateAction<string>>) => {
+    setAnim('animate-fadeIn');
+    setMin(false);
+    setTimeout(() => setAnim(''), 300);
+  };
+
   // Función para restaurar todas las cards a su posición original
   const resetAllCards = () => {
+    if (!isClient) return;
+
     introDrag.current.pos = { ...originalPositions.intro };
     rewardsDrag.current.pos = { ...originalPositions.rewards };
     fundDrag.current.pos = { ...originalPositions.fund };
@@ -127,10 +147,9 @@ export default function TheLabContent() {
     }
   };
 
-  // Guardar y restaurar estado de las cards (posición, minimizado, visibilidad)
+  // Guardar y restaurar estado de las cards
   useEffect(() => {
-    // Solo ejecutar en el cliente
-    if (typeof window === 'undefined') return;
+    if (!isClient) return;
 
     try {
       // Restaurar estado al montar
@@ -185,12 +204,11 @@ export default function TheLabContent() {
     } catch (error) {
       console.error('Error restoring card state:', error);
     }
-  }, []);
+  }, [isClient]);
 
   // Guardar estado cada vez que cambie algo relevante
   useEffect(() => {
-    // Solo ejecutar en el cliente
-    if (typeof window === 'undefined') return;
+    if (!isClient) return;
 
     try {
       const state = {
@@ -229,22 +247,25 @@ export default function TheLabContent() {
     } catch (error) {
       console.error('Error saving card state:', error);
     }
-  }, [minIntro, minRewards, minFund, minTopSupporters, minMerch, minMusicNFTs, minTelegram, minWhy, showIntro, showRewards, showFund, showTopSupporters, showMerch, showMusicNFTs, showTelegram, showWhy]);
+  }, [isClient, minIntro, minRewards, minFund, minTopSupporters, minMerch, minMusicNFTs, minTelegram, minWhy, showIntro, showRewards, showFund, showTopSupporters, showMerch, showMusicNFTs, showTelegram, showWhy]);
 
+  // Configuración de eventos de arrastre y redimensionamiento
   useEffect(() => {
+    if (!isClient) return;
+
     setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
 
     // Función para manejar el inicio del drag
-    const handleMouseDown = (e: MouseEvent, dragRef: any) => {
+    const handleMouseDown = (e: MouseEvent, dragRef: React.RefObject<DragRef>) => {
       if (!dragRef.current) return;
       dragRef.current.dragging = true;
       const startX = e.clientX - dragRef.current.pos.x;
       const startY = e.clientY - dragRef.current.pos.y;
 
       const handleMouseMove = (e: MouseEvent) => {
-        if (!dragRef.current.dragging) return;
+        if (!dragRef.current?.dragging) return;
         try {
           const dx = e.clientX - startX;
           const dy = e.clientY - startY;
@@ -254,25 +275,24 @@ export default function TheLabContent() {
             dragRef.current.ref.current.style.transform = `translate(${dragRef.current.pos.x}px, ${dragRef.current.pos.y}px)`;
           }
           // Guardar posición en tiempo real durante el drag
-          if (typeof window !== 'undefined') {
-            const state = JSON.parse(localStorage.getItem('theLabCards') || '{}');
-            if (!state.positions) state.positions = {};
-            if (dragRef.current === introDrag.current) state.positions.intro = { ...dragRef.current.pos };
-            else if (dragRef.current === rewardsDrag.current) state.positions.rewards = { ...dragRef.current.pos };
-            else if (dragRef.current === fundDrag.current) state.positions.fund = { ...dragRef.current.pos };
-            else if (dragRef.current === topSupportersDrag.current) state.positions.topSupporters = { ...dragRef.current.pos };
-            else if (dragRef.current === merchMinDrag.current) state.positions.merch = { ...dragRef.current.pos };
-            else if (dragRef.current === musicNFTsMinDrag.current) state.positions.musicNFTs = { ...dragRef.current.pos };
-            else if (dragRef.current === telegramDrag.current) state.positions.telegram = { ...dragRef.current.pos };
-            else if (dragRef.current === whyDrag.current) state.positions.why = { ...dragRef.current.pos };
-            localStorage.setItem('theLabCards', JSON.stringify(state));
-          }
+          const state = JSON.parse(localStorage.getItem('theLabCards') || '{}');
+          if (!state.positions) state.positions = {};
+          if (dragRef.current === introDrag.current) state.positions.intro = { ...dragRef.current.pos };
+          else if (dragRef.current === rewardsDrag.current) state.positions.rewards = { ...dragRef.current.pos };
+          else if (dragRef.current === fundDrag.current) state.positions.fund = { ...dragRef.current.pos };
+          else if (dragRef.current === topSupportersDrag.current) state.positions.topSupporters = { ...dragRef.current.pos };
+          else if (dragRef.current === merchMinDrag.current) state.positions.merch = { ...dragRef.current.pos };
+          else if (dragRef.current === musicNFTsMinDrag.current) state.positions.musicNFTs = { ...dragRef.current.pos };
+          else if (dragRef.current === telegramDrag.current) state.positions.telegram = { ...dragRef.current.pos };
+          else if (dragRef.current === whyDrag.current) state.positions.why = { ...dragRef.current.pos };
+          localStorage.setItem('theLabCards', JSON.stringify(state));
         } catch (error) {
           console.error('Error during drag:', error);
         }
       };
 
       const handleMouseUp = () => {
+        if (!dragRef.current) return;
         dragRef.current.dragging = false;
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
@@ -284,49 +304,34 @@ export default function TheLabContent() {
 
     // Configurar los event listeners para cada card
     const setupDragListeners = () => {
-      // Intro card
       if (introDrag.current.ref.current) {
         introDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, introDrag);
         introDrag.current.ref.current.addEventListener('mousedown', introDrag.current.onMouseDown);
       }
-
-      // Rewards card
       if (rewardsDrag.current.ref.current) {
         rewardsDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, rewardsDrag);
         rewardsDrag.current.ref.current.addEventListener('mousedown', rewardsDrag.current.onMouseDown);
       }
-
-      // Fund card
       if (fundDrag.current.ref.current) {
         fundDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, fundDrag);
         fundDrag.current.ref.current.addEventListener('mousedown', fundDrag.current.onMouseDown);
       }
-
-      // Top Supporters card
       if (topSupportersDrag.current.ref.current) {
         topSupportersDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, topSupportersDrag);
         topSupportersDrag.current.ref.current.addEventListener('mousedown', topSupportersDrag.current.onMouseDown);
       }
-
-      // Merch card
       if (merchMinDrag.current.ref.current) {
         merchMinDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, merchMinDrag);
         merchMinDrag.current.ref.current.addEventListener('mousedown', merchMinDrag.current.onMouseDown);
       }
-
-      // Music NFTs card
       if (musicNFTsMinDrag.current.ref.current) {
         musicNFTsMinDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, musicNFTsMinDrag);
         musicNFTsMinDrag.current.ref.current.addEventListener('mousedown', musicNFTsMinDrag.current.onMouseDown);
       }
-
-      // Telegram card
       if (telegramDrag.current.ref.current) {
         telegramDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, telegramDrag);
         telegramDrag.current.ref.current.addEventListener('mousedown', telegramDrag.current.onMouseDown);
       }
-
-      // Why card
       if (whyDrag.current.ref.current) {
         whyDrag.current.onMouseDown = (e: MouseEvent) => handleMouseDown(e, whyDrag);
         whyDrag.current.ref.current.addEventListener('mousedown', whyDrag.current.onMouseDown);
@@ -369,9 +374,9 @@ export default function TheLabContent() {
       window.removeEventListener('resize', handleResize);
       cleanupDragListeners();
     };
-  }, []);
+  }, [isClient]);
 
-  // ...aquí irán los siguientes bloques de lógica y JSX...
+  // ... resto del código del componente (JSX) sin cambios ...
   return (
     <div className="lobby-area" ref={lobbyRef} style={{position:'relative',zIndex:1}}>
       <style jsx global>{`
