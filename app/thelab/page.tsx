@@ -28,6 +28,7 @@ import {
   ShoppingBag,
   Disc
 } from "lucide-react";
+import Image from "next/image";
 
 type ProjectPoint = {
   id: string;
@@ -43,6 +44,7 @@ export default function TheLab() {
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // Meta de crowdfunding: $10,000 USD
   const goal = 10000;
@@ -60,11 +62,23 @@ export default function TheLab() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   const projectPoints: ProjectPoint[] = [
     {
       id: "intro",
       title: "About The Lab",
-      icon: <Info className="w-6 h-6" />,
+      icon: <Info className="w-6 h-6 text-blue-400" />,
       position: { x: 20, y: 20 },
       content: (
         <div className="space-y-6">
@@ -86,7 +100,7 @@ export default function TheLab() {
     {
       id: "rewards",
       title: "Rewards",
-      icon: <Gift className="w-6 h-6" />,
+      icon: <Gift className="w-6 h-6 text-yellow-400" />,
       position: { x: 60, y: 30 },
       content: (
         <div className="space-y-6">
@@ -152,7 +166,7 @@ export default function TheLab() {
     {
       id: "why-support",
       title: "Why Support",
-      icon: <Heart className="w-6 h-6" />,
+      icon: <Heart className="w-6 h-6 text-pink-400" />,
       position: { x: 40, y: 60 },
       content: (
         <div className="space-y-6">
@@ -169,7 +183,7 @@ export default function TheLab() {
     {
       id: "funds",
       title: "Funds Allocation",
-      icon: <DollarSign className="w-6 h-6" />,
+      icon: <DollarSign className="w-6 h-6 text-green-400" />,
       position: { x: 80, y: 40 },
       content: (
         <div className="space-y-6">
@@ -217,30 +231,49 @@ export default function TheLab() {
     {
       id: "nfts",
       title: "Music NFTs",
-      icon: <Disc className="w-6 h-6" />,
+      icon: <Disc className="w-6 h-6 text-purple-400" />,
       position: { x: 70, y: 70 },
       content: (
         <div className="space-y-6">
-          <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
-            <h3 className="text-xl font-bold mb-4 text-white">NFT Benefits</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                Exclusive Access to Digital Content
-              </li>
-              <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                Royalty Sharing
-              </li>
-              <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                Special Edition Tracks
-              </li>
-              <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                Behind-the-scenes Content
-              </li>
-            </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
+              <h3 className="text-xl font-bold mb-4 text-white">The Lab NFTs</h3>
+              <div className="space-y-4">
+                <div className="relative aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src="/images/nft1.jpg"
+                    alt="The Lab NFT"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold text-lg">The Lab #1</h4>
+                  <p className="text-gray-300">Exclusive access to the first track of the album</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
+              <h3 className="text-xl font-bold mb-4 text-white">NFT Benefits</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mr-2 text-purple-400" />
+                  Exclusive Access to Digital Content
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mr-2 text-purple-400" />
+                  Royalty Sharing
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mr-2 text-purple-400" />
+                  Special Edition Tracks
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mr-2 text-purple-400" />
+                  Behind-the-scenes Content
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       )
@@ -248,7 +281,7 @@ export default function TheLab() {
     {
       id: "merch",
       title: "Merchandise",
-      icon: <ShoppingBag className="w-6 h-6" />,
+      icon: <ShoppingBag className="w-6 h-6 text-orange-400" />,
       position: { x: 30, y: 80 },
       content: (
         <div className="space-y-6">
@@ -279,9 +312,32 @@ export default function TheLab() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('/images/hero-background.svg')] bg-cover bg-center opacity-5" />
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Background Video */}
+      <div className="fixed inset-0 w-full h-full z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+        >
+          <source src="/videos/background.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80" />
+      </div>
+
+      {/* Cursor Effect */}
+      <div className="fixed inset-0 pointer-events-none z-50">
+        <div
+          className="absolute w-96 h-96 rounded-full bg-blue-500/10 blur-3xl"
+          style={{
+            left: mousePosition.x - 192,
+            top: mousePosition.y - 192,
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      </div>
 
       {/* Mobile Menu Button */}
       {isMobile && (
@@ -343,14 +399,24 @@ export default function TheLab() {
             }}
             onClick={() => setSelectedPoint(point.id)}
           >
-            <div className="relative">
+            <motion.div
+              animate={{
+                y: [0, -10, 0],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="relative"
+            >
               <div className="w-12 h-12 bg-gray-800/80 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-blue-500/50 shadow-lg shadow-blue-500/20">
                 {point.icon}
               </div>
               <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-sm font-medium text-gray-300">
                 {point.title}
               </div>
-            </div>
+            </motion.div>
           </motion.button>
         ))}
 
@@ -385,25 +451,28 @@ export default function TheLab() {
 
       {/* Fixed Progress Card */}
       <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className={`fixed ${isMobile ? 'bottom-4 left-4 right-4' : 'bottom-8 left-1/2 -translate-x-1/2 w-96'} bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50`}
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 transform hover:scale-105 transition-transform duration-300"
       >
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold">The Lab Progress</h3>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Music className="w-6 h-6 text-blue-400" />
+              The Lab Progress
+            </h3>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="p-1 hover:bg-gray-700 rounded"
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
               >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
               </button>
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className="p-1 hover:bg-gray-700 rounded"
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
               >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
               </button>
             </div>
           </div>
