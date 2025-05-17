@@ -19,7 +19,9 @@ import {
   FileText,
   Settings,
   HelpCircle,
-  Info
+  Info,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 // Tipos de apps disponibles
@@ -151,46 +153,12 @@ export default function TheLab() {
       isMinimized: false,
       position: { x: 300, y: 300 },
       size: { width: 600, height: 500 }
-    },
-    {
-      id: "support",
-      title: "Support The Lab",
-      icon: <Heart className="w-6 h-6" />,
-      content: (
-        <div className="p-6 text-gray-300">
-          <h2 className="text-2xl font-bold mb-4">Support The Lab</h2>
-          <div className="mb-8">
-            <div className="flex justify-between text-sm text-gray-400 mb-2">
-              <span>Goal: ${goal.toLocaleString()} USD</span>
-              <span>Raised: ${currentAmount.toLocaleString()} USD</span>
-            </div>
-            <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-              />
-            </div>
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold text-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
-          >
-            Support Now
-          </motion.button>
-        </div>
-      ),
-      isOpen: false,
-      isMinimized: false,
-      position: { x: 400, y: 400 },
-      size: { width: 500, height: 300 }
     }
   ]);
 
   const [draggedApp, setDraggedApp] = useState<string | null>(null);
   const [resizingApp, setResizingApp] = useState<string | null>(null);
+  const [isProgressCardExpanded, setIsProgressCardExpanded] = useState(true);
 
   const handleAppAction = (appId: string, action: 'open' | 'close' | 'minimize') => {
     setActiveApps(apps => apps.map(app => {
@@ -231,6 +199,58 @@ export default function TheLab() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white overflow-hidden">
       {/* Desktop Background */}
       <div className="absolute inset-0 bg-[url('/images/hero-background.svg')] bg-cover bg-center opacity-10" />
+
+      {/* Fixed Progress Card */}
+      <motion.div
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="fixed top-4 right-4 w-80 bg-gray-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 z-50"
+      >
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold">The Lab Progress</h3>
+            <button
+              onClick={() => setIsProgressCardExpanded(!isProgressCardExpanded)}
+              className="p-1 hover:bg-gray-700 rounded"
+            >
+              {isProgressCardExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
+          
+          <AnimatePresence>
+            {isProgressCardExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm text-gray-400">
+                    <span>Goal: ${goal.toLocaleString()} USD</span>
+                    <span>Raised: ${currentAmount.toLocaleString()} USD</span>
+                  </div>
+                  <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                    />
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white font-bold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20"
+                  >
+                    Support Now
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
 
       {/* Taskbar */}
       <div className="fixed bottom-0 left-0 right-0 h-12 bg-gray-800/80 backdrop-blur-sm border-t border-gray-700 flex items-center px-4 z-50">
