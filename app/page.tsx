@@ -934,12 +934,13 @@ function NoiseBg() {
 <style jsx global>{`
   @media (max-width: 768px) {
     html, body, * {
-      cursor: none !important;
+      cursor: url('data:image/svg+xml;utf8,<svg height="16" width="16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="4" fill="black"/></svg>') 8 8, auto !important;
       -webkit-tap-highlight-color: transparent;
     }
     .top-collectors-mobile {
-      padding-bottom: 5rem !important;
-      min-width: 100vw;
+      padding-bottom: 8rem !important;
+      margin-bottom: 2rem !important;
+      min-height: 220px;
     }
   }
 `}</style>
