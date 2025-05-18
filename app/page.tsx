@@ -584,7 +584,7 @@ export default function Home() {
           {/* Mobile: scroll horizontal, Desktop: grid */}
           <div className="w-full">
             <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2 top-collectors-mobile">
-              <div className="flex gap-4 min-w-max px-2 pb-8">
+              <div className="flex gap-4 min-w-max px-2 pb-12">
                 {collectors.map((collector, idx) => (
                   <div
                     key={idx}
@@ -937,7 +937,9 @@ function NoiseBg() {
     .releases-marquee > div,
     .releases-marquee *,
     .group,
-    .group * {
+    .group *,
+    .top-collectors-mobile *,
+    .top-collectors-mobile {
       cursor: default !important;
       -webkit-tap-highlight-color: transparent;
     }
