@@ -932,9 +932,9 @@ function NoiseBg() {
 }
 
 <style jsx global>{`
-  @media (max-width: 768px) {
+  @media (pointer: coarse), (hover: none) {
     html, body, * {
-      cursor: url('data:image/svg+xml;utf8,<svg height="16" width="16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="4" fill="black"/></svg>') 8 8, auto !important;
+      cursor: none !important;
       -webkit-tap-highlight-color: transparent;
     }
     .top-collectors-mobile {
