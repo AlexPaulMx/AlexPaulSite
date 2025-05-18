@@ -19,7 +19,7 @@ export default function AboutPage() {
       <section style={{ maxWidth: 600, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? 28 : 36, position:'relative', zIndex:2 }}>
         {/* Hero: Nombre y Foto */}
         <h1 style={{ fontSize: isMobile ? 34 : 38, fontWeight: 900, letterSpacing: 2, margin: 0, textAlign: 'center', lineHeight:1.1, textTransform:'uppercase', marginBottom: isMobile ? 10 : 16 }}>ALEX PAUL</h1>
-        <div style={{width:'100%', maxWidth:600, margin:'0 auto', marginBottom:isMobile?10:16}}>
+        <div style={{width:'100%', maxWidth:220, margin:'0 auto', marginBottom:isMobile?10:16}}>
           <img
             src="https://i.scdn.co/image/ab67616100005174e4aefe89ba9c637d669a06c5"
             alt="Alex Paul Photo"
