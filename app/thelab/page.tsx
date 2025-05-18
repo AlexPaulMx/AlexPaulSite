@@ -66,7 +66,7 @@ export default function TheLab() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
     };
     
     checkMobile();
