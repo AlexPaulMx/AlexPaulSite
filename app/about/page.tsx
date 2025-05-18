@@ -25,7 +25,7 @@ export default function AboutPage() {
             alt="Alex Paul Photo"
             style={{
               width: '100%',
-              height: isMobile ? 200 : 260,
+              aspectRatio: '1/1',
               objectFit: 'cover',
               borderRadius: 24,
               boxShadow: '0 4px 32px #ef444444',
