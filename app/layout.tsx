@@ -23,15 +23,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <PlayerProvider>
           <Providers>
-        <HeatmapGlobal />
-        <LogoCursor />
-        <SidebarNav links={links} />
-        {/* Contenido principal ajustado */}
-        <div style={{ marginLeft: 64 }}>
-          <AppLoaderWrapper>{children}</AppLoaderWrapper>
-        </div>
-        <FloatingPlayer />
-        </Providers>
+            <HeatmapGlobal />
+            <LogoCursor />
+            <SidebarNav links={links} />
+            {/* Contenido principal ajustado */}
+            <div className="main-content-responsive">
+              <AppLoaderWrapper>{children}</AppLoaderWrapper>
+            </div>
+            <FloatingPlayer />
+            <style jsx>{`
+              .main-content-responsive {
+                margin-left: 0;
+              }
+              @media (min-width: 769px) {
+                .main-content-responsive {
+                  margin-left: 64px;
+                }
+              }
+            `}</style>
+          </Providers>
         </PlayerProvider>
       </body>
     </html>
