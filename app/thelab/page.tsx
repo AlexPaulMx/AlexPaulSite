@@ -48,7 +48,7 @@ export default function TheLab() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<null | boolean>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [progressPosition, setProgressPosition] = useState({ x: 0, y: 0 });
@@ -374,7 +374,7 @@ export default function TheLab() {
       </div>
 
       {/* Cursor Effect - Solo en desktop */}
-      {!isMobile && (
+      {isMobile === false && (
         <div className="fixed inset-0 pointer-events-none z-50">
           <div
             className="absolute w-96 h-96 rounded-full bg-blue-500/5 blur-3xl"
@@ -384,8 +384,8 @@ export default function TheLab() {
               transform: 'translate(-50%, -50%)',
             }}
           />
-          </div>
-        )}
+        </div>
+      )}
 
       {/* Mobile Design */}
       {isMobile ? (
