@@ -393,8 +393,14 @@ export default function TheLab() {
           {/* Mobile Header */}
           <div className="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-lg z-50 p-4 border-b border-white/10">
             <div className="flex items-center justify-center relative gap-2">
-              <img src="/images/logo-alexpaul.png" alt="Logo" className="w-7 h-7 md:w-8 md:h-8" />
-              <h1 className="text-2xl font-bold text-white text-center w-full">BUILDING THE LAB</h1>
+              <Image
+                src="/images/thelab-logo.png"
+                alt="The Lab Logo"
+                width={120}
+                height={60}
+                className="object-contain h-10 w-auto drop-shadow-lg"
+                priority
+              />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="p-2 text-white hover:text-gray-300 transition-colors absolute right-0"
@@ -407,7 +413,12 @@ export default function TheLab() {
           {/* Mobile Content */}
           <div className="pt-20 pb-8 px-4 space-y-4">
             {/* Progress Section */}
-            <div className="bg-black/40 backdrop-blur-lg rounded-xl p-6 border border-white/10 mb-2">
+            <motion.div
+              initial={{ y: 0 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="bg-black/40 backdrop-blur-lg rounded-xl p-6 border border-white/10 mb-2 shadow-2xl shadow-black/40"
+            >
               <div className="flex items-center gap-2 mb-4">
                 <Music className="w-6 h-6 text-red-400" />
                 <h2 className="text-xl font-bold text-white">The Lab Progress</h2>
@@ -447,11 +458,17 @@ export default function TheLab() {
                   Support Now
                 </motion.button>
             </div>
-                    </div>
+                    </motion.div>
 
             {/* Accordion Sections */}
             {projectPoints.map((point) => (
-              <div key={point.id} className="bg-black/40 backdrop-blur-lg rounded-xl border border-white/10 mb-2">
+              <motion.div
+                key={point.id}
+                initial={{ y: 0 }}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 * Math.random() }}
+                className="bg-black/40 backdrop-blur-lg rounded-xl border border-white/10 mb-2 shadow-2xl shadow-black/40"
+              >
                 <button
                   className="w-full flex items-center justify-between p-4 focus:outline-none"
                   onClick={() => setOpenSection(openSection === point.id ? null : point.id)}
@@ -472,7 +489,7 @@ export default function TheLab() {
           </div>
         )}
               </div>
-                </div>
+                </motion.div>
             ))}
                 </div>
                 </div>
@@ -545,37 +562,40 @@ export default function TheLab() {
                 onClick={() => setSelectedPoint(point.id)}
               >
                 <motion.div
-                  animate={{
-                    y: [0, -10, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   className="relative"
                 >
-                  <div className="w-12 h-12 bg-gray-800/80 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-blue-500/50 shadow-lg shadow-blue-500/20">
+                  <div className="w-12 h-12 bg-gray-800/80 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-blue-500/50 shadow-2xl shadow-black/40">
                     {point.icon}
-                </div>
+                  </div>
                   <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-sm font-medium text-gray-300">
                     {point.title}
-                </div>
+                  </div>
                 </motion.div>
               </motion.button>
             ))}
 
             {/* Título superior */}
             <div className="w-full flex justify-center mt-12">
-              <h1 className="flex items-center gap-3 text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-lg uppercase">
-                <img src="/images/logo-alexpaul.png" alt="Logo" className="w-8 h-8 md:w-10 md:h-10" />
-                BUILDING THE LAB
-              </h1>
+              <Image
+                src="/images/thelab-logo.png"
+                alt="The Lab Logo"
+                width={340}
+                height={180}
+                className="object-contain h-32 w-auto drop-shadow-lg"
+                priority
+              />
             </div>
 
             {/* Progress Card como sección superior */}
             <div className="w-full flex justify-center mt-8 mb-8">
-              <div className="w-full max-w-md bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 px-6 py-8">
+              <motion.div
+                initial={{ y: 0 }}
+                animate={{ y: [0, -12, 0] }}
+                transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-full max-w-md bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-gray-700 px-6 py-8"
+              >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
                     <GripVertical className="w-5 h-5 text-gray-400" />
@@ -634,7 +654,7 @@ export default function TheLab() {
                     Support Now
                   </motion.button>
             </div>
-            </div>
+            </motion.div>
           </div>
 
             {/* Content Panel */}
@@ -642,15 +662,16 @@ export default function TheLab() {
               {selectedPoint && (
                 <motion.div
                   initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: [40, 26, 40] }}
                   exit={{ opacity: 0, y: 40 }}
-            style={{
+                  style={{
                     left: '50%',
                     top: '50%',
                     transform: 'translate(-50%, -50%)',
                     position: 'fixed',
                   }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-50 p-4 md:p-6 max-h-[80vh] overflow-y-auto"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-gray-700 z-50 p-4 md:p-6 max-h-[80vh] overflow-y-auto"
+                  transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
                 >
                   <div className="flex justify-between items-center mb-4 md:mb-6">
                     <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
