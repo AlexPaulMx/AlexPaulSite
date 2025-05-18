@@ -19,6 +19,7 @@ export function FloatingPlayer() {
     handlePrev,
     handleSeek,
     handleVolume,
+    onViewRelease,
   } = usePlayer();
 
   if (!tracks.length || !tracks[current] || !playing) return null;
@@ -49,15 +50,15 @@ export function FloatingPlayer() {
       <div className="flex flex-col min-w-[120px] flex-1">
         <div className="text-base font-bold truncate text-white drop-shadow mb-1" style={{letterSpacing:0.2}}>{tracks[current].title}</div>
         <div className="text-xs text-neutral-300 truncate mb-2">{tracks[current].artist}</div>
-        <input
-          type="range"
-          min={0}
-          max={duration}
-          value={progress}
-          onChange={handleSeek}
+          <input
+            type="range"
+            min={0}
+            max={duration}
+            value={progress}
+            onChange={handleSeek}
           className="w-full h-1 accent-pink-500"
           style={{marginBottom:6, accentColor:'#f43f5e'}}
-        />
+          />
         <div className="flex justify-between text-xs text-neutral-400" style={{fontVariantNumeric:'tabular-nums'}}>
           <span>{formatTime(progress)}</span>
           <span>{formatTime(duration)}</span>
@@ -67,19 +68,19 @@ export function FloatingPlayer() {
         <div className="flex items-center gap-2 mb-1">
           <button onClick={handlePrev} className="p-2 hover:text-pink-400 transition-colors rounded-full bg-white/10 hover:bg-pink-500/20 shadow">
             <SkipBack size={18} />
-          </button>
+        </button>
           <button onClick={handlePlayPause} className={`p-2 rounded-full shadow-lg ${playing ? 'bg-pink-500 text-white' : 'bg-white/10 text-white hover:bg-pink-500 hover:text-white'} transition-all duration-200`} style={{fontSize:22}}>
-            {loading ? (
+          {loading ? (
               <div className="w-5 h-5 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-            ) : playing ? (
+          ) : playing ? (
               <Pause size={20} />
-            ) : (
+          ) : (
               <Play size={20} />
-            )}
-          </button>
+          )}
+        </button>
           <button onClick={handleNext} className="p-2 hover:text-pink-400 transition-colors rounded-full bg-white/10 hover:bg-pink-500/20 shadow">
             <SkipForward size={18} />
-          </button>
+        </button>
         </div>
         <div className="flex items-center gap-1">
           {volume === 0 ? (
@@ -99,6 +100,16 @@ export function FloatingPlayer() {
           />
         </div>
       </div>
+      <button 
+        onClick={() => {
+          if (onViewRelease) {
+            onViewRelease(tracks[current]);
+          }
+        }}
+        className="px-3 py-1 bg-white/90 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg max-w-[120px] animate-pulse"
+      >
+        View Release
+      </button>
       <style jsx global>{`
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(32px) scale(0.98); }
