@@ -1,48 +1,61 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
-import Loader from './Loader';
+import { useState, useEffect, useRef } from "react";
+import Loader from "./Loader";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+
+const NAV_ORDER = ["/", "/about", "/thelab"];
 
 export default function AppLoaderWrapper({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
-  const [direction, setDirection] = useState<'up' | 'down'>('down');
-  const prevPath = useRef<string>('');
+  const [loading, setLoading] = useState(false);
   const pathname = usePathname();
+  const prevPath = useRef(pathname);
+  const [direction, setDirection] = useState<"up"|"down">("down");
 
   useEffect(() => {
-    // Show loader on mount (first visit or refresh)
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, []); // Empty dependency array means this only runs on mount
-
-  useEffect(() => {
-    // Handle page transitions
-    if (prevPath.current) {
-      const prevIndex = getPageIndex(prevPath.current);
-      const currentIndex = getPageIndex(pathname);
-      setDirection(prevIndex > currentIndex ? 'up' : 'down');
+    // Solo mostrar loader si no se ha mostrado en esta sesión
+    if (!sessionStorage.getItem("alexpaul_loader_shown")) {
+      setLoading(true);
+      const timer = setTimeout(() => {
+        setLoading(false);
+        sessionStorage.setItem("alexpaul_loader_shown", "true");
+      }, 1200);
+      return () => clearTimeout(timer);
     }
-    prevPath.current = pathname;
+  }, []);
+
+  useEffect(() => {
+    if (prevPath.current !== pathname) {
+      const prevIdx = NAV_ORDER.indexOf(prevPath.current);
+      const nextIdx = NAV_ORDER.indexOf(pathname);
+      setDirection(nextIdx > prevIdx ? "down" : "up");
+      prevPath.current = pathname;
+    }
   }, [pathname]);
 
-  const getPageIndex = (path: string) => {
-    const pages = ['/', '/about', '/thelab', '/music', '/contact'];
-    return pages.indexOf(path);
-  };
+  if (loading) return <Loader />;
 
   return (
-    <>
-      {loading && <Loader />}
-      <div
-        className={`transition-transform duration-500 ease-in-out ${
-          direction === 'up' ? 'translate-y-[-100%]' : 'translate-y-[100%]'
-        }`}
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={pathname}
+        initial={{
+          opacity: 0,
+          y: direction === "down" ? 60 : -60
+        }}
+        animate={{
+          opacity: 1,
+          y: 0
+        }}
+        exit={{
+          opacity: 0,
+          y: direction === "down" ? -60 : 60
+        }}
+        transition={{ duration: 0.42, ease: "easeInOut" }}
+        style={{ minHeight: "100vh" }}
       >
         {children}
-      </div>
-    </>
+      </motion.div>
+    </AnimatePresence>
   );
 } 
