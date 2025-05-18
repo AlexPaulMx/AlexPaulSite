@@ -371,7 +371,7 @@ export default function TheLab() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" />
         {/* Noise Effect igual que Home */}
         <NoiseBg />
-      </div>
+          </div>
 
       {/* Cursor Effect - Solo en desktop */}
       {isMobile === false && (
@@ -392,7 +392,8 @@ export default function TheLab() {
         <div className="relative z-10 min-h-screen">
           {/* Mobile Header */}
           <div className="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-lg z-50 p-4 border-b border-white/10">
-            <div className="flex items-center justify-center relative">
+            <div className="flex items-center justify-center relative gap-2">
+              <img src="/images/logo-alexpaul.png" alt="Logo" className="w-7 h-7 md:w-8 md:h-8" />
               <h1 className="text-2xl font-bold text-white text-center w-full">BUILDING THE LAB</h1>
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -566,8 +567,11 @@ export default function TheLab() {
 
             {/* Título superior */}
             <div className="w-full flex justify-center mt-12">
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-lg uppercase">BUILDING THE LAB</h1>
-              </div>
+              <h1 className="flex items-center gap-3 text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-lg uppercase">
+                <img src="/images/logo-alexpaul.png" alt="Logo" className="w-8 h-8 md:w-10 md:h-10" />
+                BUILDING THE LAB
+              </h1>
+            </div>
 
             {/* Progress Card como sección superior */}
             <div className="w-full flex justify-center mt-8 mb-8">
