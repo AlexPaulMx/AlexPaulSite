@@ -33,12 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <FloatingPlayer />
             <style jsx>{`
               .main-content-responsive {
-                margin-left: 0;
-              }
-              @media (min-width: 769px) {
-                .main-content-responsive {
-                  margin-left: 64px;
-                }
+                margin-left: 64px;
               }
             `}</style>
           </Providers>
