@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Circle } from 'lucide-react';
 
 export default function SidebarNav({ links }:{ links: {href:string, label:string, icon:React.ReactNode}[] }) {
   const pathname = usePathname();
@@ -42,6 +43,10 @@ export default function SidebarNav({ links }:{ links: {href:string, label:string
           );
         })}
       </nav>
+      {/* Ícono de puntero para móviles */}
+      <div className="mobile-pointer">
+        <Circle size={4} />
+      </div>
       <style jsx>{`
         .sidebar-nav-responsive {
           position: fixed;
@@ -74,6 +79,9 @@ export default function SidebarNav({ links }:{ links: {href:string, label:string
           justify-content: center;
           flex: 1;
         }
+        .mobile-pointer {
+          display: none;
+        }
         @media (max-width: 768px) {
           .sidebar-nav-responsive {
             left: 0;
@@ -97,6 +105,13 @@ export default function SidebarNav({ links }:{ links: {href:string, label:string
             width: 100vw;
             align-items: center;
             justify-content: center;
+          }
+          .mobile-pointer {
+            display: block;
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
           }
         }
       `}</style>
