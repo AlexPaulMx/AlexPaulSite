@@ -27,7 +27,7 @@ export default function AboutPage() {
               width: '100%',
               height: isMobile ? 200 : 260,
               objectFit: 'cover',
-              borderRadius: 24,
+              borderRadius: '50%',
               boxShadow: '0 4px 32px #ef444444',
               display: 'block',
             }}
