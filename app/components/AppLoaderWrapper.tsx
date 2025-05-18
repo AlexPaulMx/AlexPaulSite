@@ -13,12 +13,14 @@ export default function AppLoaderWrapper({ children }: { children: React.ReactNo
   const [direction, setDirection] = useState<"up"|"down">("down");
 
   useEffect(() => {
-    // Solo mostrar loader si no se ha mostrado en esta sesión
-    if (!sessionStorage.getItem("alexpaul_loader_shown")) {
+    // Solo mostrar loader si es la primera vez que el usuario visita el sitio
+    const hasVisited = localStorage.getItem('has_visited_alexpaul');
+    
+    if (!hasVisited) {
       setLoading(true);
       const timer = setTimeout(() => {
         setLoading(false);
-        sessionStorage.setItem("alexpaul_loader_shown", "true");
+        localStorage.setItem('has_visited_alexpaul', 'true');
       }, 1200);
       return () => clearTimeout(timer);
     }
