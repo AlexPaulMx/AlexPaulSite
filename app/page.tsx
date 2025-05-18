@@ -11,6 +11,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import dynamic from "next/dynamic"
 import { usePlayer } from './context/PlayerContext';
 import { FloatingPlayer } from './components/FloatingPlayer';
+import NoiseBg from "@/components/NoiseBg";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -564,12 +565,15 @@ export default function Home() {
             <Carousel opts={{ align: 'start', loop: true }} plugins={[Autoplay({ delay: 2500, stopOnInteraction: false })]}>
               <CarouselContent className="flex gap-6 min-w-max releases-marquee">
                 {collectibles.concat(collectibles).map((item, idx) => (
-                  <CarouselItem key={idx} className="group min-w-[120px] max-w-[140px] aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10 md:min-w-[300px] md:max-w-md">
+                  <CarouselItem key={idx} className="group min-w-[170px] max-w-[200px] aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10 md:min-w-[300px] md:max-w-md">
                     <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
                       <span className="text-xs text-white/80 mb-4">Alex Paul</span>
-                      <button onClick={() => setModalCollectible(item)} className="px-3 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
+                      <button onClick={() => setModalCollectible(item)} className="flex items-center justify-center gap-1 px-2 py-0.5 bg-white/90 text-black rounded-full text-[9px] uppercase tracking-wider font-bold shadow-md hover:bg-[#ef4444] hover:text-white transition-all duration-200 whitespace-nowrap min-w-[60px] max-w-[90px] leading-tight border border-neutral-300/60 focus:outline-none focus:ring-2 focus:ring-[#ef4444]/60" style={{fontSize:'9px',padding:'2px 8px',lineHeight:'1.1'}}>
+                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M5 3v18l15-9L5 3z" fill="#FFD600"/></svg>
+                        View Release
+                      </button>
                     </div>
                   </CarouselItem>
                 ))}
@@ -582,48 +586,49 @@ export default function Home() {
         <section className="py-16 px-4 flex flex-col items-center justify-center border-t border-neutral-800">
           <h2 className="text-center text-xl uppercase tracking-wider mb-12 text-white font-normal">Top Collectors</h2>
           {/* Mobile: scroll horizontal, Desktop: grid */}
-          <div className="w-full">
-            <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2 top-collectors-mobile">
-              <div className="flex gap-2 min-w-max px-2 pb-12">
-                {collectors.map((collector, idx) => (
-                  <div
-                    key={idx}
-                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-2 border border-neutral-800 min-w-[120px] max-w-[140px] mx-1"
-                    style={{ flex: '0 0 120px' }}
-                  >
-                    {/* Ranking badge */}
-                    <span className={`absolute -top-2 -left-2 w-7 h-7 flex items-center justify-center rounded-full font-bold text-black text-xs shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
-                    <span className="w-16 h-16 flex items-center justify-center rounded-full mb-2 bg-neutral-800 border-2 border-white/10 shadow-md">
-                      <User className="w-10 h-10 text-neutral-400" />
-                    </span>
-                    <span className="font-bold text-white text-xs truncate max-w-[90px] mb-1">{collector.name}</span>
-                    <span className="text-[10px] text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
-                    <span className="text-[10px] text-neutral-300">{collector.since}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
-              {collectors.map((collector, idx) => (
-                <motion.div
-                  key={idx}
-                  className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-5 border border-neutral-800 min-w-[180px] max-w-[200px] hover:scale-110 transition-all duration-200"
-                  initial={{ opacity: 0, y: 40, scale: 0.92 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: idx * 0.08, duration: 0.5, type: 'spring', bounce: 0.45 }}
-                  whileHover={{ scale: 1.13, boxShadow: '0 8px 32px #FFD60044' }}
-                >
-                  {/* Ranking badge */}
-                  <span className={`absolute -top-3 -left-3 w-8 h-8 flex items-center justify-center rounded-full font-bold text-black text-base shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
-                  <span className="w-28 h-28 flex items-center justify-center rounded-full mb-3 bg-neutral-800 border-4 border-white/10 shadow-md">
-                    <User className="w-20 h-20 text-neutral-400" />
-                  </span>
+          <div className="block md:hidden w-full px-2 space-y-3 top-collectors-mobile">
+            {collectors.map((collector, idx) => (
+              <div
+                key={idx}
+                className="flex items-center bg-black/80 rounded-2xl shadow-lg border border-neutral-800 w-full px-3 py-2"
+              >
+                {/* Avatar */}
+                <span className="w-14 h-14 flex items-center justify-center rounded-full bg-neutral-800 border-2 border-white/10 shadow-md mr-3">
+                  <User className="w-10 h-10 text-neutral-400" />
+                </span>
+                {/* Info */}
+                <div className="flex flex-col flex-1 min-w-0">
                   <span className="font-bold text-white text-base truncate max-w-[140px] mb-1">{collector.name}</span>
-                  <span className="text-xs text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
-                  <span className="text-xs text-neutral-300">{collector.since}</span>
-                </motion.div>
-              ))}
-            </div>
+                  <div className="flex items-center gap-2 text-xs text-white/80 font-semibold mb-1">
+                    <svg width='13' height='13' fill='none' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c2.54 0 4.5 2.46 4.5 5.5 0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='#FFD600'/></svg>
+                    {collector.collected} Collected
+                    <svg width='13' height='13' fill='none' viewBox='0 0 24 24'><path d='M12 8v4l3 3' stroke='#ef4444' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'/><circle cx='12' cy='12' r='10' stroke='#ef4444' strokeWidth='2'/></svg>
+                    {collector.since}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {collectors.map((collector, idx) => (
+              <motion.div
+                key={idx}
+                className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-5 border border-neutral-800 min-w-[180px] max-w-[200px] hover:scale-110 transition-all duration-200"
+                initial={{ opacity: 0, y: 40, scale: 0.92 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: idx * 0.08, duration: 0.5, type: 'spring', bounce: 0.45 }}
+                whileHover={{ scale: 1.13, boxShadow: '0 8px 32px #FFD60044' }}
+              >
+                {/* Ranking badge */}
+                <span className={`absolute -top-3 -left-3 w-8 h-8 flex items-center justify-center rounded-full font-bold text-black text-base shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
+                <span className="w-28 h-28 flex items-center justify-center rounded-full mb-3 bg-neutral-800 border-4 border-white/10 shadow-md">
+                  <User className="w-20 h-20 text-neutral-400" />
+                </span>
+                <span className="font-bold text-white text-base truncate max-w-[140px] mb-1">{collector.name}</span>
+                <span className="text-xs text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
+                <span className="text-xs text-neutral-300">{collector.since}</span>
+              </motion.div>
+            ))}
           </div>
         </section>
 
@@ -837,8 +842,10 @@ function PlayerUI({
                 onViewRelease(collectible);
               }
             }}
-            className="px-3 py-1.5 bg-white/90 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg w-full max-w-[120px] animate-pulse"
+            className="flex items-center justify-center gap-1 px-2 py-0.5 bg-white/90 text-black rounded-full text-[9px] uppercase tracking-wider font-bold shadow-md hover:bg-[#ef4444] hover:text-white transition-all duration-200 w-full max-w-[90px] min-w-[60px] animate-pulse whitespace-nowrap leading-tight border border-neutral-300/60 focus:outline-none focus:ring-2 focus:ring-[#ef4444]/60"
+            style={{fontSize:'9px',padding:'2px 8px',lineHeight:'1.1'}}
           >
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M5 3v18l15-9L5 3z" fill="#FFD600"/></svg>
             View Release
           </button>
         </div>
@@ -894,58 +901,3 @@ function PlayerUI({
     </>
   );
 }
-
-function NoiseBg() {
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  React.useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = 420;
-    let ctx = canvas.getContext('2d');
-    function noise() {
-      if (!ctx) return;
-      let imgData = ctx.createImageData(w, h);
-      let buf = new Uint32Array(imgData.data.buffer);
-      for (let i = 0; i < buf.length; i++) {
-        let shade = Math.floor(Math.random() * 60) + 20; // gris oscuro
-        buf[i] = (255 << 24) | (shade << 16) | (shade << 8) | shade;
-      }
-      ctx.putImageData(imgData, 0, 0);
-    }
-    let animId: number;
-    function loop() {
-      noise();
-      animId = requestAnimationFrame(loop);
-    }
-    loop();
-    window.addEventListener('resize', () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = 420;
-    });
-    return () => {
-      cancelAnimationFrame(animId);
-      ctx = null;
-    };
-  }, []);
-  return <canvas ref={canvasRef} width={1920} height={1080} style={{position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:0,opacity:0.18,background:'#111'}} />;
-}
-
-<style jsx global>{`
-  @media (max-width: 768px) {
-    .releases-marquee,
-    .releases-marquee > div,
-    .releases-marquee *,
-    .group,
-    .group *,
-    .top-collectors-mobile *,
-    .top-collectors-mobile {
-      cursor: default !important;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .top-collectors-mobile {
-      padding-bottom: 5rem !important;
-      min-width: 100vw;
-    }
-  }
-`}</style>
