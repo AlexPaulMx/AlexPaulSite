@@ -560,30 +560,21 @@ export default function Home() {
           <div className="flex justify-center mb-12 relative z-10">
             <span className="inline-block px-6 py-2 border border-white text-xl uppercase tracking-wider text-white font-normal">Discography</span>
           </div>
-          <div className="relative w-full overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 z-10">
-            <div className="flex gap-6 min-w-max whitespace-nowrap" ref={emblaRef}>
-              {collectibles.map((item, idx) => (
-                <div key={idx} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
-                  <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
-                    <span className="text-xs text-white/80 mb-4">Alex Paul</span>
-                    <button onClick={() => setModalCollectible(item)} className="px-3 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
-                  </div>
-                </div>
-              ))}
-              {/* Duplicar para efecto infinito */}
-              {collectibles.map((item, idx) => (
-                <div key={idx + 'dup'} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
-                  <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
-                    <span className="text-xs text-white/80 mb-4">Alex Paul</span>
-                    <button onClick={() => setModalCollectible(item)} className="px-3 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="relative w-full z-10">
+            <Carousel opts={{ align: 'start', loop: true }} plugins={[Autoplay({ delay: 2500, stopOnInteraction: false })]}>
+              <CarouselContent className="flex gap-6 min-w-max releases-marquee">
+                {collectibles.concat(collectibles).map((item, idx) => (
+                  <CarouselItem key={idx} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
+                    <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
+                      <span className="text-xs text-white/80 mb-4">Alex Paul</span>
+                      <button onClick={() => setModalCollectible(item)} className="px-3 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           </div>
         </section>
 
@@ -593,7 +584,7 @@ export default function Home() {
           {/* Mobile: scroll horizontal, Desktop: grid */}
           <div className="w-full">
             <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2 top-collectors-mobile">
-              <div className="flex gap-4 min-w-max px-2 pb-4">
+              <div className="flex gap-4 min-w-max px-2 pb-8">
                 {collectors.map((collector, idx) => (
                   <div
                     key={idx}
@@ -941,19 +932,8 @@ function NoiseBg() {
 }
 
 <style jsx global>{`
-  /* .releases-marquee {
-    animation: marquee-releases 32s linear infinite;
-    will-change: transform;
-  }
-  @keyframes marquee-releases {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  
   @media (max-width: 768px) {
-    .releases-marquee {
-      animation: marquee-releases 20s linear infinite;
-    }
+    .releases-marquee,
     .releases-marquee > div,
     .releases-marquee *,
     .group,
@@ -962,8 +942,8 @@ function NoiseBg() {
       -webkit-tap-highlight-color: transparent;
     }
     .top-collectors-mobile {
-      padding-bottom: 3.5rem !important;
+      padding-bottom: 5rem !important;
       min-width: 100vw;
     }
-  } */
+  }
 `}</style>
