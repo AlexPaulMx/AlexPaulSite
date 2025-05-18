@@ -7,14 +7,24 @@ import { AnimatePresence, motion } from "framer-motion";
 const NAV_ORDER = ["/", "/about", "/thelab"];
 
 export default function AppLoaderWrapper({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const pathname = usePathname();
   const prevPath = useRef(pathname);
   const [direction, setDirection] = useState<"up"|"down">("down");
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
+    // Detectar si es un refresh o navegación normal
+    const isRefresh = performance.navigation.type === 1;
+    const hasVisited = localStorage.getItem("alexpaul_loader_shown");
+
+    if (!hasVisited || isRefresh) {
+      setLoading(true);
+      const timer = setTimeout(() => {
+        setLoading(false);
+        localStorage.setItem("alexpaul_loader_shown", "true");
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   useEffect(() => {
