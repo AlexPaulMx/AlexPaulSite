@@ -7,7 +7,7 @@ export default function SidebarNav({ links }:{ links: {href:string, label:string
   const pathname = usePathname();
   return (
     <aside className="sidebar-nav-responsive">
-      {/* Logo grande perfectamente centrado, solo visible en desktop */}
+      {/* Logo grande perfectamente centrado */}
       <div className="sidebar-logo-desktop">
         <Image src="/images/logo-alexpaul.png" alt="Alex Paul Logo" width={56} height={56} style={{ filter: 'drop-shadow(0 2px 16px #3b82f6)' }} />
       </div>
@@ -43,10 +43,6 @@ export default function SidebarNav({ links }:{ links: {href:string, label:string
           );
         })}
       </nav>
-      {/* Ícono de puntero para móviles */}
-      <div className="mobile-pointer">
-        <Circle size={4} />
-      </div>
       <style jsx>{`
         .sidebar-nav-responsive {
           position: fixed;
@@ -78,41 +74,6 @@ export default function SidebarNav({ links }:{ links: {href:string, label:string
           align-items: center;
           justify-content: center;
           flex: 1;
-        }
-        .mobile-pointer {
-          display: none;
-        }
-        @media (max-width: 768px) {
-          .sidebar-nav-responsive {
-            left: 0;
-            right: 0;
-            bottom: 0;
-            top: auto;
-            width: 100vw;
-            height: 64px;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            background: #101014;
-          }
-          .sidebar-logo-desktop {
-            display: none;
-          }
-          .sidebar-links-responsive {
-            flex-direction: row;
-            gap: 32px;
-            width: 100vw;
-            align-items: center;
-            justify-content: center;
-          }
-          .mobile-pointer {
-            display: block;
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-          }
         }
       `}</style>
     </aside>
