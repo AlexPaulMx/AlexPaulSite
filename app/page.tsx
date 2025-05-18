@@ -563,23 +563,23 @@ export default function Home() {
           <div className="relative w-full overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 z-10">
             <div className="flex gap-6 min-w-max whitespace-nowrap releases-marquee">
               {collectibles.map((item, idx) => (
-                <div key={idx} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative cursor-pointer border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
+                <div key={idx} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
                   <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
                     <span className="text-xs text-white/80 mb-4">Alex Paul</span>
-                    <button onClick={() => setModalCollectible(item)} className="w-full px-6 py-2 bg-white/80 text-black rounded-none text-base uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
+                    <button onClick={() => setModalCollectible(item)} className="px-3 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
                   </div>
                 </div>
               ))}
               {/* Duplicar para efecto infinito */}
               {collectibles.map((item, idx) => (
-                <div key={idx + 'dup'} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative cursor-pointer border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
+                <div key={idx + 'dup'} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
                   <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
                     <span className="text-xs text-white/80 mb-4">Alex Paul</span>
-                    <button onClick={() => setModalCollectible(item)} className="w-full px-6 py-2 bg-white/80 text-black rounded-none text-base uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
+                    <button onClick={() => setModalCollectible(item)} className="px-3 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
                   </div>
                 </div>
               ))}
@@ -593,12 +593,12 @@ export default function Home() {
           {/* Mobile: scroll horizontal, Desktop: grid */}
           <div className="w-full">
             <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2">
-              <div className="flex gap-4 min-w-max">
+              <div className="flex gap-4 min-w-max px-2 pb-4">
                 {collectors.map((collector, idx) => (
                   <div
                     key={idx}
-                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-3 border border-neutral-800 min-w-[140px] max-w-[160px] mx-1"
-                    style={{ flex: '0 0 140px' }}
+                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-3 border border-neutral-800 min-w-[170px] max-w-[200px] mx-1"
+                    style={{ flex: '0 0 170px' }}
                   >
                     {/* Ranking badge */}
                     <span className={`absolute -top-2 -left-2 w-7 h-7 flex items-center justify-center rounded-full font-bold text-black text-xs shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
@@ -672,7 +672,7 @@ export default function Home() {
             </a>
             {/* YouTube */}
             <a href="https://www.youtube.com/channel/UC-Uei4OqY8xX5M1YgqGxW4w" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="YouTube">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M27.8 10.2c-.3-1.2-1.2-2.1-2.4-2.4C23.1 7.3 16 7.3 16 7.3s-7.1 0-9.4.5c-1.2.3-2.1 1.2-2.4 2.4C3.7 12.5 3.7 16 3.7 16s0 3.5.5 5.8c.3 1.2 1.2 2.1 2.4 2.4 2.3.5 9.4.5 9.4.5s7.1 0 9.4-.5c1.2-.3 2.1-1.2 2.4-2.4.5-2.3.5-5.8.5-5.8s0-3.5-.5-5.8zM13.5 20.1v-8.2l7.1 4.1-7.1 4.1z" fill="#fff"/></svg>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M27.8 10.2c-.3-1.2-1.2-2.1-2.4-2.4C23.1 7.3 16 7.3 16 7.3s-7.1 0-9.4.5c-1.2.3-2.1 1.2-2.4 2.4C3.7 12.5 3.7 16 3.7 16s0 3.5.5 5.8c.3 1.2 1.2 2.1 2.4 2.4 2.3.5 9.4.5 9.4.5s7.1 0 9.4-.5c1.2-.3 2.1-1.2 2.4-2.4.5-2.3.5-5.8.5-5.8s0-3.5-.5-5.8zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#fff"/></svg>
             </a>
           </motion.div>
         </section>
@@ -706,8 +706,8 @@ export default function Home() {
                     <p className="text-base text-neutral-300 mb-4 max-w-xl" style={{letterSpacing:1.2}}>{modalCollectible.description}</p>
                   )}
                   <div className="text-sm text-neutral-400 mb-6">ARTIST <span className="text-white font-bold float-right">Alex Paul</span></div>
-          </div>
-          <div>
+                </div>
+                <div>
                   <div className="text-lg font-extrabold uppercase tracking-wider mb-4 text-white border-2 border-white px-4 py-2 inline-block bg-black">Available On</div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                     {modalCollectible.apple && (
@@ -948,5 +948,14 @@ function NoiseBg() {
   @keyframes marquee-releases {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
+  }
+  
+  @media (max-width: 768px) {
+    .releases-marquee {
+      animation: marquee-releases 20s linear infinite;
+    }
+    .releases-marquee > div {
+      cursor: default !important;
+    }
   }
 `}</style>
