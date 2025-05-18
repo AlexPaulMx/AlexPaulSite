@@ -592,7 +592,7 @@ export default function Home() {
           <h2 className="text-center text-xl uppercase tracking-wider mb-12 text-white font-normal">Top Collectors</h2>
           {/* Mobile: scroll horizontal, Desktop: grid */}
           <div className="w-full">
-            <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2">
+            <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2 top-collectors-mobile">
               <div className="flex gap-4 min-w-max px-2 pb-4">
                 {collectors.map((collector, idx) => (
                   <div
@@ -954,8 +954,16 @@ function NoiseBg() {
     .releases-marquee {
       animation: marquee-releases 20s linear infinite;
     }
-    .releases-marquee > div {
+    .releases-marquee > div,
+    .releases-marquee *,
+    .group,
+    .group * {
       cursor: default !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .top-collectors-mobile {
+      padding-bottom: 3.5rem !important;
+      min-width: 100vw;
     }
   }
 `}</style>
