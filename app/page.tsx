@@ -568,7 +568,7 @@ export default function Home() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
                     <span className="text-xs text-white/80 mb-4">Alex Paul</span>
-                    <button onClick={() => setModalCollectible(item)} className="px-4 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce">View Release</button>
+                    <button onClick={() => setModalCollectible(item)} className="w-full px-6 py-2 bg-white/80 text-black rounded-none text-base uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
                   </div>
                 </div>
               ))}
@@ -579,7 +579,7 @@ export default function Home() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
                     <span className="text-xs text-white/80 mb-4">Alex Paul</span>
-                    <button onClick={() => setModalCollectible(item)} className="px-4 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce">View Release</button>
+                    <button onClick={() => setModalCollectible(item)} className="w-full px-6 py-2 bg-white/80 text-black rounded-none text-base uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
                   </div>
                 </div>
               ))}
