@@ -240,8 +240,8 @@ function MusicPlayer({ index, isActive, onPlay, onPause, onPrev, onNext, audioSr
 
   // Seek
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const seekTime = (Number(e.target.value) / 100) * duration
-    setProgress(seekTime)
+      const seekTime = (Number(e.target.value) / 100) * duration
+      setProgress(seekTime)
   }
 
   // Volume
@@ -459,7 +459,7 @@ export default function Home() {
       },
       { threshold: 0.1 }
     );
-    observer.observe(playerRef.current);
+      observer.observe(playerRef.current);
     return () => {
       if (playerRef.current) observer.unobserve(playerRef.current);
     };
@@ -481,14 +481,14 @@ export default function Home() {
             <NoiseBg />
           </div>
           {/* Hero Content */}
-          <PlayerUI 
-            tracks={tracks} 
-            onViewRelease={(collectible) => {
-              setModalCollectible(collectible);
-              setModalOpen(true);
-            }}
+            <PlayerUI 
+              tracks={tracks} 
+              onViewRelease={(collectible) => {
+                setModalCollectible(collectible);
+                setModalOpen(true);
+              }}
             playerRef={playerRef}
-          />
+            />
         </section>
 
         {/* Latest Release Section */}
@@ -590,26 +590,49 @@ export default function Home() {
         {/* Top Collectors Section */}
         <section className="py-16 px-4 flex flex-col items-center justify-center border-t border-neutral-800">
           <h2 className="text-center text-xl uppercase tracking-wider mb-12 text-white font-normal">Top Collectors</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
-            {collectors.map((collector, idx) => (
-              <motion.div
-                key={idx}
-                className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-5 border border-neutral-800 min-w-[180px] max-w-[200px] hover:scale-110 transition-all duration-200"
-                initial={{ opacity: 0, y: 40, scale: 0.92 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: idx * 0.08, duration: 0.5, type: 'spring', bounce: 0.45 }}
-                whileHover={{ scale: 1.13, boxShadow: '0 8px 32px #FFD60044' }}
-              >
-                {/* Ranking badge */}
-                <span className={`absolute -top-3 -left-3 w-8 h-8 flex items-center justify-center rounded-full font-bold text-black text-base shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
-                <span className="w-28 h-28 flex items-center justify-center rounded-full mb-3 bg-neutral-800 border-4 border-white/10 shadow-md">
-                  <User className="w-20 h-20 text-neutral-400" />
-                </span>
-                <span className="font-bold text-white text-base truncate max-w-[140px] mb-1">{collector.name}</span>
-                <span className="text-xs text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
-                <span className="text-xs text-neutral-300">{collector.since}</span>
-              </motion.div>
-            ))}
+          {/* Mobile: scroll horizontal, Desktop: grid */}
+          <div className="w-full">
+            <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2">
+              <div className="flex gap-4 min-w-max">
+                {collectors.map((collector, idx) => (
+                  <div
+                    key={idx}
+                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-3 border border-neutral-800 min-w-[140px] max-w-[160px] mx-1"
+                    style={{ flex: '0 0 140px' }}
+                  >
+                    {/* Ranking badge */}
+                    <span className={`absolute -top-2 -left-2 w-7 h-7 flex items-center justify-center rounded-full font-bold text-black text-xs shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
+                    <span className="w-16 h-16 flex items-center justify-center rounded-full mb-2 bg-neutral-800 border-2 border-white/10 shadow-md">
+                      <User className="w-10 h-10 text-neutral-400" />
+                    </span>
+                    <span className="font-bold text-white text-xs truncate max-w-[90px] mb-1">{collector.name}</span>
+                    <span className="text-[10px] text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
+                    <span className="text-[10px] text-neutral-300">{collector.since}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
+              {collectors.map((collector, idx) => (
+                <motion.div
+                  key={idx}
+                  className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-5 border border-neutral-800 min-w-[180px] max-w-[200px] hover:scale-110 transition-all duration-200"
+                  initial={{ opacity: 0, y: 40, scale: 0.92 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: idx * 0.08, duration: 0.5, type: 'spring', bounce: 0.45 }}
+                  whileHover={{ scale: 1.13, boxShadow: '0 8px 32px #FFD60044' }}
+                >
+                  {/* Ranking badge */}
+                  <span className={`absolute -top-3 -left-3 w-8 h-8 flex items-center justify-center rounded-full font-bold text-black text-base shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
+                  <span className="w-28 h-28 flex items-center justify-center rounded-full mb-3 bg-neutral-800 border-4 border-white/10 shadow-md">
+                    <User className="w-20 h-20 text-neutral-400" />
+                  </span>
+                  <span className="font-bold text-white text-base truncate max-w-[140px] mb-1">{collector.name}</span>
+                  <span className="text-xs text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
+                  <span className="text-xs text-neutral-300">{collector.since}</span>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -683,8 +706,8 @@ export default function Home() {
                     <p className="text-base text-neutral-300 mb-4 max-w-xl" style={{letterSpacing:1.2}}>{modalCollectible.description}</p>
                   )}
                   <div className="text-sm text-neutral-400 mb-6">ARTIST <span className="text-white font-bold float-right">Alex Paul</span></div>
-                </div>
-                <div>
+          </div>
+          <div>
                   <div className="text-lg font-extrabold uppercase tracking-wider mb-4 text-white border-2 border-white px-4 py-2 inline-block bg-black">Available On</div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                     {modalCollectible.apple && (
@@ -730,7 +753,7 @@ export default function Home() {
       </main>
       {showFloating && <FloatingPlayer />}
     </>
-  )
+  );
 }
 
 const tourDates = [
