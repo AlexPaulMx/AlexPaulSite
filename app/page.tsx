@@ -7,7 +7,7 @@ import { motion } from "framer-motion"
 import React, { useRef, useState, useEffect } from "react"
 import useEmblaCarousel from 'embla-carousel-react'
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, Autoplay } from "@/components/ui/carousel"
 import dynamic from "next/dynamic"
 import { usePlayer } from './context/PlayerContext';
 import { FloatingPlayer } from './components/FloatingPlayer';
@@ -320,7 +320,7 @@ function formatTime(sec: number) {
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const [emblaRef] = useEmblaCarousel({ align: 'start', loop: true })
+  const [emblaRef] = useEmblaCarousel({ align: 'start', loop: true }, [Autoplay({ delay: 2500, stopOnInteraction: false })])
   const [modalCollectible, setModalCollectible] = useState<Release | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
@@ -561,7 +561,7 @@ export default function Home() {
             <span className="inline-block px-6 py-2 border border-white text-xl uppercase tracking-wider text-white font-normal">Discography</span>
           </div>
           <div className="relative w-full overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 z-10">
-            <div className="flex gap-6 min-w-max whitespace-nowrap releases-marquee">
+            <div className="flex gap-6 min-w-max whitespace-nowrap" ref={emblaRef}>
               {collectibles.map((item, idx) => (
                 <div key={idx} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
                   <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
@@ -941,7 +941,7 @@ function NoiseBg() {
 }
 
 <style jsx global>{`
-  .releases-marquee {
+  /* .releases-marquee {
     animation: marquee-releases 32s linear infinite;
     will-change: transform;
   }
@@ -965,5 +965,5 @@ function NoiseBg() {
       padding-bottom: 3.5rem !important;
       min-width: 100vw;
     }
-  }
+  } */
 `}</style>
