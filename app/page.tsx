@@ -564,7 +564,7 @@ export default function Home() {
             <Carousel opts={{ align: 'start', loop: true }} plugins={[Autoplay({ delay: 2500, stopOnInteraction: false })]}>
               <CarouselContent className="flex gap-6 min-w-max releases-marquee">
                 {collectibles.concat(collectibles).map((item, idx) => (
-                  <CarouselItem key={idx} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10">
+                  <CarouselItem key={idx} className="group min-w-[300px] max-w-md aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10 sm:min-w-[160px] sm:max-w-[180px] md:min-w-[300px] md:max-w-md">
                     <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
@@ -584,12 +584,12 @@ export default function Home() {
           {/* Mobile: scroll horizontal, Desktop: grid */}
           <div className="w-full">
             <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2 top-collectors-mobile">
-              <div className="flex gap-4 min-w-max px-2 pb-12">
+              <div className="flex gap-2 min-w-max px-2 pb-12">
                 {collectors.map((collector, idx) => (
                   <div
                     key={idx}
-                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-3 border border-neutral-800 min-w-[170px] max-w-[200px] mx-1"
-                    style={{ flex: '0 0 170px' }}
+                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-2 border border-neutral-800 min-w-[120px] max-w-[140px] mx-1"
+                    style={{ flex: '0 0 120px' }}
                   >
                     {/* Ranking badge */}
                     <span className={`absolute -top-2 -left-2 w-7 h-7 flex items-center justify-center rounded-full font-bold text-black text-xs shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
