@@ -562,14 +562,14 @@ export default function Home() {
           </div>
           <div className="relative w-full z-10">
             <Carousel opts={{ align: 'start', loop: true }} plugins={[Autoplay({ delay: 2500, stopOnInteraction: false })]}>
-              <CarouselContent className="flex gap-3 min-w-max releases-marquee">
+              <CarouselContent className="flex gap-6 min-w-max releases-marquee">
                 {collectibles.concat(collectibles).map((item, idx) => (
-                  <CarouselItem key={idx} className="group min-w-[100px] max-w-[120px] aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10 md:min-w-[300px] md:max-w-md">
+                  <CarouselItem key={idx} className="group min-w-[120px] max-w-[140px] aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10 md:min-w-[300px] md:max-w-md">
                     <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="text-white text-xs font-bold mb-2 text-center px-1 drop-shadow-lg group-hover:scale-110 transition-transform md:text-lg md:px-2">{item.title}</span>
-                      <span className="text-[10px] text-white/80 mb-2 md:text-xs md:mb-4">Alex Paul</span>
-                      <button onClick={() => setModalCollectible(item)} className="px-2 py-0.5 bg-white/80 text-black rounded-none text-[10px] uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap md:px-3 md:py-1 md:text-xs">View Release</button>
+                      <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
+                      <span className="text-xs text-white/80 mb-4">Alex Paul</span>
+                      <button onClick={() => setModalCollectible(item)} className="px-3 py-1 bg-white/80 text-black rounded-none text-xs uppercase tracking-wider font-bold shadow hover:bg-white transition-colors animate-bounce whitespace-nowrap">View Release</button>
                     </div>
                   </CarouselItem>
                 ))}
@@ -584,21 +584,21 @@ export default function Home() {
           {/* Mobile: scroll horizontal, Desktop: grid */}
           <div className="w-full">
             <div className="block md:hidden overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 -mx-4 px-2 top-collectors-mobile">
-              <div className="flex gap-1 min-w-max px-2 pb-12">
+              <div className="flex gap-2 min-w-max px-2 pb-12">
                 {collectors.map((collector, idx) => (
                   <div
                     key={idx}
-                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-1 border border-neutral-800 min-w-[90px] max-w-[100px] mx-0.5"
-                    style={{ flex: '0 0 90px' }}
+                    className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-2 border border-neutral-800 min-w-[120px] max-w-[140px] mx-1"
+                    style={{ flex: '0 0 120px' }}
                   >
                     {/* Ranking badge */}
-                    <span className={`absolute -top-2 -left-2 w-5 h-5 flex items-center justify-center rounded-full font-bold text-black text-[10px] shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
-                    <span className="w-7 h-7 flex items-center justify-center rounded-full mb-1 bg-neutral-800 border-2 border-white/10 shadow-md">
-                      <User className="w-5 h-5 text-neutral-400" />
+                    <span className={`absolute -top-2 -left-2 w-7 h-7 flex items-center justify-center rounded-full font-bold text-black text-xs shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
+                    <span className="w-16 h-16 flex items-center justify-center rounded-full mb-2 bg-neutral-800 border-2 border-white/10 shadow-md">
+                      <User className="w-10 h-10 text-neutral-400" />
                     </span>
-                    <span className="font-bold text-white text-[10px] truncate max-w-[50px] mb-1">{collector.name}</span>
-                    <span className="text-[8px] text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
-                    <span className="text-[8px] text-neutral-300">{collector.since}</span>
+                    <span className="font-bold text-white text-xs truncate max-w-[90px] mb-1">{collector.name}</span>
+                    <span className="text-[10px] text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
+                    <span className="text-[10px] text-neutral-300">{collector.since}</span>
                   </div>
                 ))}
               </div>
@@ -932,15 +932,20 @@ function NoiseBg() {
 }
 
 <style jsx global>{`
-  @media (pointer: coarse), (hover: none) {
-    html, body, * {
-      cursor: none !important;
+  @media (max-width: 768px) {
+    .releases-marquee,
+    .releases-marquee > div,
+    .releases-marquee *,
+    .group,
+    .group *,
+    .top-collectors-mobile *,
+    .top-collectors-mobile {
+      cursor: default !important;
       -webkit-tap-highlight-color: transparent;
     }
     .top-collectors-mobile {
-      padding-bottom: 8rem !important;
-      margin-bottom: 2rem !important;
-      min-height: 220px;
+      padding-bottom: 5rem !important;
+      min-width: 100vw;
     }
   }
 `}</style>
