@@ -840,19 +840,6 @@ function PlayerUI({
               </div>
             )}
           </div>
-          <button 
-            onClick={() => {
-              const collectible = collectibles.find(c => c.title === tracks[current].title);
-              if (collectible) {
-                onViewRelease(collectible);
-              }
-            }}
-            className="flex items-center justify-center gap-1 px-2 py-0.5 bg-white/90 text-black rounded-full text-[9px] uppercase tracking-wider font-bold shadow-md hover:bg-[#ef4444] hover:text-white transition-all duration-200 w-full max-w-[90px] min-w-[60px] animate-pulse whitespace-nowrap leading-tight border border-neutral-300/60 focus:outline-none focus:ring-2 focus:ring-[#ef4444]/60"
-            style={{fontSize:'9px',padding:'2px 8px',lineHeight:'1.1'}}
-          >
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M5 3v18l15-9L5 3z" fill="#FFD600"/></svg>
-            View Release
-          </button>
         </div>
         {/* Info & Controls */}
         <div className="flex-1 flex flex-col justify-between p-6 gap-4">
