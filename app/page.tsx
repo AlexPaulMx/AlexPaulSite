@@ -273,12 +273,17 @@ function MusicPlayer({ index, isActive, onPlay, onPause, onPrev, onNext, audioSr
       </div>
       <div className="w-full flex flex-col items-center">
         <span className="font-semibold mb-2 text-sm text-center">{title}</span>
-        <div className="flex items-center gap-2 mb-2">
-          <button onClick={onPrev} className="p-1 hover:text-indigo-400 rounded-none"><SkipBack size={20} /></button>
-          <button onClick={handlePlayPause} className="p-2 bg-indigo-700 hover:bg-indigo-500 transition-colors rounded-none">
-            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsPlaying(!isPlaying)}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            {isPlaying ? (
+              <Pause className="w-5 h-5 text-white" />
+            ) : (
+              <Play className="w-5 h-5 text-white" />
+            )}
           </button>
-          <button onClick={onNext} className="p-1 hover:text-indigo-400 rounded-none"><SkipForward size={20} /></button>
         </div>
         <div className="flex items-center w-full gap-2">
           <span className="text-xs w-8 text-right">{formatTime(progress)}</span>
