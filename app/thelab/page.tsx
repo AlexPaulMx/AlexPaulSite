@@ -31,10 +31,13 @@ import {
   Instagram,
   Twitter,
   Youtube,
-  Music2
+  Music2,
+  User
 } from "lucide-react";
 import Image from "next/image";
 import NoiseBg from "@/components/NoiseBg";
+import type { PanInfo } from 'framer-motion';
+import DonationWidget from "../components/DonationWidget";
 
 type ProjectPoint = {
   id: string;
@@ -54,7 +57,7 @@ export default function TheLab() {
   const [progressPosition, setProgressPosition] = useState({ x: 0, y: 0 });
   const [cardPositions, setCardPositions] = useState<{ [key: string]: { x: number; y: number } }>({});
   const dragControls = useDragControls();
-  const [contentCardPosition, setContentCardPosition] = useState<{x: number, y: number}>({x: 0, y: 0});
+  const [contentCardPosition, setContentCardPosition] = useState<{x: number, y: number} | null>(null);
 
   // Meta de crowdfunding: $10,000 USD
   const goal = 10000;
@@ -63,6 +66,17 @@ export default function TheLab() {
 
   // Estado para el acordeón móvil (solo una sección a la vez)
   const [openSection, setOpenSection] = useState<string | null>(null);
+
+  // Datos de ejemplo para supporters y top supporters
+  const supporters = [
+    { name: 'Alice', amount: 500 },
+    { name: 'Bob', amount: 350 },
+    { name: 'Charlie', amount: 200 },
+    { name: 'Diana', amount: 120 },
+    { name: 'Eve', amount: 100 },
+    { name: 'Frank', amount: 80 },
+  ];
+  const topSupporters = supporters.slice(0, 3);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -86,6 +100,14 @@ export default function TheLab() {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  useEffect(() => {
+    if (selectedPoint && !isMobile) {
+      const centerX = window.innerWidth / 2 - 240; // max-w-md/2 aprox
+      const centerY = window.innerHeight / 2 - 200; // altura estimada/2
+      setContentCardPosition({ x: centerX, y: centerY });
+    }
+  }, [selectedPoint, isMobile]);
 
   const projectPoints: ProjectPoint[] = [
     {
@@ -211,7 +233,7 @@ export default function TheLab() {
       id: "why-support",
       title: "Why Support",
       icon: <Heart className="w-6 h-6 text-pink-400" />,
-      position: { x: 40, y: 60 },
+      position: { x: 25, y: 75 },
       content: (
         <div className="space-y-6">
           <ol className="list-decimal text-gray-200 space-y-4 ml-6 text-lg">
@@ -329,7 +351,7 @@ export default function TheLab() {
       id: "merch",
       title: "Merchandise",
       icon: <ShoppingBag className="w-6 h-6 text-orange-400" />,
-      position: { x: 30, y: 80 },
+      position: { x: 15, y: 80 },
       content: (
         <div className="space-y-6">
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm text-center">
@@ -353,8 +375,18 @@ export default function TheLab() {
     }));
   };
 
+  const handleContentCardDragEnd = (event: MouseEvent | TouchEvent, info: PanInfo) => {
+    setContentCardPosition(pos => {
+      if (!pos) return pos;
+      return {
+        x: pos.x + info.offset.x,
+        y: pos.y + info.offset.y
+      };
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-[180vh] bg-black text-white relative overflow-hidden">
       {/* Background Video */}
       <div className="fixed inset-0 w-full h-full z-0">
         {/*
@@ -424,44 +456,29 @@ export default function TheLab() {
                 <h2 className="text-xl font-bold text-white">The Lab Progress</h2>
           </div>
               <div className="space-y-4">
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>Goal: ${goal.toLocaleString()} USD</span>
-                  <span>Raised: ${currentAmount.toLocaleString()} USD</span>
-          </div>
-                <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-red-500 to-red-600"
-                  />
+                <div className="w-full flex justify-center mb-4">
+                  <video src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4" controls autoPlay loop className="rounded-xl w-full max-w-md shadow-lg" />
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.08, boxShadow: '0 0 24px 4px #ef4444cc' }}
-                  whileTap={{ scale: 0.98 }}
-                  animate={{
-                    scale: [1, 1.06, 1],
-                    boxShadow: [
-                      '0 0 0px 0px #ef444400',
-                      '0 0 24px 4px #ef4444cc',
-                      '0 0 0px 0px #ef444400'
-                    ]
-                  }}
-                  transition={{
-                    duration: 1.8,
-                    repeat: Infinity,
-                    repeatType: 'loop',
-                    ease: 'easeInOut'
-                  }}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 rounded-full text-white font-bold hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg shadow-red-500/20 mt-2"
-                >
-                  Support Now
-                </motion.button>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm text-gray-400">
+                    <span>Goal: ${goal.toLocaleString()} USD</span>
+                    <span>Raised: ${currentAmount.toLocaleString()} USD</span>
+                  </div>
+                  <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="h-full bg-gradient-to-r from-red-500 to-red-600"
+                    />
+                  </div>
+                </div>
+                <DonationWidget />
             </div>
                     </motion.div>
 
             {/* Accordion Sections */}
-            {projectPoints.map((point) => (
+            {projectPoints.map((point, idx) => (
               <motion.div
                 key={point.id}
                 initial={{ y: 0 }}
@@ -474,11 +491,23 @@ export default function TheLab() {
                   onClick={() => setOpenSection(openSection === point.id ? null : point.id)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-500/20 rounded-lg">
+                    <motion.div
+                      animate={{
+                        y: [0, -5, 0, 5, 0],
+                        x: [0, 2, 0, -2, 0]
+                      }}
+                      transition={{
+                        duration: 2 + (idx % 2),
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: idx * 0.1
+                      }}
+                      className="p-2 bg-red-500/20 rounded-lg"
+                    >
                       {point.icon}
-                  </div>
+                    </motion.div>
                     <h2 className="text-lg font-bold text-white">{point.title}</h2>
-              </div>
+                  </div>
                   <ChevronDown className={`w-5 h-5 text-white transition-transform ${openSection === point.id ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${openSection === point.id ? 'max-h-[1000px] p-4' : 'max-h-0 p-0'}`}
@@ -514,7 +543,7 @@ export default function TheLab() {
                 className="fixed top-0 left-0 h-full w-64 bg-gray-900/95 backdrop-blur-sm z-40 p-4"
               >
                 <div className="space-y-4">
-                  {projectPoints.map((point) => (
+                  {projectPoints.map((point, idx) => (
                     <button
                       key={point.id}
                       onClick={() => {
@@ -523,7 +552,20 @@ export default function TheLab() {
                       }}
                       className="flex items-center space-x-2 w-full p-2 hover:bg-gray-800 rounded-lg"
                     >
-                      {point.icon}
+                      <motion.div
+                        animate={{
+                          y: [0, -5, 0, 5, 0],
+                          x: [0, 2, 0, -2, 0]
+                        }}
+                        transition={{
+                          duration: 2 + (idx % 2),
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: idx * 0.1
+                        }}
+                      >
+                        {point.icon}
+                      </motion.div>
                       <span>{point.title}</span>
                     </button>
                   ))}
@@ -544,7 +586,7 @@ export default function TheLab() {
                 </div>
 
             {/* Project Points */}
-            {projectPoints.map((point) => (
+            {projectPoints.map((point, idx) => (
               <motion.button
                 key={point.id}
                 initial={{ scale: 0 }}
@@ -553,25 +595,39 @@ export default function TheLab() {
                 drag
                 dragControls={dragControls}
                 dragMomentum={false}
-                className="absolute"
+                className="absolute z-30"
                 style={{
                   left: `${point.position.x}%`,
-                  top: `${point.position.y}%`,
+                  top: `calc(${point.position.y}% + 60px)`, // margen superior extra para no tocar supporters
                   transform: 'translate(-50%, -50%)'
                 }}
                 onClick={() => setSelectedPoint(point.id)}
               >
                 <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative"
+                  animate={{ y: [0, -14, 0, 14, 0] }}
+                  transition={{
+                    duration: 5 + (idx % 2),
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: idx * 0.3
+                  }}
+                  className="flex flex-col items-center"
                 >
                   <div className="w-12 h-12 bg-gray-800/80 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-blue-500/50 shadow-2xl shadow-black/40">
                     {point.icon}
                   </div>
-                  <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-sm font-medium text-gray-300">
+                  <motion.div
+                    animate={{ y: [0, -10, 0, 10, 0] }}
+                    transition={{
+                      duration: 5 + (idx % 2),
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: idx * 0.3
+                    }}
+                    className="mt-2 whitespace-nowrap text-sm font-medium text-gray-300"
+                  >
                     {point.title}
-                  </div>
+                  </motion.div>
                 </motion.div>
               </motion.button>
             ))}
@@ -589,80 +645,129 @@ export default function TheLab() {
             </div>
 
             {/* Progress Card como sección superior */}
-            <div className="w-full flex justify-center mt-8 mb-8">
+            <div className="w-full flex flex-col items-center mt-8 mb-8 gap-4 pb-16">
               <motion.div
                 initial={{ y: 0 }}
                 animate={{ y: [0, -12, 0] }}
                 transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                 className="w-full max-w-md bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-gray-700 px-6 py-8"
               >
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2">
-                    <GripVertical className="w-5 h-5 text-gray-400" />
-                    <h3 className="text-xl font-bold flex items-center gap-2">
-                      <Music className="w-6 h-6 text-red-400" />
-                      The Lab Progress
-                    </h3>
-              </div>
-                  <div className="flex items-center space-x-2">
-                <button
-                      onClick={() => setIsMuted(!isMuted)}
-                      className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                      {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                </button>
-                    <button
-                      onClick={() => setIsPlaying(!isPlaying)}
-                      className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-                    >
-                      {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                    </button>
-                  </div>
-              </div>
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm text-gray-400">
-                    <span>Goal: ${goal.toLocaleString()} USD</span>
-                    <span>Raised: ${currentAmount.toLocaleString()} USD</span>
-          </div>
-                  <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-red-500 to-red-600"
-                    />
-          </div>
-                  <motion.button
-                    whileHover={{ scale: 1.08, boxShadow: '0 0 24px 4px #ef4444cc' }}
-                    whileTap={{ scale: 0.98 }}
-                    animate={{
-                      scale: [1, 1.06, 1],
-                      boxShadow: [
-                        '0 0 0px 0px #ef444400',
-                        '0 0 24px 4px #ef4444cc',
-                        '0 0 0px 0px #ef444400'
-                      ]
-                    }}
-                    transition={{
-                      duration: 1.8,
-                      repeat: Infinity,
-                      repeatType: 'loop',
-                      ease: 'easeInOut'
-                    }}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 rounded-full text-white font-bold hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg shadow-red-500/20"
-                  >
-                    Support Now
-                  </motion.button>
+                  <div className="w-full flex justify-center mb-4">
+                    <video src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4" controls autoPlay loop className="rounded-xl w-full max-w-md shadow-lg" />
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm text-gray-400">
+                      <span>Goal: ${goal.toLocaleString()} USD</span>
+                      <span>Raised: ${currentAmount.toLocaleString()} USD</span>
+                    </div>
+                    <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className="h-full bg-gradient-to-r from-red-500 to-red-600"
+                      />
+                    </div>
+                  </div>
+                  <DonationWidget />
+                </div>
+              </motion.div>
+              {/* Supporters Card */}
+              <div className="w-full max-w-md bg-gradient-to-br from-gray-950/95 to-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl shadow-black/40 border border-yellow-200/20 px-6 py-6 sticky top-[120px] z-10 overflow-auto max-h-[520px]">
+                {/* Header minimalista */}
+                <div className="flex items-center gap-3 mb-2">
+                  <Star className="w-6 h-6 text-yellow-300 animate-pulse" />
+                  <h3 className="text-lg font-bold tracking-widest text-yellow-100 uppercase">Supporters</h3>
+                </div>
+                <div className="border-b border-yellow-100/10 mb-4" />
+                {/* Top Supporters Podium */}
+                <div className="flex justify-center items-end gap-2 mb-6">
+                  {topSupporters.map((s, i) => {
+                    const podium = [
+                      'from-yellow-400 to-yellow-200', // oro
+                      'from-gray-300 to-gray-100',      // plata
+                      'from-orange-700 to-yellow-400'   // bronce
+                    ];
+                    const size = i === 0 ? 'h-24 w-20' : 'h-20 w-16';
+                    const textSize = i === 0 ? 'text-xl' : 'text-base';
+                    const fontWeight = i === 0 ? 'font-extrabold' : 'font-bold';
+                    return (
+                      <div key={s.name} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
+                        <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center ${size} mb-2 relative animate-pulse`}
+                          style={{ boxShadow: i === 0 ? '0 0 24px 4px #FFD70055' : undefined }}>
+                          <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-300 text-black rounded-full px-2 py-0.5 text-xs font-bold border-2 border-yellow-400 shadow">#{i+1}</span>
+                          <span className={`text-black ${textSize} ${fontWeight} drop-shadow`}>{s.name}</span>
+                          <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Ranking de todos los supporters */}
+                <div>
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Ranking</span>
+                  <ul className="divide-y divide-yellow-100/10 max-h-[140px] overflow-y-auto pr-1">
+                    {supporters.map((s, i) => (
+                      <li key={s.name} className="flex items-center gap-3 py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                        <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
+                        <span className="flex-1 font-medium text-gray-100">{s.name}</span>
+                        <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
+                        <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
-            </motion.div>
-          </div>
 
             {/* Content Panel */}
             <AnimatePresence>
-              {selectedPoint && (
+              {selectedPoint && !isMobile && contentCardPosition && (
                 <motion.div
                   initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: [40, 26, 40] }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 40 }}
+                  drag
+                  dragMomentum={false}
+                  onDragEnd={handleContentCardDragEnd}
+                  dragConstraints={{
+                    left: 0,
+                    top: 0,
+                    right: window.innerWidth - 100,
+                    bottom: window.innerHeight - 100
+                  }}
+                  style={{
+                    position: 'fixed',
+                    left: contentCardPosition.x,
+                    top: contentCardPosition.y,
+                    zIndex: 50
+                  }}
+                  className="w-[80%] max-w-md bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-gray-700 p-3 md:p-4 max-h-[70vh] overflow-y-auto"
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                >
+                  <div className="flex justify-between items-center mb-4 md:mb-6">
+                    <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                      {projectPoints.find(p => p.id === selectedPoint)?.icon}
+                      {projectPoints.find(p => p.id === selectedPoint)?.title}
+                    </h2>
+                    <button
+                      onClick={() => { setSelectedPoint(null); setContentCardPosition(null); }}
+                      className="p-2 hover:bg-gray-800 rounded-lg"
+                    >
+                      <X className="w-5 h-5 md:w-6 md:h-6" />
+                    </button>
+                  </div>
+                  <div className="max-h-[60vh] overflow-y-auto">
+                    {projectPoints.find(p => p.id === selectedPoint)?.content}
+                  </div>
+                </motion.div>
+              )}
+              {/* Mobile: igual que antes, sin drag */}
+              {selectedPoint && isMobile && (
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 40 }}
                   style={{
                     left: '50%',
@@ -671,7 +776,7 @@ export default function TheLab() {
                     position: 'fixed',
                   }}
                   className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-gray-700 z-50 p-4 md:p-6 max-h-[80vh] overflow-y-auto"
-                  transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
                   <div className="flex justify-between items-center mb-4 md:mb-6">
                     <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
@@ -679,15 +784,15 @@ export default function TheLab() {
                       {projectPoints.find(p => p.id === selectedPoint)?.title}
                     </h2>
                     <button
-                      onClick={() => { setSelectedPoint(null); setContentCardPosition({x:0, y:0}); }}
+                      onClick={() => { setSelectedPoint(null); setContentCardPosition(null); }}
                       className="p-2 hover:bg-gray-800 rounded-lg"
                     >
                       <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
-            </div>
+                  </div>
                   <div className="max-h-[60vh] overflow-y-auto">
                     {projectPoints.find(p => p.id === selectedPoint)?.content}
-            </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

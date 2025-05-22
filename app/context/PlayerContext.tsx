@@ -13,7 +13,7 @@ type Track = {
   description?: string;
 };
 
-type PlayerContextType = {
+export type PlayerContextType = {
   current: number;
   playing: boolean;
   progress: number;
@@ -36,6 +36,7 @@ type PlayerContextType = {
   handlePrev: () => void;
   handleSeek: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleVolume: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onViewRelease: (track: Track) => void;
 };
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -126,6 +127,10 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const onViewRelease = (track: Track) => {
+    // Implementation of onViewRelease function
+  };
+
   return (
     <PlayerContext.Provider value={{
       current,
@@ -150,6 +155,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       handlePrev,
       handleSeek,
       handleVolume,
+      onViewRelease,
     }}>
       {children}
       <audio

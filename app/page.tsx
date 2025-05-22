@@ -324,6 +324,19 @@ function formatTime(sec: number) {
   return `${m}:${s.toString().padStart(2, "0")}`
 }
 
+function trackToCollectible(track: {title:string,artist:string,cover:string,src:string, album?:string, genres?:string[], year?:string, description?:string}) {
+  const collectible = collectibles.find(c => c.title.trim().toLowerCase() === track.title.trim().toLowerCase());
+  if (collectible) {
+    return collectible;
+  }
+  return {
+    title: track.title,
+    url: '',
+    cover: track.cover,
+    description: track.description
+  };
+}
+
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [emblaRef] = useEmblaCarousel({ align: 'start', loop: true }, [Autoplay({ delay: 2500, stopOnInteraction: false })])
@@ -412,24 +425,6 @@ export default function Home() {
       artist: "Alex Paul",
       cover: "/images/collectibles/otro-ambiente.jpg",
       src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Otro%20Ambiente.wav"
-    },
-    {
-      title: "Perdidos",
-      artist: "Alex Paul",
-      cover: "https://i.scdn.co/image/ab67616d0000b273f68588164d23abfe6ba0e68a",
-      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Perdidos.wav"
-    },
-    {
-      title: "¿Por qué lloras por él?",
-      artist: "Alex Paul",
-      cover: "https://i.scdn.co/image/ab67616d0000b27327c945aa997e44fa963811fb",
-      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Por%20queCC%81%20lloras%20por%20e%CC%81l%3F.wav"
-    },
-    {
-      title: "Retrato",
-      artist: "Alex Paul",
-      cover: "/images/collectibles/retrato.jpg",
-      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Retrato.wav"
     },
     {
       title: "Rosa Pastel",
@@ -672,9 +667,17 @@ export default function Home() {
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><text x="16" y="21" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#fff" fontFamily="Arial, Helvetica, sans-serif"></text></svg>
             </a>
             {/* YouTube */}
-            <a href="https://www.youtube.com/channel/UC-Uei4OqY8xX5M1YgqGxW4w" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="YouTube">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M27.8 10.2c-.3-1.2-1.2-2.1-2.4-2.4C23.1 7.3 16 7.3 16 7.3s-7.1 0-9.4.5c-1.2.3-2.1 1.2-2.4 2.4C3.7 12.5 3.7 16 3.7 16s0 3.5.5 5.8c.3 1.2 1.2 2.1 2.4 2.4 2.3.5 9.4.5 9.4.5s7.1 0 9.4-.5c1.2-.3 2.1-1.2 2.4-2.4.5-2.3.5-5.8.5-5.8s0-3.5-.5-5.8zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#fff"/></svg>
-            </a>
+            {modalCollectible && modalCollectible.youtube && (
+              <a href={modalCollectible.youtube} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-[#ff0000]/80 transition-colors shadow">
+                <span className="w-6 h-6 inline-block align-middle">
+                  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                    <rect width="32" height="32" rx="7" fill="#FF0000"/>
+                    <polygon points="13,10 24,16 13,22" fill="#fff"/>
+                  </svg>
+                </span>
+                YouTube
+              </a>
+            )}
           </motion.div>
         </section>
 
@@ -686,27 +689,21 @@ export default function Home() {
         {/* Modal Release */}
         {modalCollectible && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
-            <div className="bg-black rounded-3xl shadow-2xl max-w-3xl w-full flex flex-col md:flex-row overflow-hidden relative border-none">
+            <div className="bg-black rounded-3xl shadow-2xl max-w-3xl w-full flex flex-col md:flex-row overflow-hidden relative border-none mx-2 my-4">
               {/* Close button */}
               <button onClick={() => setModalCollectible(null)} className="absolute top-4 right-4 text-white text-3xl font-bold hover:text-red-400 transition-colors bg-black/60 rounded-full w-12 h-12 flex items-center justify-center z-10 border-2 border-white/10">
                 ×
               </button>
               {/* Image */}
-              <div className="flex items-center justify-center p-8 md:p-12 bg-black flex-shrink-0 w-full md:w-[380px]">
+              <div className="flex items-center justify-center p-8 md:p-12 bg-black w-full md:w-[380px]">
                 <img src={modalCollectible.cover} alt={modalCollectible.title} className="max-h-96 w-auto rounded-2xl shadow-xl border-2 border-white/10" />
               </div>
               {/* Info */}
               <div className="flex flex-col justify-center px-8 py-8 gap-6 w-full">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="uppercase text-xs font-bold bg-neutral-800 text-white px-3 py-1 rounded tracking-widest">Single</span>
-                    {/* Puedes agregar año si lo tienes: <span className="uppercase text-xs font-bold bg-neutral-800 text-white px-3 py-1 rounded tracking-widest">2024</span> */}
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-extrabold uppercase tracking-wider mb-2 text-white">{modalCollectible.title}</h2>
                   {modalCollectible.description && (
                     <p className="text-base text-neutral-300 mb-4 max-w-xl" style={{letterSpacing:1.2}}>{modalCollectible.description}</p>
                   )}
-                  <div className="text-sm text-neutral-400 mb-6">ARTIST <span className="text-white font-bold float-right">Alex Paul</span></div>
                 </div>
                 <div>
                   <div className="text-lg font-extrabold uppercase tracking-wider mb-4 text-white border-2 border-white px-4 py-2 inline-block bg-black">Available On</div>
@@ -721,9 +718,15 @@ export default function Home() {
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Spotify.png/1200px-Spotify.png" alt="Spotify" className="w-6 h-6 inline-block align-middle" style={{objectFit:'contain'}} /> Spotify
                       </a>
                     )}
-                    {modalCollectible.youtube && (
+                    {modalCollectible && modalCollectible.youtube && (
                       <a href={modalCollectible.youtube} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-[#ff0000]/80 transition-colors shadow">
-                        <span className="w-6 h-6 inline-block align-middle"><svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path d="M23.498 6.186a2.994 2.994 0 0 0-2.112-2.112C19.505 3.5 16 3.5 16 3.5s-3.505 0-5.386.574A2.994 2.994 0 0 0 8.502 6.186C8 8.067 8 12 8 12s0 3.933.502 5.814a2.994 2.994 0 0 0 2.112 2.112C12.495 20.5 16 20.5 16 20.5s3.505 0 5.386-.574a2.994 2.994 0 0 0 2.112-2.112C24 15.933 24 12 24 12s0-3.933-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#fff"/></svg></span> YouTube
+                        <span className="w-6 h-6 inline-block align-middle">
+                          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                            <rect width="32" height="32" rx="7" fill="#FF0000"/>
+                            <polygon points="13,10 24,16 13,22" fill="#fff"/>
+                          </svg>
+                        </span>
+                        YouTube
                       </a>
                     )}
                     {modalCollectible.deezer && (
@@ -840,6 +843,12 @@ function PlayerUI({
               </div>
             )}
           </div>
+          <button
+            onClick={() => onViewRelease(trackToCollectible(tracks[current]))}
+            className="mt-2 px-4 py-1 rounded-full bg-red-600 text-white text-sm font-semibold shadow hover:bg-red-700 transition-colors"
+          >
+            View Release
+          </button>
         </div>
         {/* Info & Controls */}
         <div className="flex-1 flex flex-col justify-between p-6 gap-4">

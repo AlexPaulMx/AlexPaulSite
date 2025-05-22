@@ -19,6 +19,7 @@ export function FloatingPlayer() {
     handlePrev,
     handleSeek,
     handleVolume,
+    onViewRelease,
   } = usePlayer();
 
   if (!tracks.length || !tracks[current] || !playing) return null;
@@ -99,17 +100,6 @@ export function FloatingPlayer() {
           />
         </div>
       </div>
-      <button 
-        onClick={() => {
-          if (typeof window !== 'undefined' && window.onViewRelease) {
-            window.onViewRelease(tracks[current]);
-          }
-        }}
-        className="px-1.5 py-0.5 bg-white/90 text-black rounded-none text-[10px] uppercase tracking-wider font-bold shadow hover:bg-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg whitespace-nowrap"
-        style={{lineHeight:'1.1', letterSpacing:'0.08em'}}
-      >
-        View Release
-      </button>
       <style jsx global>{`
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(32px) scale(0.98); }
