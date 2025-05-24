@@ -362,6 +362,8 @@ const USDC_APPROVE_ABI = [
   },
 ] as const;
 
+const GOAL_AMOUNT = 10000; // $10,000 USD
+
 export default function Home() {
   const { address } = useAccount();
   const [showModal, setShowModal] = useState(false);
@@ -380,6 +382,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [totalRaised, setTotalRaised] = useState(0);
 
   const { writeContract: approveEth, data: ethData } = useWriteContract();
 
@@ -464,7 +467,7 @@ export default function Home() {
             name: s.display_name,
             avatar: `/images/collectors/collector${i + 1}.jpg`,
             collected: s.amount,
-            since: `Since ${new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
+            since: s.created_at ? `Since ${new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}` : 'Recently'
           })));
         }
       } catch (error) {
@@ -495,6 +498,7 @@ export default function Home() {
     setSuccess('Thank you for your donation!');
     setAmount('');
     setIsLoading(false);
+    setTotalRaised(prev => prev + parseFloat(donationAmount));
   }
 
   return (
@@ -508,7 +512,11 @@ export default function Home() {
             Join us in creating something extraordinary. Your support helps us push the boundaries of what's possible in music and technology.
           </p>
 
-          <FundingProgress />
+          <FundingProgress 
+            currentAmount={totalRaised}
+            targetAmount={GOAL_AMOUNT}
+            lastUpdate={new Date().toISOString()}
+          />
 
           <div className="mt-12 p-8 bg-black/30 rounded-2xl border border-white/10">
             <h2 className="text-2xl font-bold mb-6">Make a Donation</h2>

@@ -43,12 +43,14 @@ export default function FundingProgress({ currentAmount, targetAmount, lastUpdat
 
   // Listen for USDC Transfer events
   useEffect(() => {
+    if (!publicClient) return;
+    
     const unwatch = publicClient.watchContractEvent({
       address: USDC_ADDRESS,
       abi: USDC_ABI,
       eventName: 'Transfer',
       args: {
-        to: PROJECT_WALLET,
+        to: PROJECT_WALLET as `0x${string}`,
       },
       onLogs: (logs) => {
         console.log('New USDC transfer received:', logs);
@@ -63,11 +65,13 @@ export default function FundingProgress({ currentAmount, targetAmount, lastUpdat
 
   // Listen for ETH transactions
   useEffect(() => {
+    if (!publicClient) return;
+
     const unwatch = publicClient.watchBlockNumber({
       onBlockNumber: (blockNumber) => {
         publicClient.getBlock({ blockNumber }).then((block) => {
           const projectTransactions = block.transactions.filter(
-            (tx) => tx.to?.toLowerCase() === PROJECT_WALLET.toLowerCase()
+            (tx) => typeof tx === 'object' && tx.to?.toLowerCase() === PROJECT_WALLET.toLowerCase()
           );
           
           if (projectTransactions.length > 0) {
@@ -117,7 +121,16 @@ export default function FundingProgress({ currentAmount, targetAmount, lastUpdat
   useEffect(() => {
     setMounted(true);
     try {
-      setFormattedDate(formatDistanceToNow(new Date(lastUpdate), { 
+      if (!lastUpdate) {
+        setFormattedDate("recientemente");
+        return;
+      }
+      const date = new Date(lastUpdate);
+      if (isNaN(date.getTime())) {
+        setFormattedDate("recientemente");
+        return;
+      }
+      setFormattedDate(formatDistanceToNow(date, { 
         addSuffix: true,
         locale: es 
       }));

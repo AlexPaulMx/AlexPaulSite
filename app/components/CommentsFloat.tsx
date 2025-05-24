@@ -129,7 +129,10 @@ export default function CommentsFloat() {
 
   const formatDate = (dateString: string) => {
     try {
-      return formatDistanceToNow(new Date(dateString), { 
+      if (!dateString) return "recientemente";
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "recientemente";
+      return formatDistanceToNow(date, { 
         addSuffix: true,
         locale: es 
       });
