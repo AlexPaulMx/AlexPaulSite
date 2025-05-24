@@ -40,6 +40,7 @@ export function formatUSDCAmount(amount: number): bigint {
   return parseUnits(amount.toString(), USDC_DECIMALS);
 }
 
-export function parseUSDCAmount(amount: bigint): number {
-  return Number(amount) / Math.pow(10, USDC_DECIMALS);
+export function parseUSDCAmount(amount: number): bigint {
+  // USDC has 6 decimals
+  return BigInt(Math.floor(amount * 1_000_000));
 } 
