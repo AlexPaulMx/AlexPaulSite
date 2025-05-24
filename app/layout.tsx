@@ -9,11 +9,6 @@ import { Providers } from "./providers"
 import HeatmapGlobal from "./HeatmapGlobal"
 import AppLoaderWrapper from "./components/AppLoaderWrapper"
 import SidebarNav from "./components/SidebarNav"
-import { WagmiProvider } from 'wagmi'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { config } from './config'
-
-const queryClient = new QueryClient()
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Sidebar links solo iconos
@@ -26,22 +21,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <WagmiProvider config={config}>
-          <QueryClientProvider client={queryClient}>
-            <PlayerProvider>
-              <Providers>
-                <HeatmapGlobal />
-                <LogoCursor />
-                <SidebarNav links={links} />
-                {/* Contenido principal ajustado */}
-                <div style={{ marginLeft: 64 }}>
-                  <AppLoaderWrapper>{children}</AppLoaderWrapper>
-                </div>
-                <FloatingPlayer />
-              </Providers>
-            </PlayerProvider>
-          </QueryClientProvider>
-        </WagmiProvider>
+        <PlayerProvider>
+          <Providers>
+        <HeatmapGlobal />
+        <LogoCursor />
+        <SidebarNav links={links} />
+        {/* Contenido principal ajustado */}
+        <div style={{ marginLeft: 64 }}>
+          <AppLoaderWrapper>{children}</AppLoaderWrapper>
+        </div>
+        <FloatingPlayer />
+        </Providers>
+        </PlayerProvider>
       </body>
     </html>
   )

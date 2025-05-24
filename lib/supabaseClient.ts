@@ -1,26 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
-}
-if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY');
-}
+const supabaseUrl = 'https://ozctwxtnhagwctockxlz.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96Y3R3eHRuaGFnd2N0b2NreGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4ODE1MzAsImV4cCI6MjA2MzQ1NzUzMH0.JXd72AP9H-_jfjqE4Ze-jOJDsCZ4QlS2IWmV1b4niVs';
 
-// Create a single instance of the Supabase client
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10
-      }
-    }
-  }
-); 
+export const supabase = createClient(supabaseUrl, supabaseKey); 

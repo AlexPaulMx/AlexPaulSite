@@ -12,7 +12,7 @@ import dynamic from "next/dynamic"
 import { usePlayer } from './context/PlayerContext';
 import { FloatingPlayer } from './components/FloatingPlayer';
 import NoiseBg from "@/components/NoiseBg";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
 import { parseEther } from "viem";
 import { USDC_ADDRESS, USDC_ABI, parseUSDCAmount } from "./utils/usdc";
 import FundingProgress from "./components/FundingProgress";
@@ -349,21 +349,6 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const USDC_APPROVE_ABI = [
-  {
-    name: 'approve',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'spender', type: 'address' },
-      { name: 'amount', type: 'uint256' },
-    ],
-    outputs: [{ name: '', type: 'bool' }],
-  },
-] as const;
-
-const GOAL_AMOUNT = 10000; // $10,000 USD
-
 export default function Home() {
   const { address } = useAccount();
   const [showModal, setShowModal] = useState(false);
@@ -378,22 +363,28 @@ export default function Home() {
     since: string;
   }>>([]);
   const [isLoadingCollectors, setIsLoadingCollectors] = useState(true);
-  const [amount, setAmount] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [totalRaised, setTotalRaised] = useState(0);
 
-  const { writeContract: approveEth, data: ethData } = useWriteContract();
-
-  const { writeContract: approveUsdc, data: usdcData } = useWriteContract();
-
-  const { isLoading: isEthLoading } = useWaitForTransactionReceipt({
-    hash: ethData,
+  // ETH Donation
+  const { write: sendEth, data: ethData } = useContractWrite({
+    address: "0x5aF876e2DA6f8324B5Ac866B0C7e73c619c95DC8",
+    abi: [],
+    functionName: "receive",
   });
 
-  const { isLoading: isUsdcLoading } = useWaitForTransactionReceipt({
-    hash: usdcData,
+  // USDC Donation
+  const { write: sendUSDC, data: usdcData } = useContractWrite({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: "transfer",
+  });
+
+  // Wait for transaction
+  const { isLoading: isEthLoading } = useWaitForTransaction({
+    hash: ethData?.hash,
+  });
+
+  const { isLoading: isUsdcLoading } = useWaitForTransaction({
+    hash: usdcData?.hash,
   });
 
   // Handle donation submission
@@ -402,23 +393,14 @@ export default function Home() {
 
     try {
       if (donationCurrency === "ETH") {
-        await approveEth({
-          abi: USDC_APPROVE_ABI,
-          address: USDC_ADDRESS as `0x${string}`,
-          functionName: 'approve',
-          args: [
-            '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
-            BigInt(parseUSDCAmount(parseFloat(donationAmount))),
-          ],
+        await sendEth({
+          value: parseEther(donationAmount),
         });
       } else {
-        await approveUsdc({
-          abi: USDC_APPROVE_ABI,
-          address: USDC_ADDRESS as `0x${string}`,
-          functionName: 'approve',
+        await sendUSDC({
           args: [
-            '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
-            BigInt(parseUSDCAmount(parseFloat(donationAmount))),
+            "0x5aF876e2DA6f8324B5Ac866B0C7e73c619c95DC8",
+            parseUSDCAmount(donationAmount),
           ],
         });
       }
@@ -467,7 +449,7 @@ export default function Home() {
             name: s.display_name,
             avatar: `/images/collectors/collector${i + 1}.jpg`,
             collected: s.amount,
-            since: s.created_at ? `Since ${new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}` : 'Recently'
+            since: `Since ${new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
           })));
         }
       } catch (error) {
@@ -480,27 +462,6 @@ export default function Home() {
     fetchCollectors();
   }, []);
 
-  // Handle approval success
-  if (ethData && !isEthLoading && !usdcData) {
-    approveUsdc({
-      abi: USDC_ABI,
-      address: USDC_ADDRESS as `0x${string}`,
-      functionName: 'transfer',
-      args: [
-        '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
-        BigInt(parseUSDCAmount(parseFloat(amount))),
-      ],
-    });
-  }
-
-  // Handle donation success
-  if (usdcData && !isUsdcLoading) {
-    setSuccess('Thank you for your donation!');
-    setAmount('');
-    setIsLoading(false);
-    setTotalRaised(prev => prev + parseFloat(donationAmount));
-  }
-
   return (
     <main className="min-h-screen bg-[#101014] text-white">
       <div className="container mx-auto px-4 py-16">
@@ -512,11 +473,7 @@ export default function Home() {
             Join us in creating something extraordinary. Your support helps us push the boundaries of what's possible in music and technology.
           </p>
 
-          <FundingProgress 
-            currentAmount={totalRaised}
-            targetAmount={GOAL_AMOUNT}
-            lastUpdate={new Date().toISOString()}
-          />
+          <FundingProgress />
 
           <div className="mt-12 p-8 bg-black/30 rounded-2xl border border-white/10">
             <h2 className="text-2xl font-bold mb-6">Make a Donation</h2>
@@ -528,8 +485,8 @@ export default function Home() {
                 <div className="flex gap-4">
                   <input
                     type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    value={donationAmount}
+                    onChange={(e) => setDonationAmount(e.target.value)}
                     className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-red-500"
                     placeholder="Enter amount"
                     min="0"
@@ -546,22 +503,14 @@ export default function Home() {
                 </div>
               </div>
 
-              {error && (
-                <div className="text-red-500 text-sm">{error}</div>
-              )}
-
-              {success && (
-                <div className="text-green-500 text-sm">{success}</div>
-              )}
-
               <button
                 onClick={handleDonate}
-                disabled={!address || isLoading || isEthLoading || isUsdcLoading}
+                disabled={!address || isEthLoading || isUsdcLoading}
                 className="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#101014] shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {!address
                   ? "Connect Wallet"
-                  : isLoading || isEthLoading || isUsdcLoading
+                  : isEthLoading || isUsdcLoading
                   ? "Processing..."
                   : "Donate Now"}
               </button>
@@ -581,7 +530,7 @@ export default function Home() {
         amount={parseFloat(donationAmount)}
         currency={donationCurrency}
       />
-    </main>
+      </main>
   );
 }
 

@@ -32,14 +32,6 @@ export async function GET(
       args: [BigInt(tokenId)],
     });
 
-    // Get the token URI
-    const tokenURI = await client.readContract({
-      address: NFT_ADDRESS as `0x${string}`,
-      abi: NFT_ABI,
-      functionName: 'tokenURI',
-      args: [BigInt(tokenId)],
-    });
-
     // Construct the metadata
     const metadata = {
       name: "The Lab Video NFT",

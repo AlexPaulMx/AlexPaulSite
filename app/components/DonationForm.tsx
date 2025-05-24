@@ -1,32 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useContractWrite, useTransaction } from 'wagmi';
 import { parseUSDCAmount } from '../utils/usdc';
 import { hasNFT } from '../utils/nft';
-
-const USDC_APPROVE_ABI = [
-  {
-    name: 'approve',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'spender', type: 'address' },
-      { name: 'amount', type: 'uint256' },
-    ],
-    outputs: [{ name: '', type: 'bool' }],
-  },
-] as const;
-
-const DONATION_ABI = [
-  {
-    name: 'donate',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ name: 'amount', type: 'uint256' }],
-    outputs: [],
-  },
-] as const;
 
 export default function DonationForm() {
   const { address } = useAccount();
@@ -35,15 +12,42 @@ export default function DonationForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const { writeContract: approve, data: approveData } = useWriteContract();
+  const { writeContract: approve, data: approveData } = useContractWrite({
+    address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238' as `0x${string}`,
+    abi: [
+      {
+        name: 'approve',
+        type: 'function',
+        stateMutability: 'nonpayable',
+        inputs: [
+          { name: 'spender', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+        ],
+        outputs: [{ name: '', type: 'bool' }],
+      },
+    ],
+    functionName: 'approve',
+  });
 
-  const { writeContract: donate, data: donateData } = useWriteContract();
+  const { writeContract: donate, data: donateData } = useContractWrite({
+    address: '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
+    abi: [
+      {
+        name: 'donate',
+        type: 'function',
+        stateMutability: 'nonpayable',
+        inputs: [{ name: 'amount', type: 'uint256' }],
+        outputs: [],
+      },
+    ],
+    functionName: 'donate',
+  });
 
-  const { isLoading: isApproving } = useWaitForTransactionReceipt({
+  const { isLoading: isApproving } = useTransaction({
     hash: approveData,
   });
 
-  const { isLoading: isDonating } = useWaitForTransactionReceipt({
+  const { isLoading: isDonating } = useTransaction({
     hash: donateData,
   });
 
@@ -71,9 +75,6 @@ export default function DonationForm() {
 
       // First approve USDC spending
       approve({
-        abi: USDC_APPROVE_ABI,
-        address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238' as `0x${string}`,
-        functionName: 'approve',
         args: [
           '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
           BigInt(parseUSDCAmount(parsedAmount)),
@@ -88,9 +89,6 @@ export default function DonationForm() {
   // Handle approval success
   if (approveData && !isApproving && !donateData) {
     donate({
-      abi: DONATION_ABI,
-      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
-      functionName: 'donate',
       args: [BigInt(parseUSDCAmount(parseFloat(amount)))],
     });
   }

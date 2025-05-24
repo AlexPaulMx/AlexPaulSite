@@ -14,31 +14,12 @@ type Supporter = {
   created_at: string;
 };
 
-const formatDate = (dateString: string) => {
-  try {
-    if (!dateString) return "Recently";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Recently";
-    return formatDistanceToNow(date, { addSuffix: true });
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "Recently";
-  }
-};
-
 export default function SupportersList() {
   const [supporters, setSupporters] = useState<Supporter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
     const fetchSupporters = async () => {
       try {
         const { data, error } = await supabase
@@ -85,16 +66,12 @@ export default function SupportersList() {
           setSupporters((current) => [payload.new as Supporter, ...current]);
         }
       )
-      .subscribe((status) => {
-        console.log("Subscription status:", status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [mounted]);
-
-  if (!mounted) return null;
+  }, []);
 
   if (error) {
     return (
@@ -148,7 +125,7 @@ export default function SupportersList() {
                   {supporter.amount.toFixed(supporter.currency === "USDC" ? 2 : 4)}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {formatDate(supporter.created_at)}
+                  {formatDistanceToNow(new Date(supporter.created_at), { addSuffix: true })}
                 </p>
               </div>
             </div>
