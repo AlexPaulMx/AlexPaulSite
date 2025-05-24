@@ -38,6 +38,9 @@ import Image from "next/image";
 import NoiseBg from "@/components/NoiseBg";
 import type { PanInfo } from 'framer-motion';
 import DonationWidget from "../components/DonationWidget";
+import CommentsFloat from "../components/CommentsFloat";
+import FundingProgress from "../components/FundingProgress";
+import { supabase } from "../../lib/supabaseClient";
 
 type ProjectPoint = {
   id: string;
@@ -45,6 +48,11 @@ type ProjectPoint = {
   icon: React.ReactNode;
   position: { x: number; y: number };
   content: React.ReactNode;
+};
+
+type Supporter = {
+  display_name: string;
+  amount: number;
 };
 
 export default function TheLab() {
@@ -58,24 +66,43 @@ export default function TheLab() {
   const [cardPositions, setCardPositions] = useState<{ [key: string]: { x: number; y: number } }>({});
   const dragControls = useDragControls();
   const [contentCardPosition, setContentCardPosition] = useState<{x: number, y: number} | null>(null);
-
-  // Meta de crowdfunding: $10,000 USD
-  const goal = 10000;
-  const currentAmount = 0; // Actualizar con integración real
-  const progress = (currentAmount / goal) * 100;
+  const [totalRaised, setTotalRaised] = useState(0);
+  const [lastUpdate, setLastUpdate] = useState(new Date().toISOString());
+  const GOAL_AMOUNT = 10000; // $10,000 USD
 
   // Estado para el acordeón móvil (solo una sección a la vez)
   const [openSection, setOpenSection] = useState<string | null>(null);
 
-  // Datos de ejemplo para supporters y top supporters
-  const supporters = [
-    { name: 'Alice', amount: 500 },
-    { name: 'Bob', amount: 350 },
-    { name: 'Charlie', amount: 200 },
-    { name: 'Diana', amount: 120 },
-    { name: 'Eve', amount: 100 },
-    { name: 'Frank', amount: 80 },
-  ];
+  // Estado para supporters
+  const [supporters, setSupporters] = useState<Array<{ name: string; amount: number }>>([]);
+  const [isLoadingSupporters, setIsLoadingSupporters] = useState(true);
+
+  useEffect(() => {
+    const fetchSupporters = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("supporters")
+          .select("display_name, amount")
+          .order("amount", { ascending: false });
+
+        if (error) throw error;
+
+        if (data) {
+          setSupporters(data.map((s: Supporter) => ({
+            name: s.display_name,
+            amount: s.amount
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching supporters:", error);
+      } finally {
+        setIsLoadingSupporters(false);
+      }
+    };
+
+    fetchSupporters();
+  }, []);
+
   const topSupporters = supporters.slice(0, 3);
 
   useEffect(() => {
@@ -461,13 +488,13 @@ export default function TheLab() {
                 </div>
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm text-gray-400">
-                    <span>Goal: ${goal.toLocaleString()} USD</span>
-                    <span>Raised: ${currentAmount.toLocaleString()} USD</span>
+                    <span>Goal: ${GOAL_AMOUNT.toLocaleString()} USD</span>
+                    <span>Raised: ${totalRaised.toLocaleString()} USD</span>
                   </div>
                   <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
+                      animate={{ width: `${(totalRaised / GOAL_AMOUNT) * 100}%` }}
                       transition={{ duration: 1, ease: "easeOut" }}
                       className="h-full bg-gradient-to-r from-red-500 to-red-600"
                     />
@@ -658,13 +685,13 @@ export default function TheLab() {
                   </div>
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm text-gray-400">
-                      <span>Goal: ${goal.toLocaleString()} USD</span>
-                      <span>Raised: ${currentAmount.toLocaleString()} USD</span>
+                      <span>Goal: ${GOAL_AMOUNT.toLocaleString()} USD</span>
+                      <span>Raised: ${totalRaised.toLocaleString()} USD</span>
                     </div>
                     <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${progress}%` }}
+                        animate={{ width: `${(totalRaised / GOAL_AMOUNT) * 100}%` }}
                         transition={{ duration: 1, ease: "easeOut" }}
                         className="h-full bg-gradient-to-r from-red-500 to-red-600"
                       />
@@ -681,43 +708,58 @@ export default function TheLab() {
                   <h3 className="text-lg font-bold tracking-widest text-yellow-100 uppercase">Supporters</h3>
                 </div>
                 <div className="border-b border-yellow-100/10 mb-4" />
-                {/* Top Supporters Podium */}
-                <div className="flex justify-center items-end gap-2 mb-6">
-                  {topSupporters.map((s, i) => {
-                    const podium = [
-                      'from-yellow-400 to-yellow-200', // oro
-                      'from-gray-300 to-gray-100',      // plata
-                      'from-orange-700 to-yellow-400'   // bronce
-                    ];
-                    const size = i === 0 ? 'h-24 w-20' : 'h-20 w-16';
-                    const textSize = i === 0 ? 'text-xl' : 'text-base';
-                    const fontWeight = i === 0 ? 'font-extrabold' : 'font-bold';
-                    return (
-                      <div key={s.name} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
-                        <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center ${size} mb-2 relative animate-pulse`}
-                          style={{ boxShadow: i === 0 ? '0 0 24px 4px #FFD70055' : undefined }}>
-                          <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-300 text-black rounded-full px-2 py-0.5 text-xs font-bold border-2 border-yellow-400 shadow">#{i+1}</span>
-                          <span className={`text-black ${textSize} ${fontWeight} drop-shadow`}>{s.name}</span>
-                          <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {/* Ranking de todos los supporters */}
-                <div>
-                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Ranking</span>
-                  <ul className="divide-y divide-yellow-100/10 max-h-[140px] overflow-y-auto pr-1">
-                    {supporters.map((s, i) => (
-                      <li key={s.name} className="flex items-center gap-3 py-2 hover:bg-yellow-100/5 transition rounded-lg">
-                        <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
-                        <span className="flex-1 font-medium text-gray-100">{s.name}</span>
-                        <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
-                        <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                
+                {isLoadingSupporters ? (
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                    <div className="h-4 bg-gray-700 rounded w-2/3"></div>
+                  </div>
+                ) : supporters.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">¡Sé el primero en apoyar este proyecto!</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Top Supporters Podium */}
+                    <div className="flex justify-center items-end gap-2 mb-6">
+                      {topSupporters.map((s, i) => {
+                        const podium = [
+                          'from-yellow-400 to-yellow-200', // oro
+                          'from-gray-300 to-gray-100',      // plata
+                          'from-orange-700 to-yellow-400'   // bronce
+                        ];
+                        const size = i === 0 ? 'h-24 w-20' : 'h-20 w-16';
+                        const textSize = i === 0 ? 'text-xl' : 'text-base';
+                        const fontWeight = i === 0 ? 'font-extrabold' : 'font-bold';
+                        return (
+                          <div key={s.name} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
+                            <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center ${size} mb-2 relative animate-pulse`}
+                              style={{ boxShadow: i === 0 ? '0 0 24px 4px #FFD70055' : undefined }}>
+                              <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-300 text-black rounded-full px-2 py-0.5 text-xs font-bold border-2 border-yellow-400 shadow">#{i+1}</span>
+                              <span className={`text-black ${textSize} ${fontWeight} drop-shadow`}>{s.name}</span>
+                              <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* Ranking de todos los supporters */}
+                    <div>
+                      <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Ranking</span>
+                      <ul className="divide-y divide-yellow-100/10 max-h-[140px] overflow-y-auto pr-1">
+                        {supporters.map((s, i) => (
+                          <li key={s.name} className="flex items-center gap-3 py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                            <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
+                            <span className="flex-1 font-medium text-gray-100">{s.name}</span>
+                            <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
+                            <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -799,6 +841,14 @@ export default function TheLab() {
           </div>
         </>
         )}
+      
+      <FundingProgress 
+        currentAmount={totalRaised}
+        targetAmount={GOAL_AMOUNT}
+        lastUpdate={lastUpdate}
+      />
+      <DonationWidget />
+      <CommentsFloat />
     </div>
   );
 } 
