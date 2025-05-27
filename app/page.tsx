@@ -12,13 +12,9 @@ import dynamic from "next/dynamic"
 import { usePlayer } from './context/PlayerContext';
 import { FloatingPlayer } from './components/FloatingPlayer';
 import NoiseBg from "@/components/NoiseBg";
-import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
-import { parseEther } from "viem";
-import { USDC_ADDRESS, USDC_ABI, parseUSDCAmount } from "./utils/usdc";
 import FundingProgress from "./components/FundingProgress";
-import DonationModal from "./components/DonationModal";
-import SupportersList from "./components/SupportersList";
-import { createClient } from "@supabase/supabase-js";
+import SupportersAndComments from "./components/SupportersAndComments";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -344,193 +340,424 @@ function trackToCollectible(track: {title:string,artist:string,cover:string,src:
   };
 }
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export default function Home() {
-  const { address } = useAccount();
-  const [showModal, setShowModal] = useState(false);
-  const [donationAmount, setDonationAmount] = useState("");
-  const [donationCurrency, setDonationCurrency] = useState<"USDC" | "ETH">("ETH");
-  const [displayName, setDisplayName] = useState("");
-  const [comment, setComment] = useState("");
-  const [collectors, setCollectors] = useState<Array<{
-    name: string;
-    avatar: string;
-    collected: number;
-    since: string;
-  }>>([]);
-  const [isLoadingCollectors, setIsLoadingCollectors] = useState(true);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [emblaRef] = useEmblaCarousel({ align: 'start', loop: true }, [Autoplay({ delay: 2500, stopOnInteraction: false })])
+  const [modalCollectible, setModalCollectible] = useState<Release | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const playerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  const [showFloating, setShowFloating] = useState(false);
 
-  // ETH Donation
-  const { write: sendEth, data: ethData } = useContractWrite({
-    address: "0x5aF876e2DA6f8324B5Ac866B0C7e73c619c95DC8",
-    abi: [],
-    functionName: "receive",
-  });
+  const handlePlay = (idx: number) => {
+    setActiveIndex(idx)
+  }
+  const handlePause = () => {
+    setActiveIndex(null)
+  }
+  const handlePrev = () => {
+    setActiveIndex((prev) => {
+      if (prev === null) return 0
+      return prev === 0 ? releases.length - 1 : prev - 1
+    })
+  }
+  const handleNext = () => {
+    setActiveIndex((prev) => {
+      if (prev === null) return 0
+      return prev === releases.length - 1 ? 0 : prev + 1
+    })
+  }
 
-  // USDC Donation
-  const { write: sendUSDC, data: usdcData } = useContractWrite({
-    address: USDC_ADDRESS,
-    abi: USDC_ABI,
-    functionName: "transfer",
-  });
-
-  // Wait for transaction
-  const { isLoading: isEthLoading } = useWaitForTransaction({
-    hash: ethData?.hash,
-  });
-
-  const { isLoading: isUsdcLoading } = useWaitForTransaction({
-    hash: usdcData?.hash,
-  });
-
-  // Handle donation submission
-  const handleDonate = async () => {
-    if (!address) return;
-
-    try {
-      if (donationCurrency === "ETH") {
-        await sendEth({
-          value: parseEther(donationAmount),
-        });
-      } else {
-        await sendUSDC({
-          args: [
-            "0x5aF876e2DA6f8324B5Ac866B0C7e73c619c95DC8",
-            parseUSDCAmount(donationAmount),
-          ],
-        });
-      }
-      setShowModal(true);
-    } catch (error) {
-      console.error("Error sending donation:", error);
+  // Crea un array tracks con la información correcta para el reproductor
+  const tracks = [
+    {
+      title: "03:00 AM",
+      artist: "Alex Paul",
+      cover: "/images/collectibles/0300 am.jpg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeid3cb2bilpjrrxyx6bcwdbstradbbksz4xg3q3a54xkxnafvro47y/03%3A00%20AM.wav"
+    },
+    {
+      title: "Piso 23",
+      artist: "Alex Paul",
+      cover: "/images/collectibles/piso-23.jpeg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/PISO%2023%20.wav"
+    },
+    {
+      title: "Como Antes",
+      artist: "Alex Paul",
+      cover: "https://i.scdn.co/image/ab67616d0000b2736bb4b7dd585a2e44fa515f79",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeidst4w3d6nnb22dbeqgl3xtzkl5x6qyo4bqf3bi535kffn432t7gy/Como%20antes.wav"
+    },
+    {
+      title: "Clavada",
+      artist: "Alex Paul",
+      cover: "https://i.scdn.co/image/ab67616d00001e02cd7d8269454f92d766a4e301",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Clavada.wav"
+    },
+    {
+      title: "Cuando ya no me duelas",
+      artist: "Alex Paul",
+      cover: "https://i1.sndcdn.com/artworks-kKvgrzD62yiXjhyj-zxpQQQ-t1080x1080.jpg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Cuando%20ya%20no%20me%20duelas.wav"
+    },
+    {
+      title: "Culpa mía",
+      artist: "Alex Paul",
+      cover: "https://i.scdn.co/image/ab67616d0000b2738efcd0a615a49ed8c0f76967",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Culpa%20mi%CC%81a.wav"
+    },
+    {
+      title: "Entre Nosotros (Feat. Alana & Bulla Beatz)",
+      artist: "Alex Paul",
+      cover: "/images/collectibles/entre nosotros.gif",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Entre%20nosotros%20%28Feat.%20Alana%20%26%20Bulla%20Beatz%29.wav"
+    },
+    {
+      title: "Me quedo en casa",
+      artist: "Alex Paul",
+      cover: "https://s.mxmcdn.net/images-storage/albums2/5/8/7/5/8/5/52585785_350_350.jpg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Me%20Quedo%20En%20Casa%20.wav"
+    },
+    {
+      title: "Mi vieja chica",
+      artist: "Alex Paul",
+      cover: "https://i.scdn.co/image/ab67616d0000b273f68588164d23abfe6ba0e68a",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Mi%20Vieja%20Chica.wav"
+    },
+    {
+      title: "Otro Ambiente",
+      artist: "Alex Paul",
+      cover: "/images/collectibles/otro-ambiente.jpg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Otro%20Ambiente.wav"
+    },
+    {
+      title: "Rosa Pastel",
+      artist: "Alex Paul",
+      cover: "/images/collectibles/rosa-pastel.jpeg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Rosa%20Pastel%20%282%29.wav"
+    },
+    {
+      title: "Shot por mi",
+      artist: "Alex Paul",
+      cover: "https://i.scdn.co/image/ab67616d0000b273548bf4b88ea991112484a190",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Shot%20Por%20Mi%20.wav"
+    },
+    {
+      title: "Ya no estoy triste",
+      artist: "Alex Paul",
+      cover: "/images/collectibles/ya-no-estoy-triste-ft-genwav.jpeg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/Ya%20no%20estoy%20triste.wav"
+    },
+    {
+      title: "BFV",
+      artist: "Alex Paul",
+      cover: "/images/collectibles/bfv.jpg",
+      src: "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiajnnipzjjcazkzrqee7kvhdnb74ckx2tpby2iwkifmlugs3ljedq/BFV.wav"
     }
-  };
-
-  // Save supporter info
-  const handleSaveSupporter = async (data: { displayName: string; comment: string }) => {
-    if (!address) return;
-
-    try {
-      const { error } = await supabase.from("supporters").insert({
-        address,
-        display_name: data.displayName,
-        comment: data.comment,
-        amount: parseFloat(donationAmount),
-        currency: donationCurrency,
-      });
-
-      if (error) throw error;
-
-      setDisplayName(data.displayName);
-      setComment(data.comment);
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error saving supporter info:", error);
-    }
-  };
+  ];
 
   useEffect(() => {
-    const fetchCollectors = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("supporters")
-          .select("display_name, amount, created_at")
-          .order("amount", { ascending: false })
-          .limit(10);
-
-        if (error) throw error;
-
-        if (data) {
-          setCollectors(data.map((s, i) => ({
-            name: s.display_name,
-            avatar: `/images/collectors/collector${i + 1}.jpg`,
-            collected: s.amount,
-            since: `Since ${new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
-          })));
-        }
-      } catch (error) {
-        console.error("Error fetching collectors:", error);
-      } finally {
-        setIsLoadingCollectors(false);
-      }
+    if (!playerRef.current) return;
+    const observer = new window.IntersectionObserver(
+      ([entry]) => {
+        setShowFloating(!entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+      observer.observe(playerRef.current);
+    return () => {
+      if (playerRef.current) observer.unobserve(playerRef.current);
     };
-
-    fetchCollectors();
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#101014] text-white">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-8">
-            Support The Lab's Journey
-          </h1>
-          <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-            Join us in creating something extraordinary. Your support helps us push the boundaries of what's possible in music and technology.
-          </p>
+    <>
+      <main className="min-h-screen text-white relative" style={{zIndex:10}}>
+        {/* Hero Section: Spotify Player */}
+        <section className="py-16 px-4 flex flex-col items-center justify-center relative overflow-hidden" style={{minHeight:380}}>
+          {/* Background oscuro con efecto de noise/ruido */}
+          <div aria-hidden="true" style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: 'none',
+            overflow: 'hidden',
+          }}>
+            <NoiseBg />
+          </div>
+          {/* Hero Content */}
+            <PlayerUI 
+              tracks={tracks} 
+              onViewRelease={(collectible) => {
+                setModalCollectible(collectible);
+                setModalOpen(true);
+              }}
+            playerRef={playerRef}
+            />
+        </section>
 
-          <FundingProgress />
-
-          <div className="mt-12 p-8 bg-black/30 rounded-2xl border border-white/10">
-            <h2 className="text-2xl font-bold mb-6">Make a Donation</h2>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Amount
-                </label>
-                <div className="flex gap-4">
-                  <input
-                    type="number"
-                    value={donationAmount}
-                    onChange={(e) => setDonationAmount(e.target.value)}
-                    className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-red-500"
-                    placeholder="Enter amount"
-                    min="0"
-                    step="0.01"
-                  />
-                  <select
-                    value={donationCurrency}
-                    onChange={(e) => setDonationCurrency(e.target.value as "USDC" | "ETH")}
-                    className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-red-500"
-                  >
-                    <option value="ETH">ETH</option>
-                    <option value="USDC">USDC</option>
-                  </select>
-                </div>
-              </div>
-
-              <button
-                onClick={handleDonate}
-                disabled={!address || isEthLoading || isUsdcLoading}
-                className="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#101014] shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {!address
-                  ? "Connect Wallet"
-                  : isEthLoading || isUsdcLoading
-                  ? "Processing..."
-                  : "Donate Now"}
-              </button>
+        {/* Latest Release Section */}
+        <section className="py-16 px-4 flex flex-col items-center justify-center border-t border-neutral-800">
+          <h2 className="text-center text-xl uppercase tracking-wider mb-12 text-white font-normal">Latest Release</h2>
+          <div className="w-full max-w-3xl aspect-video rounded-lg overflow-hidden border-2 border-indigo-700 shadow-lg mx-auto">
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/eZQZFU31lVM?autoplay=1&mute=1&controls=1&loop=1&playlist=eZQZFU31lVM"
+              title="Alex Paul - Más reciente canción"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+            <div style={{color:'#FFD600',fontWeight:600,fontSize:13,textAlign:'center',marginTop:6,opacity:0.85}}>
+              Si el video no suena, haz click en el video para activar el audio (algunos navegadores bloquean el autoplay con sonido).
             </div>
           </div>
+        </section>
 
-          <SupportersList />
-        </div>
-      </div>
+        {/* Next Drops Section */}
+        <section className="py-16 px-4 flex flex-col items-center justify-center border-t border-neutral-800">
+          <h2 className="text-center text-xl uppercase tracking-wider mb-12 text-white font-normal">Next Drops</h2>
+          <div className="w-full max-w-5xl mx-auto px-2 md:px-8">
+            <div className="grid grid-cols-3 text-xs uppercase tracking-wider text-neutral-500 mb-4" style={{minWidth:400}}>
+              <div>Date</div>
+              <div>Title</div>
+              <div>Link</div>
+            </div>
+            <div className="divide-y divide-neutral-800" style={{minWidth:400}}>
+              <div className="grid grid-cols-3 py-4 text-sm md:text-base items-center">
+                <div className="text-xs md:text-sm">TBD</div>
+                <div className="text-xs md:text-sm">Nadie como tú</div>
+                <div className="text-xs md:text-sm flex justify-center"><button className="px-3 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse">Pre-save</button></div>
+              </div>
+              <div className="grid grid-cols-3 py-4 text-sm md:text-base items-center">
+                <div className="text-xs md:text-sm">TBD</div>
+                <div className="text-xs md:text-sm">Tu Nombre</div>
+                <div className="text-xs md:text-sm flex justify-center"><button className="px-3 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse">Pre-save</button></div>
+              </div>
+              <div className="grid grid-cols-3 py-4 text-sm md:text-base items-center">
+                <div className="text-xs md:text-sm">TBD</div>
+                <div className="text-xs md:text-sm">Una Mejor</div>
+                <div className="text-xs md:text-sm flex justify-center"><button className="px-3 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse">Pre-save</button></div>
+              </div>
+              <div className="grid grid-cols-3 py-4 text-sm md:text-base items-center">
+                <div className="text-xs md:text-sm">TBD</div>
+                <div className="text-xs md:text-sm">The Lab Album</div>
+                <div className="text-xs md:text-sm flex justify-center"><button className="px-3 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse">Pre-save</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      <DonationModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onSave={handleSaveSupporter}
-        defaultDisplayName={displayName}
-        address={address || ""}
-        amount={parseFloat(donationAmount)}
-        currency={donationCurrency}
-      />
+        {/* Releases Section */}
+        <section className="py-16 px-4 flex flex-col items-center justify-center border-t border-neutral-800 relative overflow-hidden" style={{minHeight:380}}>
+          {/* Background oscuro con efecto de noise/ruido */}
+          <div aria-hidden="true" style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: 'none',
+            overflow: 'hidden',
+          }}>
+            <NoiseBg />
+          </div>
+          <div className="flex justify-center mb-12 relative z-10">
+            <span className="inline-block px-6 py-2 border border-white text-xl uppercase tracking-wider text-white font-normal">Discography</span>
+          </div>
+          <div className="relative w-full z-10">
+            <Carousel opts={{ align: 'start', loop: true }} plugins={[Autoplay({ delay: 2500, stopOnInteraction: false })]}>
+              <CarouselContent className="flex gap-6 min-w-max releases-marquee">
+                {collectibles.concat(collectibles).map((item, idx) => (
+                  <CarouselItem key={idx} className="group min-w-[170px] max-w-[200px] aspect-square bg-black rounded-xl shadow-lg overflow-hidden relative border border-neutral-800 transition-all duration-300 transform hover:scale-105 hover:z-10 md:min-w-[300px] md:max-w-md">
+                    <img src={item.cover} alt={item.title} className="object-cover w-full h-full absolute inset-0 group-hover:opacity-60 transition-opacity duration-300" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-white text-lg font-bold mb-2 text-center px-2 drop-shadow-lg group-hover:scale-110 transition-transform">{item.title}</span>
+                      <span className="text-xs text-white/80 mb-4">Alex Paul</span>
+                      <button onClick={() => setModalCollectible(item)} className="flex items-center justify-center gap-1 px-2 py-0.5 bg-white/90 text-black rounded-full text-[9px] uppercase tracking-wider font-bold shadow-md hover:bg-[#ef4444] hover:text-white transition-all duration-200 whitespace-nowrap min-w-[60px] max-w-[90px] leading-tight border border-neutral-300/60 focus:outline-none focus:ring-2 focus:ring-[#ef4444]/60" style={{fontSize:'9px',padding:'2px 8px',lineHeight:'1.1'}}>
+                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M5 3v18l15-9L5 3z" fill="#FFD600"/></svg>
+                        View Release
+                      </button>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+        </section>
+
+        {/* Top Collectors Section */}
+        <section className="py-16 px-4 flex flex-col items-center justify-center border-t border-neutral-800">
+          <h2 className="text-center text-xl uppercase tracking-wider mb-12 text-white font-normal">Top Collectors</h2>
+          {/* Mobile: scroll horizontal, Desktop: grid */}
+          <div className="block md:hidden w-full px-2 space-y-3 top-collectors-mobile">
+            {collectors.map((collector, idx) => (
+              <div
+                key={idx}
+                className="flex items-center bg-black/80 rounded-2xl shadow-lg border border-neutral-800 w-full px-3 py-2"
+              >
+                {/* Avatar */}
+                <span className="w-14 h-14 flex items-center justify-center rounded-full bg-neutral-800 border-2 border-white/10 shadow-md mr-3">
+                  <User className="w-10 h-10 text-neutral-400" />
+                </span>
+                {/* Info */}
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="font-bold text-white text-base truncate max-w-[140px] mb-1">{collector.name}</span>
+                  <div className="flex items-center gap-2 text-xs text-white/80 font-semibold mb-1">
+                    <svg width='13' height='13' fill='none' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c2.54 0 4.5 2.46 4.5 5.5 0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='#FFD600'/></svg>
+                    {collector.collected} Collected
+                    <svg width='13' height='13' fill='none' viewBox='0 0 24 24'><path d='M12 8v4l3 3' stroke='#ef4444' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'/><circle cx='12' cy='12' r='10' stroke='#ef4444' strokeWidth='2'/></svg>
+                    {collector.since}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {collectors.map((collector, idx) => (
+              <motion.div
+                key={idx}
+                className="relative flex flex-col items-center bg-black rounded-2xl shadow-lg p-5 border border-neutral-800 min-w-[180px] max-w-[200px] hover:scale-110 transition-all duration-200"
+                initial={{ opacity: 0, y: 40, scale: 0.92 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: idx * 0.08, duration: 0.5, type: 'spring', bounce: 0.45 }}
+                whileHover={{ scale: 1.13, boxShadow: '0 8px 32px #FFD60044' }}
+              >
+                {/* Ranking badge */}
+                <span className={`absolute -top-3 -left-3 w-8 h-8 flex items-center justify-center rounded-full font-bold text-black text-base shadow-lg ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-neutral-300' : idx === 2 ? 'bg-orange-400' : 'bg-neutral-700 text-white'}`}>{idx + 1}</span>
+                <span className="w-28 h-28 flex items-center justify-center rounded-full mb-3 bg-neutral-800 border-4 border-white/10 shadow-md">
+                  <User className="w-20 h-20 text-neutral-400" />
+                </span>
+                <span className="font-bold text-white text-base truncate max-w-[140px] mb-1">{collector.name}</span>
+                <span className="text-xs text-white/80 font-semibold mb-1">{collector.collected} Collected</span>
+                <span className="text-xs text-neutral-300">{collector.since}</span>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Quote Section */}
+        <section className="py-8 text-center border-t border-neutral-800">
+          <motion.div {...fadeIn}>
+            <span className="inline-block px-6 py-2 border border-white text-sm uppercase tracking-wider text-white mb-4">Follow Me On</span>
+          </motion.div>
+          <motion.div className="flex flex-wrap justify-center gap-6 mt-8" {...fadeIn}>
+            {/* Social Media Icons */}
+            {/* Warpcast (W) */}
+            <a href="https://warpcast.com/alexpaul" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Warpcast">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="none"/><text x="16" y="23" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#fff" fontFamily="Arial, Helvetica, sans-serif">W</text></svg>
+            </a>
+            {/* Lens (Hey) */}
+            <a href="https://hey.xyz/u/alexpaul" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Lens">
+              <img src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeihitgwcgukma6hb7pfrjcwiwdby6zgmllw7snzijl5hd2jopaxzdi/Logo%20Lens%20Blanco.png" alt="Lens" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
+            </a>
+            {/* Instagram */}
+            <a href="https://www.instagram.com/alexpaulmx/" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Instagram">
+              {/* Instagram minimal outline logo, white */}
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="6" width="20" height="20" rx="6" stroke="#fff" strokeWidth="2" fill="none"/>
+                <circle cx="16" cy="16" r="5" stroke="#fff" strokeWidth="2" fill="none"/>
+                <circle cx="22.2" cy="9.8" r="1.2" fill="#fff"/>
+              </svg>
+            </a>
+            {/* Spotify */}
+            <a href="https://open.spotify.com/artist/2prfYgiUwtdXGBY4cqhkWg" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Spotify">
+              <img src="https://img.icons8.com/ios11/512/FFFFFF/spotify.png" alt="Spotify" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
+            </a>
+            {/* Apple Music */}
+            <a href="https://music.apple.com/us/artist/alex-paul/1470429100" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Apple Music">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><text x="16" y="21" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#fff" fontFamily="Arial, Helvetica, sans-serif"></text></svg>
+            </a>
+            {/* YouTube */}
+            {modalCollectible && modalCollectible.youtube && (
+              <a href={modalCollectible.youtube} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-[#ff0000]/80 transition-colors shadow">
+                <span className="w-6 h-6 inline-block align-middle">
+                  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                    <rect width="32" height="32" rx="7" fill="#FF0000"/>
+                    <polygon points="13,10 24,16 13,22" fill="#fff"/>
+                  </svg>
+                </span>
+                YouTube
+              </a>
+            )}
+          </motion.div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-8 px-4 text-center text-xs text-neutral-400 border-t border-neutral-800">
+          <div>© 2025 Alex Paul. All rights reserved.</div>
+        </footer>
+
+        {/* Modal Release */}
+        {modalCollectible && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+            <div className="bg-black rounded-3xl shadow-2xl max-w-3xl w-full flex flex-col md:flex-row overflow-hidden relative border-none mx-2 my-4">
+              {/* Close button */}
+              <button onClick={() => setModalCollectible(null)} className="absolute top-4 right-4 text-white text-3xl font-bold hover:text-red-400 transition-colors bg-black/60 rounded-full w-12 h-12 flex items-center justify-center z-10 border-2 border-white/10">
+                ×
+              </button>
+              {/* Image */}
+              <div className="flex items-center justify-center p-8 md:p-12 bg-black w-full md:w-[380px]">
+                <img src={modalCollectible.cover} alt={modalCollectible.title} className="max-h-96 w-auto rounded-2xl shadow-xl border-2 border-white/10" />
+              </div>
+              {/* Info */}
+              <div className="flex flex-col justify-center px-8 py-8 gap-6 w-full">
+                <div>
+                  {modalCollectible.description && (
+                    <p className="text-base text-neutral-300 mb-4 max-w-xl" style={{letterSpacing:1.2}}>{modalCollectible.description}</p>
+                  )}
+                </div>
+                <div>
+                  <div className="text-lg font-extrabold uppercase tracking-wider mb-4 text-white border-2 border-white px-4 py-2 inline-block bg-black">Available On</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    {modalCollectible.apple && (
+                      <a href={modalCollectible.apple} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-neutral-800 transition-colors shadow">
+                        <img src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafkreig5jm7z6gk4w4bshbwljhrxqtdncbbk7bhkwgqoiwo75rsiifxpme" alt="Apple Music" className="w-6 h-6 inline-block align-middle" style={{objectFit:'contain'}} /> Apple
+                      </a>
+                    )}
+                    {modalCollectible.spotify && (
+                      <a href={modalCollectible.spotify} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-[#1ed760]/80 transition-colors shadow">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Spotify.png/1200px-Spotify.png" alt="Spotify" className="w-6 h-6 inline-block align-middle" style={{objectFit:'contain'}} /> Spotify
+                      </a>
+                    )}
+                    {modalCollectible && modalCollectible.youtube && (
+                      <a href={modalCollectible.youtube} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-[#ff0000]/80 transition-colors shadow">
+                        <span className="w-6 h-6 inline-block align-middle">
+                          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                            <rect width="32" height="32" rx="7" fill="#FF0000"/>
+                            <polygon points="13,10 24,16 13,22" fill="#fff"/>
+                          </svg>
+                        </span>
+                        YouTube
+                      </a>
+                    )}
+                    {modalCollectible.deezer && (
+                      <a href={modalCollectible.deezer} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-[#ff0000]/80 transition-colors shadow">
+                        <span className="w-6 h-6 inline-block align-middle"><svg viewBox="0 0 24 24" fill="none" className="w-6 h-6"><rect x="2" y="17" width="3" height="5" fill="#EF5466"/><rect x="6" y="14" width="3" height="8" fill="#F68F26"/><rect x="10" y="10" width="3" height="12" fill="#F9D423"/><rect x="14" y="6" width="3" height="16" fill="#62B36F"/><rect x="18" y="2" width="3" height="20" fill="#3A8BC9"/></svg></span> Deezer
+                      </a>
+                    )}
+                    {modalCollectible.amazon && (
+                      <a href={modalCollectible.amazon} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-[#ff9900]/80 transition-colors shadow">
+                        <span className="w-6 h-6 inline-block align-middle"><svg viewBox="0 0 32 32" fill="currentColor" className="w-6 h-6"><rect width="32" height="32" rx="6" fill="#FF9900"/><text x="16" y="21" textAnchor="middle" fontSize="13" fill="#fff" fontFamily="Arial, Helvetica, sans-serif">a</text></svg></span> Amazon
+                      </a>
+                    )}
+                    {/* Fallback smartlink */}
+                    {!modalCollectible.spotify && !modalCollectible.apple && !modalCollectible.youtube && !modalCollectible.amazon && !modalCollectible.deezer && modalCollectible.smartlink && (
+                      <a href={modalCollectible.smartlink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-neutral-900 border-2 border-neutral-700 rounded-none font-bold uppercase text-white text-base tracking-wider hover:bg-neutral-800 transition-colors shadow">
+                        All Platforms
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-8">
+                  <a href={modalCollectible.url} target="_blank" rel="noopener noreferrer" className="block w-full text-center px-6 py-3 bg-yellow-400 text-black font-bold uppercase rounded shadow hover:bg-yellow-300 transition-colors text-lg">Collect</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+      {showFloating && <FloatingPlayer />}
+    </>
   );
 }
 
@@ -557,7 +784,8 @@ const collectors = [
   { name: "Investor felix", avatar: "/images/collectors/investorfelix.jpg", collected: 14, since: "Since Feb 2023" },
   { name: "Alex Paul", avatar: "/images/collectors/alexpaul.jpg", collected: 13, since: "Since Feb 2023" },
   { name: "MetaMu", avatar: "/images/collectors/metamu.jpg", collected: 11, since: "Since Apr 2023" },
-];
+  // ...agrega el resto de los collectors de la imagen aquí...
+]
 
 function PlayerUI({ 
   tracks, 
