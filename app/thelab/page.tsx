@@ -39,7 +39,7 @@ import Image from "next/image";
 import NoiseBg from "@/components/NoiseBg";
 import type { PanInfo } from 'framer-motion';
 import DonationWidget from "../components/DonationWidget";
-import SimpleProgress from "../components/SimpleProgress";
+import SimpleProgress from "@/components/SimpleProgress";
 import { supabase } from "../../lib/supabaseClient";
 import DonationModal from "../components/DonationModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
