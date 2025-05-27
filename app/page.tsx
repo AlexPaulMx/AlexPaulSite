@@ -6,12 +6,12 @@ import { Apple, Instagram, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
 import { motion } from "framer-motion"
 import React, { useRef, useState, useEffect } from "react"
 import useEmblaCarousel from 'embla-carousel-react'
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, Autoplay } from "@/components/ui/carousel"
+import { ScrollArea } from "../components/ui/scroll-area"
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, Autoplay } from "../components/ui/carousel"
 import dynamic from "next/dynamic"
 import { usePlayer } from './context/PlayerContext';
 import { FloatingPlayer } from './components/FloatingPlayer';
-import NoiseBg from "@/components/NoiseBg";
+import NoiseBg from "../components/NoiseBg";
 import FundingProgress from "./components/FundingProgress";
 import SupportersAndComments from "./components/SupportersAndComments";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
