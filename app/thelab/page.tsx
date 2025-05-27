@@ -967,6 +967,8 @@ export default function TheLab() {
         onClose={handleSkipMessage}
         onSave={handleSaveMessage}
         defaultDisplayName={pendingDonation?.name || ""}
+        amount={pendingDonation?.amount || 0}
+        currency={pendingDonation?.currency || "USDC"}
       />
 
       {/* 1. Animación global para flotación */}
