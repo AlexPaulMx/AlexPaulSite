@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { 
   Music, 
@@ -32,15 +32,18 @@ import {
   Twitter,
   Youtube,
   Music2,
-  User
+  User,
+  Wallet
 } from "lucide-react";
 import Image from "next/image";
 import NoiseBg from "@/components/NoiseBg";
 import type { PanInfo } from 'framer-motion';
 import DonationWidget from "../components/DonationWidget";
-import CommentsFloat from "../components/CommentsFloat";
-import FundingProgress from "../components/FundingProgress";
+import SimpleProgress from "../components/SimpleProgress";
 import { supabase } from "../../lib/supabaseClient";
+import DonationModal from "../components/DonationModal";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import HeatmapBackground from "../../components/HeatmapBackground";
 
 type ProjectPoint = {
   id: string;
@@ -48,11 +51,6 @@ type ProjectPoint = {
   icon: React.ReactNode;
   position: { x: number; y: number };
   content: React.ReactNode;
-};
-
-type Supporter = {
-  display_name: string;
-  amount: number;
 };
 
 export default function TheLab() {
@@ -66,44 +64,25 @@ export default function TheLab() {
   const [cardPositions, setCardPositions] = useState<{ [key: string]: { x: number; y: number } }>({});
   const dragControls = useDragControls();
   const [contentCardPosition, setContentCardPosition] = useState<{x: number, y: number} | null>(null);
-  const [totalRaised, setTotalRaised] = useState(0);
-  const [lastUpdate, setLastUpdate] = useState(new Date().toISOString());
-  const GOAL_AMOUNT = 10000; // $10,000 USD
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Meta de crowdfunding: $10,000 USD
+  const goal = 10000;
+  const currentAmount = 0; // Actualizar con integración real
+  const progress = (currentAmount / goal) * 100;
 
   // Estado para el acordeón móvil (solo una sección a la vez)
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   // Estado para supporters
-  const [supporters, setSupporters] = useState<Array<{ name: string; amount: number }>>([]);
+  const [supporters, setSupporters] = useState<Array<{ name: string; amount: number; comment?: string }>>([]);
   const [isLoadingSupporters, setIsLoadingSupporters] = useState(true);
-
-  useEffect(() => {
-    const fetchSupporters = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("supporters")
-          .select("display_name, amount")
-          .order("amount", { ascending: false });
-
-        if (error) throw error;
-
-        if (data) {
-          setSupporters(data.map((s: Supporter) => ({
-            name: s.display_name,
-            amount: s.amount
-          })));
-        }
-      } catch (error) {
-        console.error("Error fetching supporters:", error);
-      } finally {
-        setIsLoadingSupporters(false);
-      }
-    };
-
-    fetchSupporters();
-  }, []);
-
-  const topSupporters = supporters.slice(0, 3);
+  const [newComment, setNewComment] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [pendingDonation, setPendingDonation] = useState<{ name: string; amount: number; currency: string } | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -136,6 +115,38 @@ export default function TheLab() {
     }
   }, [selectedPoint, isMobile]);
 
+  useEffect(() => {
+    const fetchSupporters = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("supporters")
+          .select("display_name, amount, comment")
+          .order("amount", { ascending: false });
+
+        if (error) throw error;
+
+        if (data) {
+          setSupporters(data.map((s: any) => ({
+            name: s.display_name,
+            amount: s.amount,
+            comment: s.comment || null
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching supporters:", error);
+      } finally {
+        setIsLoadingSupporters(false);
+      }
+    };
+
+    fetchSupporters();
+  }, []);
+
+  // Top 3 supporters
+  const topSupporters = supporters.slice(0, 3);
+  // Resto de supporters (del 4 en adelante)
+  const restSupporters = supporters.slice(3);
+
   const projectPoints: ProjectPoint[] = [
     {
       id: "intro",
@@ -143,50 +154,11 @@ export default function TheLab() {
       icon: <Info className="w-6 h-6 text-blue-400" />,
       position: { x: 20, y: 20 },
       content: (
-        <div className="space-y-4 md:space-y-6">
-          <div className="mb-2">
-            <h2 className="text-2xl font-extrabold text-center text-white tracking-wide mb-2">ABOUT THE LAB</h2>
-          </div>
-          <div className="text-gray-300 text-base leading-snug text-center">
-            <p className="mb-2">Hi, my name is Alex Paul. I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain.</p>
-            <p className="mb-2">Right now, I'm pouring my heart and mind into an audiovisual album titled "The Lab." This project is important to me because it represents an opportunity to collaborate with people who believe in my music and to support other creators involved in making this vision a reality.</p>
-            <p className="mb-2">I plan to release this album independently, without the backing of a major record label. To bring this vision to life, I'm aiming to raise $10K USD to cover the album's production costs.</p>
-            <p>This album will showcase a multicultural soundscape, introducing my first English songs and experimenting with various genres, including pop, hip hop/R&B, synthpop, Latin rhythms, and house.</p>
-        </div>
-          <div className="flex justify-center gap-6 pt-2 pb-1">
-            <a
-              href="https://www.instagram.com/alexpaulmx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <Instagram className="w-8 h-8" />
-            </a>
-            <a
-              href="https://twitter.com/alexpaulmx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <Twitter className="w-8 h-8" />
-            </a>
-            <a
-              href="https://www.youtube.com/@alexpaulmx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <Youtube className="w-8 h-8" />
-            </a>
-            <a
-              href="https://open.spotify.com/artist/alexpaulmx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <Music2 className="w-8 h-8" />
-            </a>
-            </div>
+        <div className="space-y-4 md:space-y-6 text-gray-300 text-base leading-snug text-left">
+          <p className="mb-2">Hi, my name is Alex Paul. I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain.</p>
+          <p className="mb-2">Right now, I'm pouring my heart and mind into an audiovisual album titled "The Lab." This project is important to me because it represents an opportunity to collaborate with people who believe in my music and to support other creators involved in making this vision a reality.</p>
+          <p className="mb-2">I plan to release this album independently, without the backing of a major record label. To bring this vision to life, I'm aiming to raise $10K USD to cover the album's production costs.</p>
+          <p>This album will showcase a multicultural soundscape, introducing my first English songs and experimenting with various genres, including pop, hip hop/R&B, synthpop, Latin rhythms, and house.</p>
         </div>
       )
     },
@@ -196,7 +168,7 @@ export default function TheLab() {
       icon: <Gift className="w-6 h-6 text-red-400" />,
       position: { x: 75, y: 30 },
       content: (
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-64 overflow-y-auto pr-2">
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4 text-white">Top Supporter</h3>
             <ul className="space-y-2 text-gray-300">
@@ -279,7 +251,7 @@ export default function TheLab() {
       icon: <DollarSign className="w-6 h-6 text-green-400" />,
       position: { x: 80, y: 40 },
       content: (
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-64 overflow-y-auto pr-2">
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4 text-white">Production Costs</h3>
             <ul className="space-y-2 text-gray-300">
@@ -296,8 +268,7 @@ export default function TheLab() {
                 Equipment Rental/Purchase: Specialized equipment
               </li>
             </ul>
-            </div>
-
+          </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4 text-white">Music Videos</h3>
             <ul className="space-y-2 text-gray-300">
@@ -321,9 +292,8 @@ export default function TheLab() {
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
                 Post-Production
               </li>
-                </ul>
-              </div>
-
+            </ul>
+          </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4 text-white">Distribution and Manufacturing</h3>
             <ul className="space-y-2 text-gray-300">
@@ -339,9 +309,8 @@ export default function TheLab() {
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
                 Promotion and Marketing
               </li>
-                </ul>
-              </div>
-
+            </ul>
+          </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4 text-white">Release Party</h3>
             <ul className="space-y-2 text-gray-300">
@@ -349,9 +318,8 @@ export default function TheLab() {
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
                 Event Costs: Venue, catering, and expenses
               </li>
-                </ul>
-              </div>
-
+            </ul>
+          </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4 text-white">Technologies</h3>
             <ul className="space-y-2 text-gray-300">
@@ -360,8 +328,7 @@ export default function TheLab() {
                 Mint Site Development
               </li>
             </ul>
-            </div>
-
+          </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4 text-white">Merchandise Design</h3>
             <ul className="space-y-2 text-gray-300">
@@ -371,7 +338,7 @@ export default function TheLab() {
               </li>
             </ul>
           </div>
-            </div>
+        </div>
       )
     },
     {
@@ -412,143 +379,293 @@ export default function TheLab() {
     });
   };
 
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setError(null);
+    try {
+      if (!displayName.trim() || !newComment.trim()) {
+        setError("Debes ingresar tu nombre y un mensaje.");
+        setIsSaving(false);
+        return;
+      }
+      const { error: supabaseError } = await supabase.from("supporters").insert({
+        display_name: displayName,
+        amount: 0,
+        comment: newComment,
+        currency: "USDC", // o "ETH" si quieres permitir elegir
+      });
+      if (supabaseError) {
+        setError("Error al guardar el comentario. Intenta de nuevo.");
+        setIsSaving(false);
+        return;
+      }
+      setDisplayName("");
+      setNewComment("");
+      setError(null);
+      // Refrescar supporters
+      const { data, error } = await supabase
+        .from("supporters")
+        .select("display_name, amount, comment")
+        .order("amount", { ascending: false });
+      if (!error && data) {
+        setSupporters(data.map((s: any) => ({
+          name: s.display_name,
+          amount: s.amount,
+          comment: s.comment || null
+        })));
+      }
+    } catch (err) {
+      setError("Error inesperado. Intenta de nuevo.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Lógica para mostrar el modal después de una donación exitosa
+  const handleDonationSuccess = (donor: { name: string; amount: number; currency: string }) => {
+    setPendingDonation(donor);
+    setShowModal(true);
+  };
+
+  const handleSaveMessage = async (data: { displayName: string; comment: string }) => {
+    setIsSaving(true);
+    setError(null);
+    try {
+      if (!pendingDonation) return;
+      const { error: supabaseError } = await supabase.from("supporters").insert({
+        display_name: data.displayName,
+        amount: pendingDonation.amount,
+        comment: data.comment || null,
+        currency: pendingDonation.currency,
+      });
+      if (supabaseError) {
+        setError("Error al guardar el mensaje. Intenta de nuevo.");
+        setIsSaving(false);
+        return;
+      }
+      setShowModal(false);
+      setPendingDonation(null);
+      setDisplayName("");
+      setNewComment("");
+      setError(null);
+      // Refrescar supporters
+      const { data: supportersData, error } = await supabase
+        .from("supporters")
+        .select("display_name, amount, comment")
+        .order("amount", { ascending: false });
+      if (!error && supportersData) {
+        setSupporters(supportersData.map((s: any) => ({
+          name: s.display_name,
+          amount: s.amount,
+          comment: s.comment || null
+        })));
+      }
+    } catch (err) {
+      setError("Error inesperado. Intenta de nuevo.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSkipMessage = () => {
+    setShowModal(false);
+    setPendingDonation(null);
+  };
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   return (
     <div className="min-h-[180vh] bg-black text-white relative overflow-hidden">
-      {/* Background Video */}
-      <div className="fixed inset-0 w-full h-full z-0">
-        {/*
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-10"
-        >
-          <source src="/videos/background.mp4" type="video/mp4" />
-        </video>
-        */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" />
-        {/* Noise Effect igual que Home */}
+      {/* Fondo interactivo: Heatmap + Noise */}
+      <div aria-hidden="true" style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+      }}>
+        <HeatmapBackground />
         <NoiseBg />
-          </div>
-
-      {/* Cursor Effect - Solo en desktop */}
-      {isMobile === false && (
-        <div className="fixed inset-0 pointer-events-none z-50">
-          <div
-            className="absolute w-96 h-96 rounded-full bg-blue-500/5 blur-3xl"
-            style={{ 
-              left: mousePosition.x - 192,
-              top: mousePosition.y - 192,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        </div>
-      )}
+      </div>
 
       {/* Mobile Design */}
       {isMobile ? (
         <div className="relative z-10 min-h-screen">
           {/* Mobile Header */}
           <div className="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-lg z-50 p-4 border-b border-white/10">
-            <div className="flex items-center justify-center relative gap-2">
+            <div className="relative flex items-center justify-center h-10">
               <Image
                 src="/images/thelab-logo.png"
                 alt="The Lab Logo"
                 width={120}
                 height={60}
-                className="object-contain h-10 w-auto drop-shadow-lg"
+                className="object-contain h-10 w-auto drop-shadow-lg mx-auto"
                 priority
               />
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 text-white hover:text-gray-300 transition-colors absolute right-0"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                <ConnectButton.Custom>
+                  {({
+                    account,
+                    chain,
+                    openAccountModal,
+                    openChainModal,
+                    openConnectModal,
+                    mounted,
+                  }) => (
+                    <div
+                      {...(!mounted && {
+                        'aria-hidden': true,
+                        'style': {
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          userSelect: 'none',
+                        },
+                      })}
+                    >
+                      {(!mounted || !account || !chain) ? (
+                        <button
+                          onClick={openConnectModal}
+                          className="p-2 text-white hover:text-gray-300 transition-colors"
+                          aria-label="Connect Wallet"
+                        >
+                          <Wallet className="w-6 h-6" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={openAccountModal}
+                          className="p-2 text-green-400 hover:text-gray-300 transition-colors"
+                          aria-label={account.displayName}
+                        >
+                          <Wallet className="w-6 h-6" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </ConnectButton.Custom>
+              </div>
             </div>
-            </div>
+          </div>
 
           {/* Mobile Content */}
           <div className="pt-20 pb-8 px-4 space-y-4">
-            {/* Progress Section */}
             <motion.div
               initial={{ y: 0 }}
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
               className="bg-black/40 backdrop-blur-lg rounded-xl p-6 border border-white/10 mb-2 shadow-2xl shadow-black/40"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Music className="w-6 h-6 text-red-400" />
-                <h2 className="text-xl font-bold text-white">The Lab Progress</h2>
-          </div>
               <div className="space-y-4">
                 <div className="w-full flex justify-center mb-4">
-                  <video src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4" controls autoPlay loop className="rounded-xl w-full max-w-md shadow-lg" />
+                  <video
+                    ref={videoRef}
+                    src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4"
+                    controls
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="rounded-xl w-full max-w-md shadow-lg"
+                  />
                 </div>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm text-gray-400">
-                    <span>Goal: ${GOAL_AMOUNT.toLocaleString()} USD</span>
-                    <span>Raised: ${totalRaised.toLocaleString()} USD</span>
-                  </div>
-                  <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(totalRaised / GOAL_AMOUNT) * 100}%` }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-red-500 to-red-600"
-                    />
-                  </div>
-                </div>
-                <DonationWidget />
-            </div>
-                    </motion.div>
+                <SimpleProgress />
+              </div>
+            </motion.div>
 
             {/* Accordion Sections */}
-            {projectPoints.map((point, idx) => (
-              <motion.div
-                key={point.id}
-                initial={{ y: 0 }}
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 * Math.random() }}
-                className="bg-black/40 backdrop-blur-lg rounded-xl border border-white/10 mb-2 shadow-2xl shadow-black/40"
-              >
-                <button
-                  className="w-full flex items-center justify-between p-4 focus:outline-none"
-                  onClick={() => setOpenSection(openSection === point.id ? null : point.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    <motion.div
-                      animate={{
-                        y: [0, -5, 0, 5, 0],
-                        x: [0, 2, 0, -2, 0]
-                      }}
-                      transition={{
-                        duration: 2 + (idx % 2),
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: idx * 0.1
-                      }}
-                      className="p-2 bg-red-500/20 rounded-lg"
+            <div className="flex flex-nowrap overflow-x-auto gap-1 pb-4 sm:hidden">
+              {projectPoints.map((point, idx) => (
+                <div key={point.id} className="min-w-[70vw] max-w-xs mx-1">
+                  <motion.div
+                    initial={{ y: 0 }}
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 * Math.random() }}
+                    className="bg-black/40 backdrop-blur-lg rounded-xl border border-white/10 mb-2 shadow-2xl shadow-black/40"
+                  >
+                    <button
+                      className="w-full flex items-center justify-between p-4 focus:outline-none"
+                      onClick={() => setOpenSection(openSection === point.id ? null : point.id)}
                     >
-                      {point.icon}
-                    </motion.div>
-                    <h2 className="text-lg font-bold text-white">{point.title}</h2>
-                  </div>
-                  <ChevronDown className={`w-5 h-5 text-white transition-transform ${openSection === point.id ? 'rotate-180' : ''}`} />
-                </button>
-                <div className={`overflow-hidden transition-all duration-300 ${openSection === point.id ? 'max-h-[1000px] p-4' : 'max-h-0 p-0'}`}
-                  style={{background: openSection === point.id ? 'rgba(0,0,0,0.2)' : 'transparent'}}>
-                  {openSection === point.id && (
-                    <div className="text-gray-300 text-sm">
-                      {point.content}
-          </div>
-        )}
+                      <div className="flex items-center gap-3">
+                        <motion.div
+                          animate={{ y: [0, -5, 0, 5, 0], x: [0, 2, 0, -2, 0] }}
+                          transition={{ duration: 2 + (idx % 2), repeat: Infinity, ease: "easeInOut", delay: idx * 0.1 }}
+                          className="p-2 rounded-lg bg-transparent"
+                        >
+                          {point.icon}
+                        </motion.div>
+                        <h2 className="text-lg font-bold text-white">{point.title}</h2>
+                      </div>
+                      <ChevronDown className={`w-5 h-5 text-white transition-transform ${openSection === point.id ? 'rotate-180' : ''}`} />
+                    </button>
+                    <div className={`overflow-hidden transition-all duration-300 ${openSection === point.id ? 'max-h-[1000px] p-4' : 'max-h-0 p-0'}`}
+                      style={{background: openSection === point.id ? 'rgba(0,0,0,0.2)' : 'transparent'}}>
+                      {openSection === point.id && (
+                        <div className="text-gray-300 text-sm">
+                          {point.content}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                </div>
+              ))}
+            </div>
+
+            {/* Supporters Section */}
+            {isMobile && (
+              <div className="block sm:hidden mt-6">
+                <hr className="border-t border-white/10 mb-4" />
+                <h2 className="text-xl font-bold text-white mb-4 text-center">Supporters</h2>
+                {/* Podio de Top Supporters compacto */}
+                <div className="flex flex-col items-center gap-2 mb-4 w-full">
+                  {topSupporters.map((s, i) => {
+                    const podium = [
+                      'from-yellow-400 to-yellow-200', // oro
+                      'from-gray-300 to-gray-100',      // plata
+                      'from-orange-700 to-yellow-400'   // bronce
+                    ];
+                    const icon = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+                    return (
+                      <div key={s.name} className="flex flex-col items-center w-full max-w-[180px]">
+                        <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center h-16 w-full mb-1 relative animate-pulse`}>
+                          <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl drop-shadow">{icon}</span>
+                          <span className="text-black font-extrabold truncate max-w-[80px] text-center block overflow-hidden whitespace-nowrap text-sm" title={s.name}>{s.name}</span>
+                          <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Lista de todos los supporters */}
+                <div>
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Todos los que han donado</span>
+                  <ul className="divide-y divide-yellow-100/10 max-h-[220px] overflow-y-auto pr-1">
+                    {supporters.length === 0 && (
+                      <li className="text-center text-gray-400 py-4">¡Sé el primero en apoyar este proyecto!</li>
+                    )}
+                    {supporters.map((s, i) => (
+                      <li key={s.name + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
+                          <span className="flex-1 font-medium text-gray-100">{s.name}</span>
+                          <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
+                          <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
+                        </div>
+                        {s.comment && (
+                          <div className="pl-10 text-xs text-gray-400 italic mt-1">"{s.comment}"</div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-                </motion.div>
-            ))}
-                </div>
-                </div>
+            )}
+          </div>
+        </div>
       ) : (
         // Desktop Design (mantener el diseño original)
         <>
@@ -590,6 +707,7 @@ export default function TheLab() {
                           ease: "easeInOut",
                           delay: idx * 0.1
                         }}
+                        className="p-2 rounded-lg bg-transparent"
                       >
                         {point.icon}
                       </motion.div>
@@ -610,7 +728,7 @@ export default function TheLab() {
               <div className="absolute inset-0 opacity-20 mix-blend-overlay">
                 <div className="absolute inset-0 bg-[url('/images/noise.png')] bg-repeat opacity-50" />
               </div>
-                </div>
+            </div>
 
             {/* Project Points */}
             {projectPoints.map((point, idx) => (
@@ -633,15 +751,22 @@ export default function TheLab() {
                 <motion.div
                   animate={{ y: [0, -14, 0, 14, 0] }}
                   transition={{
-                    duration: 5 + (idx % 2),
+                    duration: 4 + (idx % 2),
                     repeat: Infinity,
                     ease: "easeInOut",
                     delay: idx * 0.3
                   }}
                   className="flex flex-col items-center"
+                  style={{ animation: 'floatY 4s ease-in-out infinite' }}
                 >
                   <div className="w-12 h-12 bg-gray-800/80 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-blue-500/50 shadow-2xl shadow-black/40">
-                    {point.icon}
+                    <motion.div
+                      animate={{ y: [0, -5, 0, 5, 0], x: [0, 2, 0, -2, 0] }}
+                      transition={{ duration: 2 + (idx % 2), repeat: Infinity, ease: "easeInOut", delay: idx * 0.1 }}
+                      className="p-2 rounded-lg bg-transparent"
+                    >
+                      {point.icon}
+                    </motion.div>
                   </div>
                   <motion.div
                     animate={{ y: [0, -10, 0, 10, 0] }}
@@ -681,22 +806,18 @@ export default function TheLab() {
               >
                 <div className="space-y-4">
                   <div className="w-full flex justify-center mb-4">
-                    <video src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4" controls autoPlay loop className="rounded-xl w-full max-w-md shadow-lg" />
+                    <video
+                      ref={videoRef}
+                      src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4"
+                      controls
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="rounded-xl w-full max-w-md shadow-lg"
+                    />
                   </div>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <span>Goal: ${GOAL_AMOUNT.toLocaleString()} USD</span>
-                      <span>Raised: ${totalRaised.toLocaleString()} USD</span>
-                    </div>
-                    <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(totalRaised / GOAL_AMOUNT) * 100}%` }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                        className="h-full bg-gradient-to-r from-red-500 to-red-600"
-                      />
-                    </div>
-                  </div>
+                  <SimpleProgress />
                   <DonationWidget />
                 </div>
               </motion.div>
@@ -708,58 +829,57 @@ export default function TheLab() {
                   <h3 className="text-lg font-bold tracking-widest text-yellow-100 uppercase">Supporters</h3>
                 </div>
                 <div className="border-b border-yellow-100/10 mb-4" />
-                
-                {isLoadingSupporters ? (
-                  <div className="animate-pulse space-y-4">
-                    <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-700 rounded w-1/2"></div>
-                    <div className="h-4 bg-gray-700 rounded w-2/3"></div>
-                  </div>
-                ) : supporters.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-400">¡Sé el primero en apoyar este proyecto!</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Top Supporters Podium */}
-                    <div className="flex justify-center items-end gap-2 mb-6">
-                      {topSupporters.map((s, i) => {
-                        const podium = [
-                          'from-yellow-400 to-yellow-200', // oro
-                          'from-gray-300 to-gray-100',      // plata
-                          'from-orange-700 to-yellow-400'   // bronce
-                        ];
-                        const size = i === 0 ? 'h-24 w-20' : 'h-20 w-16';
-                        const textSize = i === 0 ? 'text-xl' : 'text-base';
-                        const fontWeight = i === 0 ? 'font-extrabold' : 'font-bold';
-                        return (
-                          <div key={s.name} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
-                            <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center ${size} mb-2 relative animate-pulse`}
-                              style={{ boxShadow: i === 0 ? '0 0 24px 4px #FFD70055' : undefined }}>
-                              <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-300 text-black rounded-full px-2 py-0.5 text-xs font-bold border-2 border-yellow-400 shadow">#{i+1}</span>
-                              <span className={`text-black ${textSize} ${fontWeight} drop-shadow`}>{s.name}</span>
-                              <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {/* Ranking de todos los supporters */}
-                    <div>
-                      <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Ranking</span>
-                      <ul className="divide-y divide-yellow-100/10 max-h-[140px] overflow-y-auto pr-1">
-                        {supporters.map((s, i) => (
-                          <li key={s.name} className="flex items-center gap-3 py-2 hover:bg-yellow-100/5 transition rounded-lg">
-                            <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
-                            <span className="flex-1 font-medium text-gray-100">{s.name}</span>
-                            <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
-                            <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </>
-                )}
+                {/* Top Supporters Podium */}
+                <div className="flex justify-center items-end gap-2 mb-6">
+                  {topSupporters.map((s, i) => {
+                    const podium = [
+                      'from-yellow-400 to-yellow-200', // oro
+                      'from-gray-300 to-gray-100',      // plata
+                      'from-orange-700 to-yellow-400'   // bronce
+                    ];
+                    const size = i === 0 ? 'h-28 w-20' : 'h-20 w-16';
+                    const textSize = i === 0 ? 'text-xl' : 'text-base';
+                    const fontWeight = i === 0 ? 'font-extrabold' : 'font-bold';
+                    const icon = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+                    return (
+                      <div key={s.name} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
+                        <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center ${size} mb-2 relative animate-pulse`}
+                          style={{ boxShadow: i === 0 ? '0 0 24px 4px #FFD70055' : undefined }}>
+                          <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-3xl drop-shadow">{icon}</span>
+                          <span
+                            className="text-black font-extrabold drop-shadow truncate max-w-[90px] text-center block overflow-hidden whitespace-nowrap text-ellipsis text-base"
+                            title={s.name}
+                          >
+                            {s.name}
+                          </span>
+                          <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Lista de todos los supporters */}
+                <div>
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Todos los que han donado</span>
+                  <ul className="divide-y divide-yellow-100/10 max-h-[220px] overflow-y-auto pr-1">
+                    {supporters.length === 0 && (
+                      <li className="text-center text-gray-400 py-4">¡Sé el primero en apoyar este proyecto!</li>
+                    )}
+                    {supporters.map((s, i) => (
+                      <li key={s.name + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
+                          <span className="flex-1 font-medium text-gray-100">{s.name}</span>
+                          <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
+                          <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
+                        </div>
+                        {s.comment && (
+                          <div className="pl-10 text-xs text-gray-400 italic mt-1">"{s.comment}"</div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -840,15 +960,29 @@ export default function TheLab() {
             </AnimatePresence>
           </div>
         </>
-        )}
+      )}
       
-      <FundingProgress 
-        currentAmount={totalRaised}
-        targetAmount={GOAL_AMOUNT}
-        lastUpdate={lastUpdate}
+      <DonationModal
+        isOpen={showModal}
+        onClose={handleSkipMessage}
+        onSave={handleSaveMessage}
+        defaultDisplayName={pendingDonation?.name || ""}
       />
-      <DonationWidget />
-      <CommentsFloat />
+
+      {/* 1. Animación global para flotación */}
+      <style jsx global>{`
+        @keyframes floatY {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(-18px); }
+          100% { transform: translateY(0); }
+        }
+      `}</style>
+
+      {isMobile && (
+        <div className="fixed bottom-0 left-16 w-[calc(100vw-4rem)] z-50 block sm:hidden bg-black/80 p-4 border-t border-white/10 backdrop-blur-md">
+          <DonationWidget />
+        </div>
+      )}
     </div>
   );
 } 
