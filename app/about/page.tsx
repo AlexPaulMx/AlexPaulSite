@@ -2,9 +2,7 @@
 export const dynamic = "force-dynamic";
 import React from 'react';
 import dynamicImport from 'next/dynamic';
-
-// Importa NoiseBg dinámicamente, ahora sí funciona porque está en otro archivo
-const NoiseBg = dynamicImport(() => import('../../components/NoiseBg'), { ssr: false });
+import NoiseBg from '../../components/NoiseBg';
 
 // Nuevo icono Users para Zora
 const UsersIcon = (
@@ -35,7 +33,7 @@ export default function AboutPage() {
         </div>
         {/* Bio en tarjeta */}
         <div style={{background:'#181a20', border:'1.5px solid #232323', borderRadius:16, boxShadow:'0 2px 8px #ef444433', padding:isMobile? '18px 12px' : '22px 22px', width:'100%', maxWidth:520, marginBottom: isMobile ? 8 : 0}}>
-          <p style={{ fontSize: isMobile ? 17 : 19, lineHeight: 1.18, color: '#fff', textAlign: 'justify', margin: 0, opacity:0.95 }}>
+          <p style={{ fontSize: isMobile ? 14 : 15, lineHeight: 1.18, color: '#fff', textAlign: 'justify', margin: 0, opacity:0.95 }}>
             I'm an independent artist, musician, and producer from the Tamaulipas-Texas border, constantly experimenting with my music on-chain. I began creating and producing music 14 years ago, but in 2019, I decided to start sharing my music with the world. In March 2022, I made my debut by minting my music as a collectible on-chain, and since day one, I have been exploring this exciting playground. I continue to create every day.
           </p>
         </div>
@@ -50,32 +48,35 @@ export default function AboutPage() {
           <Highlight icon={<svg width="28" height="28" fill="#ef4444" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#ef4444" strokeWidth="2.2" fill="none"/><path d="M8 12l2 2 4-4" stroke="#ef4444" strokeWidth="2.2" fill="none"/></svg>} text="3 placements on Spotify Latin Friday" />
         </div>
         {/* Follow Me On - igual que Home */}
-        <section style={{ width: '100%', marginTop: isMobile ? 16 : 8 }}>
-          <span style={{ display: 'block', fontWeight: 700, fontSize: isMobile ? 15 : 15, letterSpacing: 1, marginBottom: 14, color: '#fff', textAlign: 'center', textTransform: 'uppercase', border: '1.5px solid #fff', borderRadius: 8, padding: isMobile ? '6px 16px' : '6px 18px', width: 'fit-content', marginLeft: 'auto', marginRight: 'auto' }}>Follow Me On</span>
-          <nav style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 16 : 18, justifyContent: 'center', marginTop: 18 }}>
-            <a href="https://warpcast.com/alexpaul" target="_blank" rel="noopener noreferrer" aria-label="Warpcast" style={{padding:isMobile?6:8}}>
-              <svg width={isMobile?32:32} height={isMobile?32:32} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="none"/><text x="16" y="23" textAnchor="middle" fontSize={isMobile?18:20} fontWeight="bold" fill="#fff" fontFamily="Arial, Helvetica, sans-serif">W</text></svg>
+        <section className="py-8 text-center border-t border-neutral-800">
+          <span className="inline-block px-6 py-2 border border-white text-sm uppercase tracking-wider text-white mb-4">Follow Me On</span>
+          <div className="flex flex-wrap justify-center gap-6 mt-8">
+            {/* Warpcast (W) */}
+            <a href="https://warpcast.com/alexpaul" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Warpcast">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="none"/><text x="16" y="23" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#fff" fontFamily="Arial, Helvetica, sans-serif">W</text></svg>
             </a>
-            <a href="https://hey.xyz/u/alexpaul" target="_blank" rel="noopener noreferrer" aria-label="Lens" style={{padding:isMobile?6:8}}>
-              <svg width={isMobile?32:32} height={isMobile?32:32} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="none"/><path d="M16 8a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z" fill="#fff"/></svg>
+            {/* Lens (Hey) */}
+            <a href="https://hey.xyz/u/alexpaul" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Lens">
+              <img src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeihitgwcgukma6hb7pfrjcwiwdby6zgmllw7snzijl5hd2jopaxzdi/Logo%20Lens%20Blanco.png" alt="Lens" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
             </a>
-            <a href="https://www.instagram.com/alexpaulmx/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{padding:isMobile?6:8}}>
-              <svg width={isMobile?32:32} height={isMobile?32:32} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="20" height="20" rx="6" stroke="#fff" strokeWidth="2" fill="none"/><circle cx="16" cy="16" r="5" stroke="#fff" strokeWidth="2" fill="none"/><circle cx="22.2" cy="9.8" r="1.2" fill="#fff"/></svg>
+            {/* Instagram */}
+            <a href="https://www.instagram.com/alexpaulmx/" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Instagram">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="6" width="20" height="20" rx="6" stroke="#fff" strokeWidth="2" fill="none"/>
+                <circle cx="16" cy="16" r="5" stroke="#fff" strokeWidth="2" fill="none"/>
+                <circle cx="22.2" cy="9.8" r="1.2" fill="#fff"/>
+              </svg>
             </a>
-            <a href="https://open.spotify.com/artist/2prfYgiUwtdXGBY4cqhkWg" target="_blank" rel="noopener noreferrer" aria-label="Spotify" style={{padding:isMobile?6:8}}>
-              <svg width={isMobile?32:32} height={isMobile?32:32} viewBox="0 0 168 168" fill="none"><circle cx="84" cy="84" r="84" fill="none"/><path d="M84 0C37.7 0 0 37.7 0 84s37.7 84 84 84 84-37.7 84-84S130.3 0 84 0zm38.2 120.5c-1.5 2.5-4.7 3.3-7.2 1.8-19.8-12.1-44.8-14.8-74.2-8.1-2.8.6-5.6-1.1-6.2-3.9-.6-2.8 1.1-5.6 3.9-6.2 31.8-7.1 59.1-4.1 81.1 9.1 2.5 1.5 3.3 4.7 1.8 7.3zm10.3-20.7c-1.9 3.1-5.9 4.1-9 2.2-22.7-13.9-57.4-18-84.5-9.8-3.5 1-7.2-.9-8.2-4.4-1-3.5.9-7.2 4.4-8.2 30.2-8.9 68.1-4.4 93.2 11.1 3.1 1.9 4.1 5.9 2.1 9zm.2-21.6c-27.1-16.1-71.8-17.6-97.6-9.6-4.1 1.2-8.4-1.1-9.6-5.2-1.2-4.1 1.1-8.4 5.2-9.6 29.1-8.6 77.2-7 108.6 11.1 4.1 2.4 5.5 7.7 3.1 11.8-2.4 4.1-7.7 5.5-11.8 3.1z" fill="#fff"/></svg>
+            {/* Spotify */}
+            <a href="https://open.spotify.com/artist/2prfYgiUwtdXGBY4cqhkWg" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Spotify">
+              <img src="https://img.icons8.com/ios11/512/FFFFFF/spotify.png" alt="Spotify" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
             </a>
-            <a href="https://music.apple.com/us/artist/alex-paul/1470429100" target="_blank" rel="noopener noreferrer" aria-label="Apple Music" style={{padding:isMobile?6:8}}>
-              <svg width={isMobile?32:32} height={isMobile?32:32} fill="none" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" stroke="#fff" strokeWidth="2" fill="none"/><text x="16" y="21" textAnchor="middle" fontSize={isMobile?13:13} fill="#fff" fontFamily="Arial, Helvetica, sans-serif"></text></svg>
+            {/* Apple Music */}
+            <a href="https://music.apple.com/us/artist/alex-paul/1470429100" target="_blank" rel="noopener noreferrer" className="p-2" aria-label="Apple Music">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><text x="16" y="21" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#fff" fontFamily="Arial, Helvetica, sans-serif"></text></svg>
             </a>
-            <a href="https://www.youtube.com/channel/UC-Uei4OqY8xX5M1YgqGxW4w" target="_blank" rel="noopener noreferrer" aria-label="YouTube" style={{padding:isMobile?6:8}}>
-              <svg width={isMobile?32:32} height={isMobile?32:32} fill="none" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" stroke="#fff" strokeWidth="2" fill="none"/><path d="M23.498 13.186a2.994 2.994 0 0 0-2.112-2.112C19.505 10.5 16 10.5 16 10.5s-3.505 0-5.386.574A2.994 2.994 0 0 0 8.502 13.186C8 15.067 8 19 8 19s0 3.933.502 5.814a2.994 2.994 0 0 0 2.112 2.112C12.495 27.5 16 27.5 16 27.5s3.505 0 5.386-.574a2.994 2.994 0 0 0 2.112-2.112C24 22.933 24 19 24 19s0-3.933-.502-5.814zM13.545 22.568V15.432L19.818 19l-6.273 3.568z" fill="#fff"/></svg>
-            </a>
-          </nav>
+          </div>
         </section>
-        <div style={{ marginTop: isMobile ? 22 : 18, color: '#ef4444', fontWeight: 600, fontSize: isMobile ? 15 : 16, textAlign: 'center', opacity: 0.92 }}>
-          "Always experimenting. Always building."
-        </div>
       </section>
       <style>{`
         .about-border-anim { pointer-events:none; }
