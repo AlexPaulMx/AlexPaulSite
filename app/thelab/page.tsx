@@ -40,7 +40,7 @@ import NoiseBg from "../../components/NoiseBg";
 import type { PanInfo } from 'framer-motion';
 import DonationWidget from "../components/DonationWidget";
 import SimpleProgress from "./SimpleProgress";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import DonationModal from "../components/DonationModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import HeatmapBackground from "../../components/HeatmapBackground";
