@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../AlexPaulSite/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 type Supporter = {
   id?: number;

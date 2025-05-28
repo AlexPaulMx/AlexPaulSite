@@ -7,7 +7,7 @@ import DonationModal from "./DonationModal";
 import { USDC_ADDRESS, PROJECT_WALLET, USDC_ABI, formatUSDCAmount, parseUSDCAmount } from "../utils/usdc";
 import { toast } from "sonner";
 import { parseEther } from "viem";
-import { supabase } from "../../AlexPaulSite/lib/supabaseClient";
+import { supabase } from '@/lib/supabaseClient';
 import Image from "next/image";
 
 const GOAL_AMOUNT = 10000; // $10,000 USD
