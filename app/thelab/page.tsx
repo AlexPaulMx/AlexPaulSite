@@ -33,7 +33,9 @@ import {
   Youtube,
   Music2,
   User,
-  Wallet
+  Wallet,
+  BadgeCheck,
+  Sparkles
 } from "lucide-react";
 import Image from "next/image";
 import NoiseBg from "@/components/NoiseBg";
@@ -44,6 +46,7 @@ import { supabase } from "@/lib/supabaseClient";
 import DonationModal from "@/app/components/DonationModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import HeatmapBackground from "@/components/HeatmapBackground";
+import { useDisconnect } from "wagmi";
 
 type ProjectPoint = {
   id: string;
@@ -83,6 +86,9 @@ export default function TheLab() {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [pendingDonation, setPendingDonation] = useState<{ name: string; amount: number; currency: string } | null>(null);
+
+  const { disconnect } = useDisconnect();
+  const [showWalletMenu, setShowWalletMenu] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -481,6 +487,71 @@ export default function TheLab() {
 
   return (
     <div className="min-h-[180vh] bg-black text-white relative overflow-hidden">
+      {/* Wallet Button - Fixed Position */}
+      <div className="fixed top-4 right-4 z-50">
+        <ConnectButton.Custom>
+          {({
+            account,
+            chain,
+            openAccountModal,
+            openChainModal,
+            openConnectModal,
+            mounted,
+          }) => {
+            return (
+              <div
+                {...(!mounted && {
+                  'aria-hidden': true,
+                  'style': {
+                    opacity: 0,
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                  },
+                })}
+                style={{ position: 'relative' }}
+              >
+                {(() => {
+                  if (!mounted || !account || !chain) {
+                    return (
+                      <button
+                        onClick={openConnectModal}
+                        type="button"
+                        className="flex items-center gap-2 px-4 py-2 text-white hover:text-gray-300 transition-colors bg-black/80 rounded-lg backdrop-blur-sm border border-white/10"
+                      >
+                        <Wallet className="w-5 h-5" />
+                        <span>Connect Wallet</span>
+                      </button>
+                    );
+                  }
+                  return (
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        onClick={() => setShowWalletMenu((v) => !v)}
+                        type="button"
+                        className="flex items-center gap-2 px-4 py-2 text-green-400 hover:text-gray-300 transition-colors bg-black/80 rounded-lg backdrop-blur-sm border border-white/10"
+                      >
+                        <Wallet className="w-5 h-5" />
+                        <span>{account.displayName}</span>
+                      </button>
+                      {showWalletMenu && (
+                        <div className="absolute right-0 mt-2 w-40 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
+                          <button
+                            onClick={() => { disconnect(); setShowWalletMenu(false); }}
+                            className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-800 rounded-lg"
+                          >
+                            Disconnect Wallet
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          }}
+        </ConnectButton.Custom>
+      </div>
+
       {/* Fondo interactivo: Heatmap + Noise */}
       <div aria-hidden="true" style={{
         position: 'absolute',
@@ -507,47 +578,6 @@ export default function TheLab() {
                 className="object-contain h-10 w-auto drop-shadow-lg mx-auto"
                 priority
               />
-              <div className="absolute right-0 top-1/2 -translate-y-1/2">
-                <ConnectButton.Custom>
-                  {({
-                    account,
-                    chain,
-                    openAccountModal,
-                    openChainModal,
-                    openConnectModal,
-                    mounted,
-                  }) => (
-                    <div
-                      {...(!mounted && {
-                        'aria-hidden': true,
-                        'style': {
-                          opacity: 0,
-                          pointerEvents: 'none',
-                          userSelect: 'none',
-                        },
-                      })}
-                    >
-                      {(!mounted || !account || !chain) ? (
-                        <button
-                          onClick={openConnectModal}
-                          className="p-2 text-white hover:text-gray-300 transition-colors"
-                          aria-label="Connect Wallet"
-                        >
-                          <Wallet className="w-6 h-6" />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={openAccountModal}
-                          className="p-2 text-green-400 hover:text-gray-300 transition-colors"
-                          aria-label={account.displayName}
-                        >
-                          <Wallet className="w-6 h-6" />
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </ConnectButton.Custom>
-              </div>
             </div>
           </div>
 
@@ -651,7 +681,17 @@ export default function TheLab() {
                       <li key={s.name + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
                         <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
-                          <span className="flex-1 font-medium text-gray-100">{s.name}</span>
+                          <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
+                            {s.name}
+                            {s.amount > 0 && (
+                              <span className="group relative">
+                                <BadgeCheck className="w-4 h-4 text-blue-400" />
+                                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                  NFT Holder
+                                </span>
+                              </span>
+                            )}
+                          </span>
                           <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
                           <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
                         </div>
@@ -817,6 +857,10 @@ export default function TheLab() {
                       className="rounded-xl w-full max-w-md shadow-lg"
                     />
                   </div>
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <Sparkles className="w-5 h-5 text-blue-400 animate-pulse" />
+                    <span className="text-sm text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
+                  </div>
                   <SimpleProgress />
                   <DonationWidget />
                 </div>
@@ -869,7 +913,17 @@ export default function TheLab() {
                       <li key={s.name + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
                         <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
-                          <span className="flex-1 font-medium text-gray-100">{s.name}</span>
+                          <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
+                            {s.name}
+                            {s.amount > 0 && (
+                              <span className="group relative">
+                                <BadgeCheck className="w-4 h-4 text-blue-400" />
+                                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                  NFT Holder
+                                </span>
+                              </span>
+                            )}
+                          </span>
                           <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
                           <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
                         </div>
@@ -982,6 +1036,10 @@ export default function TheLab() {
 
       {isMobile && (
         <div className="fixed bottom-0 left-16 w-[calc(100vw-4rem)] z-50 block sm:hidden bg-black/80 p-4 border-t border-white/10 backdrop-blur-md">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="w-5 h-5 text-blue-400 animate-pulse" />
+            <span className="text-sm text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
+          </div>
           <DonationWidget />
         </div>
       )}
