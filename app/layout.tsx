@@ -3,7 +3,6 @@ import { PlayerProvider } from "./context/PlayerContext"
 import "./globals.css"
 import Image from "next/image"
 import { Home, User, FlaskConical } from 'lucide-react'
-import LogoCursor from "../components/LogoCursor"
 import { FloatingPlayer } from "./components/FloatingPlayer"
 import { Providers } from "./providers"
 import HeatmapGlobal from "./HeatmapGlobal"
@@ -24,7 +23,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PlayerProvider>
           <Providers>
         <HeatmapGlobal />
-        <LogoCursor />
         <SidebarNav links={links} />
         {/* Contenido principal ajustado */}
         <div style={{ marginLeft: 64 }}>

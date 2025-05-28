@@ -1,138 +1,110 @@
 "use client";
 
-import { useState } from "react";
-import { Dialog } from "@headlessui/react";
-import { supabase } from "../../lib/supabaseClient";
+import { useState, useEffect } from "react";
+import { X, Heart, MessageSquare } from "lucide-react";
 
-type DonationModalProps = {
+interface DonationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { displayName: string; comment: string }) => void;
-  defaultDisplayName: string;
-  address: string;
+  onSave: (data: { displayName: string; comment: string; amount: number; currency: string }) => void;
+  defaultDisplayName?: string;
   amount: number;
-  currency: "USDC" | "ETH";
-};
+  currency: string;
+}
 
 export default function DonationModal({
   isOpen,
   onClose,
   onSave,
-  defaultDisplayName,
-  address,
+  defaultDisplayName = "",
   amount,
   currency,
 }: DonationModalProps) {
   const [displayName, setDisplayName] = useState(defaultDisplayName);
   const [comment, setComment] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setError(null);
-
-    try {
-      console.log("Saving supporter:", {
-        address,
-        display_name: displayName,
-        comment: comment || null,
-        amount,
-        currency,
-      });
-
-      const { error: supabaseError } = await supabase.from("supporters").insert({
-        address,
-        display_name: displayName,
-        comment: comment || null,
-        amount,
-        currency,
-      });
-
-      if (supabaseError) {
-        console.error("Error saving to Supabase:", supabaseError);
-        setError("Error al guardar la información. Por favor, intenta de nuevo.");
-        return;
-      }
-
-      console.log("Supporter saved successfully");
-      onSave({ displayName, comment });
+  useEffect(() => {
+    if (isOpen) {
+      setDisplayName(defaultDisplayName);
       setComment("");
-      onClose();
-    } catch (error) {
-      console.error("Error in handleSubmit:", error);
-      setError("Error al guardar la información. Por favor, intenta de nuevo.");
-    } finally {
-      setIsSaving(false);
+    }
+  }, [isOpen, defaultDisplayName]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({ displayName, comment, amount, currency });
+    // Dispara eventos globales para refrescar supporters y progreso
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('refresh-supporters'));
+      window.dispatchEvent(new Event('refresh-progress'));
     }
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      className="relative z-50"
-    >
-      <div className="fixed inset-0 bg-black/80" aria-hidden="true" />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="w-full max-w-md p-6 bg-gray-900 rounded-2xl border border-white/10">
-          <Dialog.Title className="text-xl font-bold text-white mb-4">
-            ¡Gracias por tu apoyo! 🎉
-          </Dialog.Title>
-          {error && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <p className="text-red-400 text-sm">{error}</p>
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1">
-                Tu nombre o alias
-              </label>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-[#101014] border border-white/10 rounded-2xl p-8 w-full max-w-md relative shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+            <Heart className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-white bg-clip-text text-transparent text-center">
+            Thank You for Your Support!
+          </h2>
+          <p className="text-gray-400 text-sm text-center mt-2">
+            Leave your mark on The Lab's journey
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="displayName" className="flex items-center gap-2 text-sm font-medium text-gray-300">
+              <span>How would you like to be known?</span>
+            </label>
+            <div className="relative">
               <input
                 type="text"
                 id="displayName"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-red-500"
-                placeholder="¿Cómo quieres que te llamemos?"
+                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                placeholder="Your name or nickname"
                 required
               />
             </div>
-            <div>
-              <label htmlFor="comment" className="block text-sm font-medium text-gray-300 mb-1">
-                Deja un mensaje (opcional)
-              </label>
-              <textarea
-                id="comment"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-red-500"
-                placeholder="¿Qué te gustaría decir?"
-                rows={3}
-              />
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                disabled={isSaving}
-              >
-                Cerrar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isSaving}
-              >
-                {isSaving ? "Guardando..." : "Guardar"}
-              </button>
-            </div>
-          </form>
-        </Dialog.Panel>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="comment" className="flex items-center gap-2 text-sm font-medium text-gray-300">
+              <MessageSquare className="w-4 h-4" />
+              <span>Leave a message (optional)</span>
+            </label>
+            <textarea
+              id="comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none"
+              placeholder="Share your thoughts..."
+              rows={3}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#101014] shadow-lg shadow-red-500/20"
+          >
+            Save & Continue
+          </button>
+        </form>
       </div>
-    </Dialog>
+    </div>
   );
 } 

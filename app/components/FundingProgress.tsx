@@ -1,133 +1,60 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useContractRead, useBalance, usePublicClient } from "wagmi";
-import { USDC_ADDRESS, USDC_ABI, parseUSDCAmount } from "../utils/usdc";
-import { formatEther } from "viem";
-import { motion } from "framer-motion";
-import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { supabase } from "../../lib/supabaseClient";
 
 const GOAL_AMOUNT = 10000; // $10,000 USD
-const PROJECT_WALLET = "0x5aF876e2DA6f8324B5Ac866B0C7e73c619c95DC8";
 const POLL_INTERVAL = 5000; // 5 seconds
 
-interface FundingProgressProps {
-  currentAmount: number;
-  targetAmount: number;
-  lastUpdate: string;
-}
-
-export default function FundingProgress({ currentAmount, targetAmount, lastUpdate }: FundingProgressProps) {
-  const [mounted, setMounted] = useState(false);
-  const [formattedDate, setFormattedDate] = useState("");
+export default function FundingProgress() {
   const [totalRaised, setTotalRaised] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [ethValue, setEthValue] = useState(0);
-  const [usdcValue, setUsdcValue] = useState(0);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  const publicClient = usePublicClient();
-
-  // Get USDC balance of project wallet
-  const { data: usdcBalance, refetch: refetchUSDC } = useContractRead({
-    address: USDC_ADDRESS,
-    abi: USDC_ABI,
-    functionName: "balanceOf",
-    args: [PROJECT_WALLET],
-  });
-
-  // Get ETH balance of project wallet
-  const { data: ethBalance, refetch: refetchETH } = useBalance({
-    address: PROJECT_WALLET as `0x${string}`,
-  });
-
-  // Listen for USDC Transfer events
   useEffect(() => {
-    const unwatch = publicClient.watchContractEvent({
-      address: USDC_ADDRESS,
-      abi: USDC_ABI,
-      eventName: 'Transfer',
-      args: {
-        to: PROJECT_WALLET,
-      },
-      onLogs: (logs) => {
-        console.log('New USDC transfer received:', logs);
-        refetchUSDC();
-      },
-    });
+    const fetchTotal = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('supporters')
+          .select('amount');
+        console.log('[FUNDING PROGRESS] Data:', data);
+        console.log('[FUNDING PROGRESS] Error:', error);
+        if (error) {
+          console.error('Error fetching supporters:', error);
+          setTotalRaised(0);
+          return;
+        }
+        const total = data ? data.reduce((sum: number, s: { amount: number }) => sum + Number(s.amount), 0) : 0;
+        console.log('[FUNDING PROGRESS] Total calculated:', total);
+        setTotalRaised(total);
+        setProgress(Math.min((total / GOAL_AMOUNT) * 100, 100));
+        setLastUpdate(new Date());
+      } catch (error) {
+        console.error('[FUNDING PROGRESS] Unexpected error:', error);
+        setTotalRaised(0);
+      }
+    };
+
+    // Fetch initial data
+    fetchTotal();
+
+    // Set up event listener for refresh
+    const handler = () => {
+      console.log('[FUNDING PROGRESS] Refresh event received');
+      fetchTotal();
+    };
+    window.addEventListener('refresh-progress', handler);
+    
+    // Set up polling interval as backup
+    const interval = setInterval(fetchTotal, POLL_INTERVAL);
 
     return () => {
-      unwatch();
+      window.removeEventListener('refresh-progress', handler);
+      clearInterval(interval);
     };
-  }, [publicClient, refetchUSDC]);
-
-  // Listen for ETH transactions
-  useEffect(() => {
-    const unwatch = publicClient.watchBlockNumber({
-      onBlockNumber: (blockNumber) => {
-        publicClient.getBlock({ blockNumber }).then((block) => {
-          const projectTransactions = block.transactions.filter(
-            (tx) => tx.to?.toLowerCase() === PROJECT_WALLET.toLowerCase()
-          );
-          
-          if (projectTransactions.length > 0) {
-            console.log('New ETH transaction received:', projectTransactions);
-            refetchETH();
-          }
-        });
-      },
-    });
-
-    return () => {
-      unwatch();
-    };
-  }, [publicClient, refetchETH]);
-
-  // Function to update balances
-  const updateBalances = async () => {
-    try {
-      await Promise.all([refetchUSDC(), refetchETH()]);
-    } catch (error) {
-      console.error("Error updating balances:", error);
-    }
-  };
-
-  // Set up polling interval as backup
-  useEffect(() => {
-    const interval = setInterval(updateBalances, POLL_INTERVAL);
-    return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    // Calculate USDC amount
-    const usdcAmount = usdcBalance ? parseUSDCAmount(usdcBalance as bigint) : 0;
-    setUsdcValue(usdcAmount);
-    
-    // Calculate ETH amount in USD (assuming 1 ETH = $3000 for now)
-    const ethAmount = ethBalance ? Number(formatEther(ethBalance.value)) : 0;
-    const ethInUsd = ethAmount * 3000; // This should be replaced with real price feed
-    setEthValue(ethInUsd);
-    
-    // Update total raised
-    const total = usdcAmount + ethInUsd;
-    setTotalRaised(total);
-    setProgress(Math.min((total / GOAL_AMOUNT) * 100, 100));
-  }, [usdcBalance, ethBalance]);
-
-  useEffect(() => {
-    setMounted(true);
-    try {
-      setFormattedDate(formatDistanceToNow(new Date(lastUpdate), { 
-        addSuffix: true,
-        locale: es 
-      }));
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      setFormattedDate("recientemente");
-    }
-  }, [lastUpdate]);
-
-  if (!mounted) {
+  if (!totalRaised) {
     return (
       <div className="w-full max-w-4xl mx-auto p-6 bg-[#101014] rounded-2xl border border-white/10">
         <div className="animate-pulse space-y-4">
@@ -139,37 +66,29 @@ export default function FundingProgress({ currentAmount, targetAmount, lastUpdat
     );
   }
 
-  const formattedAmount = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(currentAmount);
-
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 bg-[#101014] rounded-2xl border border-white/10">
-      <div className="flex flex-col space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-white">Funding Progress</h3>
-          <span className="text-sm text-gray-400">Last update: {formattedDate}</span>
+    <div className="w-full max-w-md mx-auto mt-8 p-6 bg-black/30 rounded-2xl border border-white/10">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-sm text-gray-400">Total Raised</span>
+        <span className="text-lg font-bold text-white">${totalRaised.toFixed(2)}</span>
+      </div>
+      <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-500"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div className="flex justify-between items-center mt-2">
+        <span className="text-sm text-gray-400">Goal: ${GOAL_AMOUNT.toLocaleString()}</span>
+        <span className="text-sm text-gray-400">{progress.toFixed(1)}%</span>
+      </div>
+      <div className="mt-4 text-xs text-gray-400 space-y-1">
+        <div className="flex justify-between pt-1 border-t border-gray-700">
+          <span className="font-medium">Total:</span>
+          <span className="font-medium">${totalRaised.toFixed(2)}</span>
         </div>
-        
-        <div className="relative h-4 bg-gray-800/50 rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-500 to-red-600"
-          />
-        </div>
-
-        <div className="flex justify-between items-center">
-          <div className="text-2xl font-bold text-white">
-            {formattedAmount}
-          </div>
-          <div className="text-sm text-gray-400">
-            {progress.toFixed(1)}% of ${targetAmount.toLocaleString()}
-          </div>
+        <div className="text-[10px] text-gray-500 text-right mt-1">
+          Last updated: {lastUpdate.toLocaleTimeString()}
         </div>
       </div>
     </div>
