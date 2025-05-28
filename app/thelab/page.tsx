@@ -36,14 +36,14 @@ import {
   Wallet
 } from "lucide-react";
 import Image from "next/image";
-import NoiseBg from "../../components/NoiseBg";
+import NoiseBg from "@/components/NoiseBg";
 import type { PanInfo } from 'framer-motion';
-import DonationWidget from "../components/DonationWidget";
+import DonationWidget from "@/app/components/DonationWidget";
 import SimpleProgress from "./SimpleProgress";
 import { supabase } from "@/lib/supabaseClient";
-import DonationModal from "../components/DonationModal";
+import DonationModal from "@/app/components/DonationModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import HeatmapBackground from "../../components/HeatmapBackground";
+import HeatmapBackground from "@/components/HeatmapBackground";
 
 type ProjectPoint = {
   id: string;
