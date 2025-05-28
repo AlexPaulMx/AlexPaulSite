@@ -105,6 +105,46 @@ export default function DonationWidget() {
     }
   ];
 
+  async function fetchEthToUsdcRate() {
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const data = await res.json();
+      return data?.ethereum?.usd || 0;
+    } catch (e) {
+      console.error('Error fetching ETH/USDC rate:', e);
+      return 0;
+    }
+  }
+
+  useEffect(() => {
+    async function autoRegisterDonation() {
+      if (!isSuccess || !address || !selected) return;
+      let amountInUSDC = selected;
+      let currencyToSave = currency;
+      if (currency === 'ETH') {
+        // Convert ETH to USDC
+        const ethPrice = await fetchEthToUsdcRate();
+        amountInUSDC = selected * ethPrice;
+        currencyToSave = 'USDC';
+      }
+      // Guardar en Supabase
+      await supabase.from('supporters').insert({
+        address,
+        amount: amountInUSDC,
+        currency: currencyToSave,
+        display_name: address,
+        comment: ''
+      });
+      // Refrescar barra de progreso
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('refresh-progress'));
+        window.dispatchEvent(new Event('refresh-supporters'));
+      }
+    }
+    autoRegisterDonation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess]);
+
   async function handleDonate() {
     setStatus("pending");
     setError(null);
@@ -234,6 +274,8 @@ export default function DonationWidget() {
     }
   }
 
+  const formatAddress = (addr: string) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
+
   return (
     <div className="mt-6 flex flex-col items-center gap-3">
       <div className="flex flex-col items-center w-full mb-2">
@@ -253,7 +295,7 @@ export default function DonationWidget() {
                   ? "https://altcoinsbox.com/wp-content/uploads/2023/01/usd-coin-usdc-logo.png"
                   : "https://www.cdnlogo.com/logos/e/81/ethereum-eth.svg"}
                 alt={currency}
-                className="w-6 h-6 rounded-full"
+                className="w-6 h-6 rounded-full object-contain"
               />
             </button>
             <input
@@ -278,7 +320,7 @@ export default function DonationWidget() {
               animation: 'gradientMove 3s ease-in-out infinite'
             }}
           >
-            {(isPending || status === "pending") ? "Loading..." : "Mint"}
+            {(isPending || status === "pending") ? "Loading..." : "Support"}
           </button>
         </div>
         <style jsx global>{`
@@ -334,7 +376,7 @@ export default function DonationWidget() {
         isOpen={showDonationModal}
         onClose={() => setShowDonationModal(false)}
         onSave={(data) => handleDonationModalSave({ ...data, amount: selected || 0, currency })}
-        defaultDisplayName={address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""}
+        defaultDisplayName={address ? formatAddress(address) : ""}
         amount={selected || 0}
         currency={currency}
       />

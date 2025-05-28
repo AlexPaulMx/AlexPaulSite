@@ -78,7 +78,7 @@ export default function TheLab() {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   // Estado para supporters
-  const [supporters, setSupporters] = useState<Array<{ name: string; amount: number; comment?: string }>>([]);
+  const [supporters, setSupporters] = useState<Array<{ name: string; amount: number; comment?: string; address?: string }>>([]);
   const [isLoadingSupporters, setIsLoadingSupporters] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -126,7 +126,7 @@ export default function TheLab() {
       try {
         const { data, error } = await supabase
           .from("supporters")
-          .select("display_name, amount, comment")
+          .select("display_name, amount, comment, address")
           .order("amount", { ascending: false });
 
         if (error) throw error;
@@ -135,7 +135,8 @@ export default function TheLab() {
           setSupporters(data.map((s: any) => ({
             name: s.display_name,
             amount: s.amount,
-            comment: s.comment || null
+            comment: s.comment || null,
+            address: s.address
           })));
         }
       } catch (error) {
@@ -485,6 +486,9 @@ export default function TheLab() {
     }
   }, []);
 
+  // Utilidad para abreviar address
+  const formatAddress = (addr: string) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
+
   return (
     <div className="min-h-[180vh] bg-black text-white relative overflow-hidden">
       {/* Wallet Button - Fixed Position */}
@@ -519,7 +523,6 @@ export default function TheLab() {
                         className="flex items-center gap-2 px-4 py-2 text-white hover:text-gray-300 transition-colors bg-black/80 rounded-lg backdrop-blur-sm border border-white/10"
                       >
                         <Wallet className="w-5 h-5" />
-                        <span>Connect Wallet</span>
                       </button>
                     );
                   }
@@ -531,7 +534,6 @@ export default function TheLab() {
                         className="flex items-center gap-2 px-4 py-2 text-green-400 hover:text-gray-300 transition-colors bg-black/80 rounded-lg backdrop-blur-sm border border-white/10"
                       >
                         <Wallet className="w-5 h-5" />
-                        <span>{account.displayName}</span>
                       </button>
                       {showWalletMenu && (
                         <div className="absolute right-0 mt-2 w-40 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
@@ -663,7 +665,9 @@ export default function TheLab() {
                       <div key={s.name} className="flex flex-col items-center w-full max-w-[180px]">
                         <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center h-16 w-full mb-1 relative animate-pulse`}>
                           <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl drop-shadow">{icon}</span>
-                          <span className="text-black font-extrabold truncate max-w-[80px] text-center block overflow-hidden whitespace-nowrap text-sm" title={s.name}>{s.name}</span>
+                          <span className="text-black font-extrabold truncate max-w-[80px] text-center block overflow-hidden whitespace-nowrap text-sm" title={s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}>
+                            {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
+                          </span>
                           <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
                         </div>
                       </div>
@@ -682,7 +686,7 @@ export default function TheLab() {
                         <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
                           <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
-                            {s.name}
+                            {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
                             {s.amount > 0 && (
                               <span className="group relative">
                                 <BadgeCheck className="w-4 h-4 text-blue-400" />
@@ -892,9 +896,9 @@ export default function TheLab() {
                           <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-3xl drop-shadow">{icon}</span>
                           <span
                             className="text-black font-extrabold drop-shadow truncate max-w-[90px] text-center block overflow-hidden whitespace-nowrap text-ellipsis text-base"
-                            title={s.name}
+                            title={s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
                           >
-                            {s.name}
+                            {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
                           </span>
                           <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
                         </div>
@@ -914,7 +918,7 @@ export default function TheLab() {
                         <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
                           <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
-                            {s.name}
+                            {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
                             {s.amount > 0 && (
                               <span className="group relative">
                                 <BadgeCheck className="w-4 h-4 text-blue-400" />
