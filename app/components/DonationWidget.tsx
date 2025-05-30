@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useContractWrite, useContractRead, useTransaction, useSwitchChain, useChainId, useSendTransaction, useBalance } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import DonationModal from "./DonationModal";
+import DonationModal from "../../AlexPaulSite/app/components/DonationModal";
 import { USDC_ADDRESS, PROJECT_WALLET, USDC_ABI, formatUSDCAmount, parseUSDCAmount } from "../utils/usdc";
 import { toast } from "sonner";
 import { parseEther } from "viem";

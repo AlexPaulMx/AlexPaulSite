@@ -43,7 +43,7 @@ import type { PanInfo } from 'framer-motion';
 import DonationWidget from "@/app/components/DonationWidget";
 import SimpleProgress from "./SimpleProgress";
 import { supabase } from "@/lib/supabaseClient";
-import DonationModal from "@/app/components/DonationModal";
+import DonationModal from "../../AlexPaulSite/app/components/DonationModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import HeatmapBackground from "@/components/HeatmapBackground";
 import { useDisconnect } from "wagmi";

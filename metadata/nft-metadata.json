@@ -1,0 +1,20 @@
+{
+  "name": "The Lab - Exclusive Video NFT",
+  "description": "An exclusive NFT containing the official video from The Lab project. This NFT is awarded to supporters of the project.",
+  "image": "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4",
+  "animation_url": "https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4",
+  "attributes": [
+    {
+      "trait_type": "Type",
+      "value": "Video"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "The Lab"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Exclusive"
+    }
+  ]
+} 
