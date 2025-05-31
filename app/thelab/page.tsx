@@ -707,7 +707,7 @@ export default function TheLab() {
                 {/* Lista de todos los supporters */}
                 <div>
                   <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">All Supporters</span>
-                  <ul className="divide-y divide-yellow-100/10 max-h-[220px] overflow-y-auto pr-1">
+                  <ul className="divide-y divide-yellow-100/10 max-h-[320px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
                       <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
                     )}
@@ -878,8 +878,8 @@ export default function TheLab() {
                 transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                 className="w-full max-w-md bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-gray-700 px-6 py-8"
               >
-                <div className="space-y-4">
-                  <div className="w-full flex justify-center mb-4">
+                <div className="space-y-6">
+                  <div className="w-full flex justify-center mb-2">
                     <video
                       ref={videoRef}
                       src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4"
@@ -890,16 +890,20 @@ export default function TheLab() {
                       className="rounded-xl w-full max-w-md shadow-lg"
                     />
                   </div>
-                  <div className="flex items-center justify-center gap-1 mb-2">
+                  <div className="flex items-center justify-center gap-1 mb-4">
                     <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
                     <span className="text-xs text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
                   </div>
-                  <SimpleProgress />
-                  <DonationWidget onDonateClick={openDonationModal} />
+                  <div className="bg-black/30 rounded-xl p-4 border border-white/10">
+                    <SimpleProgress />
+                  </div>
+                  <div className="bg-black/30 rounded-xl p-4 border border-white/10">
+                    <DonationWidget onDonateClick={openDonationModal} />
+                  </div>
                 </div>
               </motion.div>
               {/* Supporters Card */}
-              <div className="w-full max-w-md bg-gradient-to-br from-gray-950/95 to-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl shadow-black/40 border border-yellow-200/20 px-6 py-6 sticky top-[120px] z-10 overflow-auto max-h-[520px]">
+              <div className="w-full max-w-md bg-gradient-to-br from-gray-950/95 to-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl shadow-black/40 border border-yellow-200/20 px-6 py-6 sticky top-[120px] z-10 overflow-auto max-h-[620px]">
                 {/* Header minimalista */}
                 <div className="flex items-center gap-3 mb-2">
                   <Star className="w-6 h-6 text-yellow-300 animate-pulse" />
@@ -938,7 +942,7 @@ export default function TheLab() {
                 {/* Lista de todos los supporters */}
                 <div>
                   <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">All Supporters</span>
-                  <ul className="divide-y divide-yellow-100/10 max-h-[220px] overflow-y-auto pr-1">
+                  <ul className="divide-y divide-yellow-100/10 max-h-[320px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
                       <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
                     )}
@@ -1067,8 +1071,10 @@ export default function TheLab() {
       `}</style>
 
       {isMobile && (
-        <div className="fixed bottom-0 left-16 w-[calc(100vw-4rem)] z-50 block sm:hidden bg-black/80 p-4 border-t border-white/10 backdrop-blur-md">
-          <DonationWidget onDonateClick={openDonationModal} />
+        <div className="fixed bottom-0 left-0 right-0 z-50 block sm:hidden bg-gradient-to-t from-black/95 to-black/80 p-4 border-t border-white/10 backdrop-blur-md">
+          <div className="max-w-md mx-auto">
+            <DonationWidget onDonateClick={openDonationModal} />
+          </div>
         </div>
       )}
 

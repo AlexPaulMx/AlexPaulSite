@@ -267,11 +267,11 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
   const formatAddress = (addr: string) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
 
   return (
-    <div className="mt-6 flex flex-col items-center gap-3 donation-widget-compact">
-      <div className="flex flex-col items-center w-full mb-2">
+    <div className="mt-2 flex flex-col items-center gap-3 donation-widget-compact">
+      <div className="flex flex-col items-center w-full">
         {/* Bloque compacto de donación con selector de moneda personalizado */}
         <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2 donation-compact-row">
-          <div className="flex items-center flex-1 bg-gray-900 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0 donation-compact-input donation-amount-input">
+          <div className="flex items-center flex-1 bg-gray-900/50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0 donation-compact-input donation-amount-input">
             <button
               type="button"
               onClick={() => setCurrency(currency === "USDC" ? "ETH" : "USDC")}
@@ -301,29 +301,15 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
           <button
             onClick={handleDonate}
             disabled={!selected || isPending || status === "pending"}
-            className={`px-6 py-3 rounded-xl font-bold transition-transform duration-200 shadow-lg whitespace-nowrap relative overflow-hidden group text-white bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 focus:outline-none z-50 donation-compact-btn ${(!selected || isPending || status === "pending") ? 'opacity-60 cursor-not-allowed' : 'scale-100 shadow-[0_0_16px_4px_rgba(255,80,80,0.25)] animate-pulse'}`}
+            className={`px-6 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg whitespace-nowrap relative overflow-hidden group text-white bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 focus:outline-none z-50 donation-compact-btn ${(!selected || isPending || status === "pending") ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105 hover:shadow-[0_0_20px_4px_rgba(255,80,80,0.35)]'}`}
           >
             {(isPending || status === "pending") ? "Processing..." : "Support"}
           </button>
         </div>
-        {/* Gold button animation handled by Tailwind classes above */}
         {/* Mensajes de error y balance */}
         {customAmount && (!selected || parseFloat(customAmount) <= 0) && (
           <span className="text-xs text-red-400 mt-1 donation-error">Enter a valid amount greater than 0</span>
         )}
-        {/* Balance oculto por simplicidad visual */}
-        {/*
-        {currency === "USDC" && typeof usdcBalance === 'bigint' && (
-          <span className="text-xs text-gray-400 mt-1 donation-balance">
-            Your USDC Balance: ${parseUSDCAmount(usdcBalance).toFixed(2)}
-          </span>
-        )}
-        {currency === "ETH" && ethBalance && (
-          <span className="text-xs text-gray-400 mt-1 donation-balance">
-            Your ETH Balance: {Number(ethBalance.formatted).toFixed(4)} ETH
-          </span>
-        )}
-        */}
       </div>
       {status === "success" && (
         <div className="flex flex-col items-center gap-2 mt-2">
