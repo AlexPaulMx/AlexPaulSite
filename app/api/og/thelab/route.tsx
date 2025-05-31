@@ -1,39 +1,12 @@
 /** @jsxImportSource react */
 import { ImageResponse } from '@vercel/og';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export const runtime = 'edge';
 
 export async function GET() {
-  // Fetch current progress and top 10 collectors from Supabase
-  const { data: progressData, error: progressError } = await supabase
-    .from('donations')
-    .select('amount')
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  console.log('Progress Data:', progressData, 'Progress Error:', progressError);
-
-  const { data: collectorsData, error: collectorsError } = await supabase
-    .from('donations')
-    .select('name')
-    .order('amount', { ascending: false })
-    .limit(10);
-
-  console.log('Collectors Data:', collectorsData, 'Collectors Error:', collectorsError);
-
-  if (progressError || collectorsError) {
-    console.error('Error fetching data:', progressError || collectorsError);
-    return new Response('Error fetching data', { status: 500 });
-  }
-
-  const totalAmount = progressData[0]?.amount || 0;
-  const collectors = collectorsData.map((c: any) => c.name);
+  // Static data for now
+  const totalAmount = 0;
+  const collectors = ['Coming soon...'];
 
   // Generate the OG image
   return new ImageResponse(
@@ -72,7 +45,7 @@ export async function GET() {
         </div>
         <h2 style={{ fontSize: '36px', marginBottom: '20px' }}>Top 10 Collectors:</h2>
         <ul style={{ fontSize: '24px', listStyle: 'none', padding: 0 }}>
-          {collectors.map((name: string, index: number) => (
+          {collectors.map((name, index) => (
             <li key={index} style={{ marginBottom: '10px' }}>{name}</li>
           ))}
         </ul>
