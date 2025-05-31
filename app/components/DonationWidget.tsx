@@ -263,7 +263,7 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
   const formatAddress = (addr: string) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
 
   return (
-    <div className="mt-6 flex flex-col items-center gap-3">
+    <div className="mt-6 flex flex-col items-center gap-3 donation-widget-compact">
       <div className="flex flex-col items-center w-full mb-2">
         {/* Bloque compacto de donación con selector de moneda personalizado */}
         <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2 donation-compact-row">
@@ -356,30 +356,24 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
           animation: pulse 1s infinite;
         }
         @media (max-width: 600px) {
+          .donation-widget-compact {
+            margin-top: 0 !important;
+            gap: 0.25rem !important;
+          }
           .donation-compact-row {
-            gap: 4px !important;
+            gap: 2px !important;
             margin-bottom: 0 !important;
           }
           .donation-compact-input {
-            padding: 6px 8px !important;
-            font-size: 1rem !important;
-            border-radius: 8px !important;
+            padding: 4px 6px !important;
+            font-size: 0.95rem !important;
+            border-radius: 7px !important;
           }
           .donation-compact-btn {
-            padding: 6px 12px !important;
-            font-size: 1rem !important;
-            border-radius: 8px !important;
-            min-width: 80px !important;
-          }
-          .donation-balance {
-            display: block !important;
-            font-size: 11px !important;
-            margin-top: 2px !important;
-            color: #bdbdbd !important;
-            text-align: right !important;
-          }
-          .donation-error {
-            display: none !important;
+            padding: 4px 8px !important;
+            font-size: 0.95rem !important;
+            border-radius: 7px !important;
+            min-width: 70px !important;
           }
         }
       `}</style>
