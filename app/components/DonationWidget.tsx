@@ -266,9 +266,8 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
     <div className="mt-6 flex flex-col items-center gap-3">
       <div className="flex flex-col items-center w-full mb-2">
         {/* Bloque compacto de donación con selector de moneda personalizado */}
-        <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2">
-          {/* Input con selector de moneda como símbolo */}
-          <div className="flex items-center flex-1 bg-gray-900 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0">
+        <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2 donation-compact-row">
+          <div className="flex items-center flex-1 bg-gray-900 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0 donation-compact-input">
             <button
               type="button"
               onClick={() => setCurrency(currency === "USDC" ? "ETH" : "USDC")}
@@ -295,11 +294,10 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
               className="w-full bg-transparent outline-none text-lg font-bold text-white placeholder-gray-500 min-w-0"
             />
           </div>
-          {/* Botón */}
           <button
             onClick={handleDonate}
             disabled={!selected || isPending || status === "pending"}
-            className={`px-6 py-3 rounded-xl font-bold transition-transform duration-200 shadow-lg whitespace-nowrap relative overflow-hidden group text-white bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 focus:outline-none z-50 ${(!selected || isPending || status === "pending") ? 'opacity-60 cursor-not-allowed' : 'scale-100 shadow-[0_0_16px_4px_rgba(255,80,80,0.25)] animate-pulse'}`}
+            className={`px-6 py-3 rounded-xl font-bold transition-transform duration-200 shadow-lg whitespace-nowrap relative overflow-hidden group text-white bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 focus:outline-none z-50 donation-compact-btn ${(!selected || isPending || status === "pending") ? 'opacity-60 cursor-not-allowed' : 'scale-100 shadow-[0_0_16px_4px_rgba(255,80,80,0.25)] animate-pulse'}`}
           >
             {(isPending || status === "pending") ? "Processing..." : "Support"}
           </button>
@@ -307,18 +305,21 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
         {/* Gold button animation handled by Tailwind classes above */}
         {/* Mensajes de error y balance */}
         {customAmount && (!selected || parseFloat(customAmount) <= 0) && (
-          <span className="text-xs text-red-400 mt-1">Enter a valid amount greater than 0</span>
+          <span className="text-xs text-red-400 mt-1 donation-error">Enter a valid amount greater than 0</span>
         )}
+        {/* Balance oculto por simplicidad visual */}
+        {/*
         {currency === "USDC" && typeof usdcBalance === 'bigint' && (
-          <span className="text-xs text-gray-400 mt-1">
+          <span className="text-xs text-gray-400 mt-1 donation-balance">
             Your USDC Balance: ${parseUSDCAmount(usdcBalance).toFixed(2)}
           </span>
         )}
         {currency === "ETH" && ethBalance && (
-          <span className="text-xs text-gray-400 mt-1">
+          <span className="text-xs text-gray-400 mt-1 donation-balance">
             Your ETH Balance: {Number(ethBalance.formatted).toFixed(4)} ETH
           </span>
         )}
+        */}
       </div>
       {status === "success" && (
         <div className="flex flex-col items-center gap-2 mt-2">
@@ -353,6 +354,33 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
         }
         .animate-pulse {
           animation: pulse 1s infinite;
+        }
+        @media (max-width: 600px) {
+          .donation-compact-row {
+            gap: 4px !important;
+            margin-bottom: 0 !important;
+          }
+          .donation-compact-input {
+            padding: 6px 8px !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+          }
+          .donation-compact-btn {
+            padding: 6px 12px !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+            min-width: 80px !important;
+          }
+          .donation-balance {
+            display: block !important;
+            font-size: 11px !important;
+            margin-top: 2px !important;
+            color: #bdbdbd !important;
+            text-align: right !important;
+          }
+          .donation-error {
+            display: none !important;
+          }
         }
       `}</style>
     </div>
