@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useAccount, useContractWrite, useContractRead, useTransaction, useSwitchChain, useChainId, useSendTransaction, useBalance } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import DonationModal from "../../AlexPaulSite/app/components/DonationModal";
 import { USDC_ADDRESS, PROJECT_WALLET, USDC_ABI, formatUSDCAmount, parseUSDCAmount } from "../utils/usdc";
 import { toast } from "sonner";
 import { parseEther } from "viem";
@@ -14,12 +13,11 @@ const GOAL_AMOUNT = 10000; // $10,000 USD
 
 type Currency = "USDC" | "ETH";
 
-export default function DonationWidget() {
+export default function DonationWidget({ onDonateClick }: { onDonateClick: (data: { amount: number; currency: Currency; address: string }) => void }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
-  const [showDonationModal, setShowDonationModal] = useState(false);
   const [currency, setCurrency] = useState<Currency>("USDC");
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
@@ -83,7 +81,6 @@ export default function DonationWidget() {
   useEffect(() => {
     if (isSuccess) {
       setStatus("success");
-      setShowDonationModal(true);
       toast.success("Donation successful! Thank you for your support! 🎉");
       // Disparar evento para refrescar el progreso
       if (typeof window !== 'undefined') {
@@ -202,7 +199,7 @@ export default function DonationWidget() {
         !data.displayName || typeof data.displayName !== 'string' ||
         !data.amount || typeof data.amount !== 'number' || isNaN(data.amount) ||
         !data.currency || typeof data.currency !== 'string') {
-      toast.error("Faltan datos obligatorios para guardar el supporter.");
+      toast.error("Required fields are missing to save the supporter.");
       console.log("[SUPPORTER] Datos faltantes o tipos incorrectos:", {
         address, tipo_address: typeof address,
         displayName: data.displayName, tipo_displayName: typeof data.displayName,
@@ -231,20 +228,9 @@ export default function DonationWidget() {
         toast.error("Error saving supporter: " + error.message);
         return;
       }
-      setShowDonationModal(false);
-      // Forzar refresco manual de supporters y progreso
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('refresh-supporters'));
-        window.dispatchEvent(new Event('refresh-progress'));
-      }
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('refresh-supporters'));
-        }
-      }, 1000);
-      toast.success("¡Gracias por tu apoyo!");
+      toast.success("Thank you for your support!");
     } catch (e: any) {
-      toast.error(e.message || "Error inesperado al guardar supporter");
+      toast.error(e.message || "Unexpected error while saving supporter");
       console.log("[SUPPORTER] Error inesperado:", e);
     }
   };
@@ -282,7 +268,7 @@ export default function DonationWidget() {
         {/* Bloque compacto de donación con selector de moneda personalizado */}
         <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2">
           {/* Input con selector de moneda como símbolo */}
-          <div className="flex items-center flex-1 bg-gray-900 border-2 border-gray-700 rounded-full px-3 py-2 focus-within:border-red-400 transition-all min-w-0">
+          <div className="flex items-center flex-1 bg-gray-900 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0">
             <button
               type="button"
               onClick={() => setCurrency(currency === "USDC" ? "ETH" : "USDC")}
@@ -313,23 +299,12 @@ export default function DonationWidget() {
           <button
             onClick={handleDonate}
             disabled={!selected || isPending || status === "pending"}
-            className="px-5 py-2 rounded-full font-bold transition-all duration-200 shadow-lg whitespace-nowrap relative overflow-hidden group text-white"
-            style={{
-              background: 'linear-gradient(90deg, #ff5ecd, #a259f7, #00ffb8)',
-              backgroundSize: '200% 200%',
-              animation: 'gradientMove 3s ease-in-out infinite'
-            }}
+            className={`px-6 py-3 rounded-xl font-bold transition-transform duration-200 shadow-lg whitespace-nowrap relative overflow-hidden group text-white bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 focus:outline-none z-50 ${(!selected || isPending || status === "pending") ? 'opacity-60 cursor-not-allowed' : 'scale-100 shadow-[0_0_16px_4px_rgba(255,80,80,0.25)] animate-pulse'}`}
           >
-            {(isPending || status === "pending") ? "Loading..." : "Support"}
+            {(isPending || status === "pending") ? "Processing..." : "Support"}
           </button>
         </div>
-        <style jsx global>{`
-          @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-        `}</style>
+        {/* Gold button animation handled by Tailwind classes above */}
         {/* Mensajes de error y balance */}
         {customAmount && (!selected || parseFloat(customAmount) <= 0) && (
           <span className="text-xs text-red-400 mt-1">Enter a valid amount greater than 0</span>
@@ -345,7 +320,7 @@ export default function DonationWidget() {
           </span>
         )}
       </div>
-      {status === "success" && !showDonationModal && (
+      {status === "success" && (
         <div className="flex flex-col items-center gap-2 mt-2">
           <div className="text-green-400 font-bold">Thank you for your support! 🎉</div>
           <div className="flex gap-2 mt-1">
@@ -371,15 +346,15 @@ export default function DonationWidget() {
       {status === "error" && (
         <div className="text-red-400 font-bold mt-2">{error}</div>
       )}
-
-      <DonationModal
-        isOpen={showDonationModal}
-        onClose={() => setShowDonationModal(false)}
-        onSave={(data) => handleDonationModalSave({ ...data, amount: selected || 0, currency })}
-        defaultDisplayName={address ? formatAddress(address) : ""}
-        amount={selected || 0}
-        currency={currency}
-      />
+      <style jsx global>{`
+        @keyframes pulse {
+          0%, 100% { box-shadow: 0 0 16px 4px rgba(255,80,80,0.25); }
+          50% { box-shadow: 0 0 24px 8px rgba(255,80,80,0.35); }
+        }
+        .animate-pulse {
+          animation: pulse 1s infinite;
+        }
+      `}</style>
     </div>
   );
 } 

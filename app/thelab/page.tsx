@@ -43,10 +43,12 @@ import type { PanInfo } from 'framer-motion';
 import DonationWidget from "@/app/components/DonationWidget";
 import SimpleProgress from "./SimpleProgress";
 import { supabase } from "@/lib/supabaseClient";
-import DonationModal from "../../AlexPaulSite/app/components/DonationModal";
+import DonationModal from "@/app/components/DonationModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import HeatmapBackground from "@/components/HeatmapBackground";
-import { useDisconnect } from "wagmi";
+import { useDisconnect, useAccount } from "wagmi";
+import { TheLabFarcaster } from "@/src/components/TheLabFarcaster";
+import MoneyRain from "@/app/components/MoneyRain";
 
 type ProjectPoint = {
   id: string;
@@ -68,6 +70,8 @@ export default function TheLab() {
   const dragControls = useDragControls();
   const [contentCardPosition, setContentCardPosition] = useState<{x: number, y: number} | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isFarcasterFrame, setIsFarcasterFrame] = useState(false);
+  const [showMoneyRain, setShowMoneyRain] = useState(false);
 
   // Meta de crowdfunding: $10,000 USD
   const goal = 10000;
@@ -84,10 +88,11 @@ export default function TheLab() {
   const [displayName, setDisplayName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [pendingDonation, setPendingDonation] = useState<{ name: string; amount: number; currency: string } | null>(null);
+  const [showDonationModal, setShowDonationModal] = useState(false);
+  const [modalData, setModalData] = useState<{ amount: number; currency: string; address: string }>({ amount: 0, currency: "USDC", address: "" });
 
   const { disconnect } = useDisconnect();
+  const { address } = useAccount();
   const [showWalletMenu, setShowWalletMenu] = useState(false);
 
   useEffect(() => {
@@ -429,30 +434,31 @@ export default function TheLab() {
     }
   };
 
-  // Lógica para mostrar el modal después de una donación exitosa
   const handleDonationSuccess = (donor: { name: string; amount: number; currency: string }) => {
-    setPendingDonation(donor);
-    setShowModal(true);
+    setModalData({ ...donor, amount: donor.amount, currency: donor.currency, address: address || "" });
+    setShowDonationModal(true);
+    setShowMoneyRain(true);
+    setTimeout(() => setShowMoneyRain(false), 2500);
   };
 
   const handleSaveMessage = async (data: { displayName: string; comment: string }) => {
     setIsSaving(true);
     setError(null);
     try {
-      if (!pendingDonation) return;
+      if (!modalData) return;
       const { error: supabaseError } = await supabase.from("supporters").insert({
         display_name: data.displayName,
-        amount: pendingDonation.amount,
+        amount: modalData.amount,
         comment: data.comment || null,
-        currency: pendingDonation.currency,
+        currency: modalData.currency,
       });
       if (supabaseError) {
         setError("Error al guardar el mensaje. Intenta de nuevo.");
         setIsSaving(false);
         return;
       }
-      setShowModal(false);
-      setPendingDonation(null);
+      setShowDonationModal(false);
+      setModalData({ amount: 0, currency: "USDC", address: "" });
       setDisplayName("");
       setNewComment("");
       setError(null);
@@ -476,8 +482,8 @@ export default function TheLab() {
   };
 
   const handleSkipMessage = () => {
-    setShowModal(false);
-    setPendingDonation(null);
+    setShowDonationModal(false);
+    setModalData({ amount: 0, currency: "USDC", address: "" });
   };
 
   useEffect(() => {
@@ -488,6 +494,27 @@ export default function TheLab() {
 
   // Utilidad para abreviar address
   const formatAddress = (addr: string) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
+
+  useEffect(() => {
+    // Check if we're in a Farcaster Frame
+    const checkFarcasterFrame = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      const isFrame = window.self !== window.top;
+      setIsFarcasterFrame(isFrame && userAgent.includes('farcaster'));
+    };
+    
+    checkFarcasterFrame();
+  }, []);
+
+  // If we're in a Farcaster Frame, show the simplified version
+  if (isFarcasterFrame) {
+    return <TheLabFarcaster />;
+  }
+
+  const openDonationModal = (data: { amount: number; currency: string; address: string }) => {
+    setModalData(data);
+    setShowDonationModal(true);
+  };
 
   return (
     <div className="min-h-[180vh] bg-black text-white relative overflow-hidden">
@@ -596,13 +623,16 @@ export default function TheLab() {
                   <video
                     ref={videoRef}
                     src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4"
-                    controls
                     autoPlay
                     loop
                     muted
                     playsInline
                     className="rounded-xl w-full max-w-md shadow-lg"
                   />
+                </div>
+                <div className="flex items-center justify-center gap-1 mb-2">
+                  <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
+                  <span className="text-xs text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
                 </div>
                 <SimpleProgress />
               </div>
@@ -662,7 +692,7 @@ export default function TheLab() {
                     ];
                     const icon = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
                     return (
-                      <div key={s.name} className="flex flex-col items-center w-full max-w-[180px]">
+                      <div key={(s.address ? s.address : 'noaddress') + '-' + i} className={`flex flex-col items-center w-full max-w-[180px]`}>
                         <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center h-16 w-full mb-1 relative animate-pulse`}>
                           <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl drop-shadow">{icon}</span>
                           <span className="text-black font-extrabold truncate max-w-[80px] text-center block overflow-hidden whitespace-nowrap text-sm" title={s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}>
@@ -676,13 +706,13 @@ export default function TheLab() {
                 </div>
                 {/* Lista de todos los supporters */}
                 <div>
-                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Todos los que han donado</span>
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">All Supporters</span>
                   <ul className="divide-y divide-yellow-100/10 max-h-[220px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
-                      <li className="text-center text-gray-400 py-4">¡Sé el primero en apoyar este proyecto!</li>
+                      <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
                     )}
                     {supporters.map((s, i) => (
-                      <li key={s.name + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                      <li key={(s.address ? s.address : 'noaddress') + '-' + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
                         <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
                           <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
@@ -853,7 +883,6 @@ export default function TheLab() {
                     <video
                       ref={videoRef}
                       src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4"
-                      controls
                       autoPlay
                       loop
                       muted
@@ -861,12 +890,12 @@ export default function TheLab() {
                       className="rounded-xl w-full max-w-md shadow-lg"
                     />
                   </div>
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-blue-400 animate-pulse" />
-                    <span className="text-sm text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
+                    <span className="text-xs text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
                   </div>
                   <SimpleProgress />
-                  <DonationWidget />
+                  <DonationWidget onDonateClick={openDonationModal} />
                 </div>
               </motion.div>
               {/* Supporters Card */}
@@ -890,7 +919,7 @@ export default function TheLab() {
                     const fontWeight = i === 0 ? 'font-extrabold' : 'font-bold';
                     const icon = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
                     return (
-                      <div key={s.name} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
+                      <div key={(s.address ? s.address : 'noaddress') + '-' + i} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
                         <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center ${size} mb-2 relative animate-pulse`}
                           style={{ boxShadow: i === 0 ? '0 0 24px 4px #FFD70055' : undefined }}>
                           <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-3xl drop-shadow">{icon}</span>
@@ -908,13 +937,13 @@ export default function TheLab() {
                 </div>
                 {/* Lista de todos los supporters */}
                 <div>
-                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">Todos los que han donado</span>
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">All Supporters</span>
                   <ul className="divide-y divide-yellow-100/10 max-h-[220px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
-                      <li className="text-center text-gray-400 py-4">¡Sé el primero en apoyar este proyecto!</li>
+                      <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
                     )}
                     {supporters.map((s, i) => (
-                      <li key={s.name + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                      <li key={(s.address ? s.address : 'noaddress') + '-' + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
                         <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
                           <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
@@ -1021,12 +1050,11 @@ export default function TheLab() {
       )}
       
       <DonationModal
-        isOpen={showModal}
+        isOpen={showDonationModal}
         onClose={handleSkipMessage}
-        onSave={handleSaveMessage}
-        defaultDisplayName={pendingDonation?.name || ""}
-        amount={pendingDonation?.amount || 0}
-        currency={pendingDonation?.currency || "USDC"}
+        amount={modalData.amount}
+        currency={modalData.currency}
+        address={modalData.address}
       />
 
       {/* 1. Animación global para flotación */}
@@ -1040,13 +1068,12 @@ export default function TheLab() {
 
       {isMobile && (
         <div className="fixed bottom-0 left-16 w-[calc(100vw-4rem)] z-50 block sm:hidden bg-black/80 p-4 border-t border-white/10 backdrop-blur-md">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-blue-400 animate-pulse" />
-            <span className="text-sm text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
-          </div>
-          <DonationWidget />
+          <DonationWidget onDonateClick={openDonationModal} />
         </div>
       )}
+
+      {/* MoneyRain animation overlay */}
+      <MoneyRain show={showMoneyRain} />
     </div>
   );
 } 
