@@ -124,23 +124,38 @@ export default function TheLabContent() {
         }
         .support-section {
           text-align: center;
-          margin-top: 4rem;
-          padding: 4rem 0;
+          margin-top: 2rem;
+          padding: 2rem 0;
           background: rgba(15, 15, 15, 0.5);
           border-radius: 24px;
           backdrop-filter: blur(10px);
         }
         .support-title {
-          font-size: 2rem;
+          font-size: 1.75rem;
           font-weight: 700;
           color: #fff;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
         }
         .support-description {
           color: rgba(255, 255, 255, 0.8);
           max-width: 600px;
-          margin: 0 auto 2rem;
-          line-height: 1.6;
+          margin: 0 auto 1.5rem;
+          line-height: 1.5;
+        }
+        @media (max-width: 600px) {
+          .support-section {
+            padding: 1rem 0 !important;
+            margin-top: 1rem !important;
+            border-radius: 14px !important;
+          }
+          .support-title, .support-description {
+            display: none !important;
+          }
+          .support-button {
+            padding: 0.5rem 1.2rem !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+          }
         }
       `}</style>
       <HeatmapBackground />

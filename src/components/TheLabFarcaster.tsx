@@ -59,7 +59,7 @@ export const TheLabFarcaster = () => {
       )}
 
       {/* Footer */}
-      <div className="text-[10px] text-gray-600 mt-2 text-center">Powered by Farcaster Frame</div>
+      <div className="text-[8px] text-gray-600 mt-1 text-center">Powered by Farcaster Frame</div>
     </div>
   );
 }; 

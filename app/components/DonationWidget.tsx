@@ -86,6 +86,10 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('refresh-progress'));
       }
+      // Restaurar: abrir modal para mensaje/comentario
+      if (onDonateClick && selected && address) {
+        onDonateClick({ amount: selected, currency, address });
+      }
     }
   }, [isSuccess]);
 
@@ -267,7 +271,7 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
       <div className="flex flex-col items-center w-full mb-2">
         {/* Bloque compacto de donación con selector de moneda personalizado */}
         <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2 donation-compact-row">
-          <div className="flex items-center flex-1 bg-gray-900 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0 donation-compact-input">
+          <div className="flex items-center flex-1 bg-gray-900 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0 donation-compact-input donation-amount-input">
             <button
               type="button"
               onClick={() => setCurrency(currency === "USDC" ? "ETH" : "USDC")}
@@ -355,6 +359,9 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
         .animate-pulse {
           animation: pulse 1s infinite;
         }
+        .donation-amount-input input {
+          max-width: 80px;
+        }
         @media (max-width: 600px) {
           .donation-widget-compact {
             margin-top: 0 !important;
@@ -368,6 +375,12 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
             padding: 4px 6px !important;
             font-size: 0.95rem !important;
             border-radius: 7px !important;
+          }
+          .donation-amount-input input {
+            max-width: 60px !important;
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+            font-size: 0.95rem !important;
           }
           .donation-compact-btn {
             padding: 4px 8px !important;
