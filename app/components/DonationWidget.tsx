@@ -270,7 +270,7 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
     <div className="mt-2 flex flex-col items-center gap-3 donation-widget-compact">
       <div className="flex flex-col items-center w-full">
         {/* Bloque compacto de donación con selector de moneda personalizado */}
-        <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2 donation-compact-row">
+        <div className="w-full max-w-xs mx-auto flex items-center gap-2 mb-2 donation-compact-row compact-amount-row">
           <div className="flex items-center flex-1 bg-gray-900/50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-red-400 transition-all min-w-0 donation-compact-input donation-amount-input">
             <button
               type="button"
@@ -356,6 +356,10 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
           .donation-compact-row {
             gap: 2px !important;
             margin-bottom: 0 !important;
+          }
+          .compact-amount-row {
+            max-width: 220px !important;
+            width: 100% !important;
           }
           .donation-compact-input {
             padding: 4px 6px !important;
