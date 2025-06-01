@@ -26,7 +26,7 @@ export default function SidebarNav({ links }:{ links: {href:string, label:string
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginBottom: 48, marginTop: 24 }}>
         <Image src="/images/logo-alexpaul.png" alt="Alex Paul Logo" width={56} height={56} style={{ filter: 'drop-shadow(0 2px 16px #3b82f6)' }} />
       </div>
-      {/* All links (Home, The Lab, About) centered vertically */}
+      {/* Links solo iconos, centrados verticalmente */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', justifyContent: 'center', flex: 1 }}>
         {links.map(link => {
           const isActive = pathname === link.href || (link.href === '/' && pathname === '');

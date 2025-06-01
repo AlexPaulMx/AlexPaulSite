@@ -1,22 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { User } from 'lucide-react';
 import { usePublicClient, useAccount } from "wagmi";
 import { formatEther } from "viem";
 import { USDC_ADDRESS, USDC_ABI, parseUSDCAmount } from "../utils/usdc";
 
-interface Supporter {
-  address: string;
+type Supporter = {
+  name: string;
   amount: number;
-  timestamp: Date;
-  type: 'ETH' | 'USDC';
   message?: string;
-}
+  avatar?: string;
+  date: string;
+  type?: 'USDC' | 'ETH';
+};
+
+type Comment = {
+  user: string;
+  avatar?: string;
+  message: string;
+  date: string;
+};
+
+type SupportersAndCommentsProps = {
+  supporters: Supporter[];
+  comments: Comment[];
+};
 
 const PROJECT_WALLET = "0x5aF876e2DA6f8324B5Ac866B0C7e73c619c95DC8";
 
-export default function SupportersAndComments() {
-  const [supporters, setSupporters] = useState<Supporter[]>([]);
+export default function SupportersAndComments({
+  supporters: initialSupporters,
+  comments: initialComments,
+}: SupportersAndCommentsProps) {
+  const [supporters, setSupporters] = useState<Supporter[]>(initialSupporters);
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
   const publicClient = usePublicClient();
   const { address: connectedAddress } = useAccount();
@@ -45,9 +64,9 @@ export default function SupportersAndComments() {
         // Agregar USDC balance
         if (usdcBalance > 0) {
           newSupporters.push({
-            address: PROJECT_WALLET,
+            name: PROJECT_WALLET,
             amount: parseUSDCAmount(usdcBalance),
-            timestamp: new Date(),
+            date: new Date().toLocaleDateString(),
             type: 'USDC'
           });
         }
@@ -55,14 +74,14 @@ export default function SupportersAndComments() {
         // Agregar ETH balance
         if (ethBalance > 0) {
           newSupporters.push({
-            address: PROJECT_WALLET,
+            name: PROJECT_WALLET,
             amount: Number(formatEther(ethBalance)),
-            timestamp: new Date(),
+            date: new Date().toLocaleDateString(),
             type: 'ETH'
           });
         }
 
-        setSupporters(newSupporters);
+        setSupporters(prev => [...prev, ...newSupporters]);
       } catch (error) {
         console.error('Error loading initial data:', error);
       }
@@ -87,9 +106,9 @@ export default function SupportersAndComments() {
             const amount = Number(formatEther(transaction.value));
             if (amount > 0) {
               setSupporters(prev => [{
-                address: transaction.from,
+                name: transaction.from,
                 amount,
-                timestamp: new Date(),
+                date: new Date().toLocaleDateString(),
                 type: 'ETH'
               }, ...prev]);
             }
@@ -107,22 +126,20 @@ export default function SupportersAndComments() {
     if (!newComment.trim() || !connectedAddress) return;
 
     // Guardar comentario en localStorage
-    const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+    const savedComments = JSON.parse(localStorage.getItem('comments') || '[]');
     const newCommentData = {
-      address: connectedAddress,
+      user: connectedAddress,
       message: newComment,
-      timestamp: new Date().toISOString()
+      date: new Date().toISOString()
     };
-    comments.unshift(newCommentData);
-    localStorage.setItem('comments', JSON.stringify(comments));
+    savedComments.unshift(newCommentData);
+    localStorage.setItem('comments', JSON.stringify(savedComments));
 
     // Agregar comentario a la lista
-    setSupporters(prev => [{
-      address: connectedAddress,
-      amount: 0,
-      timestamp: new Date(),
-      type: 'ETH',
-      message: newComment
+    setComments(prev => [{
+      user: connectedAddress,
+      message: newComment,
+      date: new Date().toLocaleDateString()
     }, ...prev]);
 
     setNewComment("");
@@ -132,51 +149,96 @@ export default function SupportersAndComments() {
   useEffect(() => {
     const savedComments = JSON.parse(localStorage.getItem('comments') || '[]');
     const commentSupporters = savedComments.map((comment: any) => ({
-      address: comment.address,
-      amount: 0,
-      timestamp: new Date(comment.timestamp),
-      type: 'ETH' as const,
-      message: comment.message
+      user: comment.user,
+      message: comment.message,
+      date: new Date(comment.date).toLocaleDateString()
     }));
-    setSupporters(prev => [...prev, ...commentSupporters]);
+    setComments(prev => [...prev, ...commentSupporters]);
   }, []);
 
   return (
-    <div className="w-full max-w-md mx-auto mt-8 space-y-8">
-      <div className="p-6 bg-black/30 rounded-2xl border border-white/10">
-        <h2 className="text-xl font-bold text-white mb-4">Supporters & Comments</h2>
+    <div className="space-y-8">
+      {/* Supporters */}
+      <div>
+        <h3 className="text-xl font-bold mb-4">Supporters</h3>
         <div className="space-y-4">
           {supporters.map((supporter, index) => (
-            <div key={index} className="flex flex-col space-y-2 p-3 bg-black/20 rounded-lg">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                    <span className="text-red-500">❤️</span>
+            <div
+              key={index}
+              className="bg-black/30 rounded-lg border border-white/10 p-4"
+            >
+              <div className="flex items-center gap-4">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white/10">
+                  {supporter.avatar ? (
+                    <Image
+                      src={supporter.avatar}
+                      alt={supporter.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/50" />
+                  )}
                   </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
                   <div>
-                    <div className="text-white">{supporter.address.slice(0, 6)}...{supporter.address.slice(-4)}</div>
-                    <div className="text-gray-400 text-xs">{supporter.timestamp.toLocaleDateString()}</div>
+                      <div className="font-bold">{supporter.name}</div>
+                      <div className="text-sm text-gray-400">
+                        {supporter.date}
+                      </div>
+                    </div>
+                    <div className="text-pink-500 font-bold">
+                      ${supporter.amount}
+                    </div>
                   </div>
+                  {supporter.message && (
+                    <div className="mt-2 text-sm text-gray-300">
+                      {supporter.message}
+                    </div>
+                  )}
                 </div>
-                {supporter.amount > 0 && (
-                  <div className="text-right">
-                    <div className="text-white">{supporter.amount.toFixed(4)} {supporter.type}</div>
-                    <div className="text-gray-400 text-xs">≈ ${(supporter.amount * 3000).toFixed(2)}</div>
-                  </div>
-                )}
               </div>
-              {supporter.message && (
-                <div className="pl-10 text-sm text-gray-300 border-t border-gray-700 pt-2">
-                  {supporter.message}
-                </div>
-              )}
             </div>
           ))}
-          {supporters.length === 0 && (
-            <div className="text-center text-gray-400 py-4">
-              No supporters yet. Be the first one!
+        </div>
+      </div>
+
+      {/* Comments */}
+      <div>
+        <h3 className="text-xl font-bold mb-4">Comments</h3>
+        <div className="space-y-4">
+          {comments.map((comment, index) => (
+            <div
+              key={index}
+              className="bg-black/30 rounded-lg border border-white/10 p-4"
+            >
+              <div className="flex items-start gap-4">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white/10">
+                  {comment.avatar ? (
+                    <Image
+                      src={comment.avatar}
+                      alt={comment.user}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/50" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div className="font-bold">{comment.user}</div>
+                    <div className="text-sm text-gray-400">{comment.date}</div>
+                  </div>
+                  <div className="mt-2 text-sm text-gray-300">
+                    {comment.message}
+              </div>
+                </div>
+              </div>
             </div>
-          )}
+          ))}
+            </div>
         </div>
 
         {/* Comment Input */}
@@ -195,7 +257,6 @@ export default function SupportersAndComments() {
           >
             {connectedAddress ? 'Post Comment' : 'Connect Wallet to Comment'}
           </button>
-        </div>
       </div>
     </div>
   );

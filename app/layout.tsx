@@ -2,7 +2,7 @@ import type React from "react"
 import { PlayerProvider } from "./context/PlayerContext"
 import "./globals.css"
 import Image from "next/image"
-import { Home, User, FlaskConical } from 'lucide-react'
+import { Home, User, FlaskConical, Music } from 'lucide-react'
 import { FloatingPlayer } from "./components/FloatingPlayer"
 import { Providers } from "./providers"
 import HeatmapGlobal from "./HeatmapGlobal"
@@ -36,7 +36,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Sidebar links solo iconos
   const links = [
-    { href: '/', label: 'Home', icon: <Home size={24} /> },
+    { href: '/music', label: 'Music', icon: <Music size={24} /> },
     { href: '/thelab', label: 'The Lab', icon: <FlaskConical size={24} /> },
     { href: '/about', label: 'About', icon: <User size={24} /> },
   ]

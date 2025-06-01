@@ -1,93 +1,81 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
+import Image from 'next/image';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, GripVertical } from 'lucide-react';
 
 export function FloatingPlayer() {
   const {
+    tracks,
     current,
     playing,
     progress,
     duration,
     volume,
-    loading,
-    error,
-    tracks,
+    audioRef,
     handlePlayPause,
     handleNext,
     handlePrev,
     handleSeek,
     handleVolume,
-    onViewRelease,
   } = usePlayer();
 
-  if (!tracks.length || !tracks[current] || !playing) return null;
+  if (!tracks.length || !tracks[current]) return null;
+
+  const currentTrackData = tracks[current];
 
   return (
-    <div
-      className="fixed flex items-center gap-5 z-50 animate-fade-in"
-      style={{
-        right: 24,
-        bottom: 24,
-        minWidth: 320,
-        maxWidth: 420,
-        background: 'rgba(30,30,40,0.65)',
-        boxShadow: '0 8px 32px #000a, 0 2px 24px #f43f5e44',
-        borderRadius: 28,
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: '1.5px solid rgba(255,255,255,0.13)',
-        padding: '22px 28px',
-      }}
-    >
-      <img 
-        src={tracks[current].cover} 
-        alt={tracks[current].title} 
-        className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-white/20 bg-neutral-800"
-        style={{boxShadow:'0 2px 12px #0006'}}
-      />
-      <div className="flex flex-col min-w-[120px] flex-1">
-        <div className="text-base font-bold truncate text-white drop-shadow mb-1" style={{letterSpacing:0.2}}>{tracks[current].title}</div>
-        <div className="text-xs text-neutral-300 truncate mb-2">{tracks[current].artist}</div>
+    <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10 p-4">
+      <div className="container mx-auto flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="relative w-12 h-12">
+            <Image
+              src={currentTrackData.cover}
+              alt={currentTrackData.title}
+              fill
+              className="object-cover rounded"
+            />
+          </div>
+          <div>
+            <h3 className="font-bold">{currentTrackData.title}</h3>
+            <p className="text-sm text-gray-400">{currentTrackData.artist}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-4">
+            <button onClick={handlePrev} className="p-2 hover:text-pink-400">
+              <SkipBack size={20} />
+            </button>
+            <button
+              onClick={handlePlayPause}
+              className="p-3 bg-pink-500 text-white rounded-full hover:bg-pink-600"
+            >
+              {playing ? <Pause size={20} /> : <Play size={20} />}
+            </button>
+            <button onClick={handleNext} className="p-2 hover:text-pink-400">
+              <SkipForward size={20} />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 w-64">
+            <span className="text-xs text-gray-400">{formatTime(progress)}</span>
           <input
             type="range"
             min={0}
-            max={duration}
-            value={progress}
+              max={100}
+              value={(progress / duration) * 100}
             onChange={handleSeek}
-          className="w-full h-1 accent-pink-500"
-          style={{marginBottom:6, accentColor:'#f43f5e'}}
+              className="flex-1"
           />
-        <div className="flex justify-between text-xs text-neutral-400" style={{fontVariantNumeric:'tabular-nums'}}>
-          <span>{formatTime(progress)}</span>
-          <span>{formatTime(duration)}</span>
+            <span className="text-xs text-gray-400">{formatTime(duration)}</span>
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col items-center gap-3 ml-2">
-        <div className="flex items-center gap-2 mb-1">
-          <button onClick={handlePrev} className="p-2 hover:text-pink-400 transition-colors rounded-full bg-white/10 hover:bg-pink-500/20 shadow">
-            <SkipBack size={18} />
+
+        <div className="flex items-center gap-2">
+          <button onClick={() => audioRef.current && (audioRef.current.muted = !audioRef.current.muted)} className="p-2 hover:text-pink-400">
+            {audioRef.current?.muted ? <VolumeX size={20} /> : <Volume2 size={20} />}
         </button>
-          <button onClick={handlePlayPause} className={`p-2 rounded-full shadow-lg ${playing ? 'bg-pink-500 text-white' : 'bg-white/10 text-white hover:bg-pink-500 hover:text-white'} transition-all duration-200`} style={{fontSize:22}}>
-          {loading ? (
-              <div className="w-5 h-5 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-          ) : playing ? (
-              <Pause size={20} />
-          ) : (
-              <Play size={20} />
-          )}
-        </button>
-          <button onClick={handleNext} className="p-2 hover:text-pink-400 transition-colors rounded-full bg-white/10 hover:bg-pink-500/20 shadow">
-            <SkipForward size={18} />
-        </button>
-        </div>
-        <div className="flex items-center gap-1">
-          {volume === 0 ? (
-            <VolumeX size={18} />
-          ) : (
-            <Volume2 size={18} />
-          )}
           <input
             type="range"
             min={0}
@@ -95,20 +83,10 @@ export function FloatingPlayer() {
             step={0.01}
             value={volume}
             onChange={handleVolume}
-            className="w-20 h-1 accent-pink-500"
-            style={{accentColor:'#f43f5e'}}
+            className="w-24"
           />
         </div>
       </div>
-      <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(32px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.7s cubic-bezier(.4,2,.6,1);
-        }
-      `}</style>
     </div>
   );
 }

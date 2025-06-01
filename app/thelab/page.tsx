@@ -895,7 +895,7 @@ export default function TheLab() {
                     <span className="text-xs text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
                   </div>
                   <div className="bg-black/30 rounded-xl p-4 border border-white/10">
-                    <SimpleProgress />
+                  <SimpleProgress />
                   </div>
                   <div className="bg-black/30 rounded-xl p-4 border border-white/10">
                     <DonationWidget onDonateClick={openDonationModal} />
