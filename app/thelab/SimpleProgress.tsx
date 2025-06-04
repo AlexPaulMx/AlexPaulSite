@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 
-const GOAL_AMOUNT = 10000; // $10,000 USD
+const GOAL_AMOUNT = 18000; // $18,000 USD
 
 export default function SimpleProgress() {
   const [totalRaised, setTotalRaised] = useState(0);

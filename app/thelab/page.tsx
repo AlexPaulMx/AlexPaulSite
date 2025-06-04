@@ -58,6 +58,19 @@ type ProjectPoint = {
   content: React.ReactNode;
 };
 
+// Lista de emojis para los avatares
+const labMusicEmojis = [
+  '🔬', '🧪', '🧬', '🎼', '🎧', '🎹', '🎤', '🎚️',
+  '🔬', '🧪', '🧬', '🎶', '🎵', '🥁', '🎸', '🎺', '🎻', '🎧', '🎤', '🎹', '🥁', '🎷', '🎸', '🎺', '🎻', '🎛️', '🔊', '🔔', '🎵', '🎶',
+  '⚗️', '📊', '💡', '🔬', '🧪', '🧬', '🦠', '🧫',
+];
+
+// Función para obtener un emoji aleatorio
+function getRandomLabMusicEmoji() {
+  const randomIndex = Math.floor(Math.random() * labMusicEmojis.length);
+  return labMusicEmojis[randomIndex];
+}
+
 export default function TheLab() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -82,7 +95,7 @@ export default function TheLab() {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   // Estado para supporters
-  const [supporters, setSupporters] = useState<Array<{ name: string; amount: number; comment?: string; address?: string }>>([]);
+  const [supporters, setSupporters] = useState<Array<{ name: string; amount: number; comment?: string; address?: string; emoji: string }>>([]);
   const [isLoadingSupporters, setIsLoadingSupporters] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -137,12 +150,15 @@ export default function TheLab() {
         if (error) throw error;
 
         if (data) {
-          setSupporters(data.map((s: any) => ({
+          // Asignar un emoji aleatorio a cada supporter al cargarlos
+          const supportersWithEmojis = data.map((s: any) => ({
             name: s.display_name,
             amount: s.amount,
             comment: s.comment || null,
-            address: s.address
-          })));
+            address: s.address,
+            emoji: getRandomLabMusicEmoji(), // Asignar emoji aquí
+          }));
+          setSupporters(supportersWithEmojis);
         }
       } catch (error) {
         console.error("Error fetching supporters:", error);
@@ -152,7 +168,7 @@ export default function TheLab() {
     };
 
     fetchSupporters();
-  }, []);
+  }, []); // Vacío para que se ejecute solo una vez al montar el componente
 
   // Top 3 supporters
   const topSupporters = supporters.slice(0, 3);
@@ -175,6 +191,25 @@ export default function TheLab() {
       )
     },
     {
+      id: "how-it-works",
+      title: "How it works?",
+      icon: <Sparkles className="w-6 h-6 text-purple-400" />,
+      position: { x: 85, y: 35 },
+      content: (
+        <div className="space-y-4 text-gray-300 text-base">
+          <p>
+            <strong>Premint</strong> will define your role in the project, ensuring a tailored experience for each participant.
+          </p>
+          <p>
+            Supporters will soon receive a unique collectible, enhancing their engagement within the community.
+          </p>
+          <p>
+            Your collectible will serve as the key to access future apps, create personalized avatars, and receive exclusive airdrops, unlocking additional features and benefits as the project evolves.
+          </p>
+        </div>
+      )
+    },
+    {
       id: "rewards",
       title: "Rewards",
       icon: <Gift className="w-6 h-6 text-red-400" />,
@@ -192,10 +227,30 @@ export default function TheLab() {
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
                 Exclusive Merch
               </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Full Album CD
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                The Lab Crew Character
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Full Album Airdrop
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                The Lab Gang Badge
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Release Party Invitation
+              </li>
                 </ul>
               </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
-            <h3 className="text-xl font-bold mb-4 text-white">Top 5 Supporters</h3>
+            <h3 className="text-xl font-bold mb-4 text-white">Top 3 Supporters</h3>
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -208,6 +263,22 @@ export default function TheLab() {
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
                 Full Album CD
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                The Lab Crew Character
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Full Album Airdrop
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                The Lab Gang Badge
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Release Party Invitation
               </li>
                 </ul>
               </div>
@@ -222,6 +293,14 @@ export default function TheLab() {
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
                 Full Album Airdrop
               </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                The Lab Gang Badge
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Release Party Invitation
+              </li>
                 </ul>
               </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
@@ -234,6 +313,14 @@ export default function TheLab() {
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
                 Release Party Invitation
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                The Lab Crew Character
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
+                Full Album Airdrop
               </li>
                 </ul>
               </div>
@@ -416,16 +503,20 @@ export default function TheLab() {
       setNewComment("");
       setError(null);
       // Refrescar supporters
-      const { data, error } = await supabase
+      const { data: supportersData, error } = await supabase
         .from("supporters")
-        .select("display_name, amount, comment")
+        .select("display_name, amount, comment, address")
         .order("amount", { ascending: false });
-      if (!error && data) {
-        setSupporters(data.map((s: any) => ({
+      if (!error && supportersData) {
+        // Asignar emojis al refrescar
+        const updatedSupporters = supportersData.map((s: any) => ({
           name: s.display_name,
           amount: s.amount,
-          comment: s.comment || null
-        })));
+          comment: s.comment || null,
+          address: s.address,
+          emoji: getRandomLabMusicEmoji(), // Asignar emoji al refrescar
+        }));
+        setSupporters(updatedSupporters);
       }
     } catch (err) {
       setError("Error inesperado. Intenta de nuevo.");
@@ -465,14 +556,18 @@ export default function TheLab() {
       // Refrescar supporters
       const { data: supportersData, error } = await supabase
         .from("supporters")
-        .select("display_name, amount, comment")
+        .select("display_name, amount, comment, address")
         .order("amount", { ascending: false });
       if (!error && supportersData) {
-        setSupporters(supportersData.map((s: any) => ({
+        // Asignar emojis al refrescar
+        const updatedSupporters = supportersData.map((s: any) => ({
           name: s.display_name,
           amount: s.amount,
-          comment: s.comment || null
-        })));
+          comment: s.comment || null,
+          address: s.address,
+          emoji: getRandomLabMusicEmoji(), // Asignar emoji al refrescar
+        }));
+        setSupporters(updatedSupporters);
       }
     } catch (err) {
       setError("Error inesperado. Intenta de nuevo.");
@@ -590,7 +685,6 @@ export default function TheLab() {
         overflow: 'hidden',
       }}>
         <HeatmapBackground />
-        <NoiseBg />
       </div>
 
       {/* Mobile Design */}
@@ -598,13 +692,13 @@ export default function TheLab() {
         <div className="relative z-10 min-h-screen">
           {/* Mobile Header */}
           <div className="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-lg z-50 p-4 border-b border-white/10">
-            <div className="relative flex items-center justify-center h-10">
+            <div className="relative flex items-center justify-center h-10 min-h-[56px]">
               <Image
                 src="/images/thelab-logo.png"
                 alt="The Lab Logo"
                 width={120}
                 height={60}
-                className="object-contain h-10 w-auto drop-shadow-lg mx-auto"
+                className="object-contain h-10 w-auto drop-shadow-lg mx-auto transform translate-x-[50%]"
                 priority
               />
             </div>
@@ -631,8 +725,8 @@ export default function TheLab() {
                   />
                 </div>
                 <div className="flex items-center justify-center gap-1 mb-2">
-                  <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
-                  <span className="text-xs text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
+                  <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+                  <span className="text-xs text-yellow-400 font-medium">You will receive an exclusive NFT soon</span>
                 </div>
                 <SimpleProgress />
               </div>
@@ -705,8 +799,8 @@ export default function TheLab() {
                   })}
                 </div>
                 {/* Lista de todos los supporters */}
-                <div>
-                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">All Supporters</span>
+                <div className="mt-12">
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide mt-8">All Supporters</span>
                   <ul className="divide-y divide-yellow-100/10 max-h-[320px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
                       <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
@@ -714,7 +808,7 @@ export default function TheLab() {
                     {supporters.map((s, i) => (
                       <li key={(s.address ? s.address : 'noaddress') + '-' + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
                         <div className="flex items-center gap-3">
-                          <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
+                          <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-base ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.emoji}</span>
                           <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
                             {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
                             {s.amount > 0 && (
@@ -758,7 +852,7 @@ export default function TheLab() {
                 initial={{ x: -300 }}
                 animate={{ x: 0 }}
                 exit={{ x: -300 }}
-                className="fixed top-0 left-0 h-full w-64 bg-gray-900/95 backdrop-blur-sm z-40 p-4"
+                className="fixed top-[96px] left-0 h-[calc(100vh-96px)] w-64 bg-gray-900/95 backdrop-blur-sm z-40 p-4"
               >
                 <div className="space-y-4">
                   {projectPoints.map((point, idx) => (
@@ -891,8 +985,8 @@ export default function TheLab() {
                     />
                   </div>
                   <div className="flex items-center justify-center gap-1 mb-4">
-                    <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
-                    <span className="text-xs text-blue-400 font-medium">You will receive an exclusive NFT soon</span>
+                    <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+                    <span className="text-xs text-yellow-400 font-medium">You will receive an exclusive NFT soon</span>
                   </div>
                   <div className="bg-black/30 rounded-xl p-4 border border-white/10">
                   <SimpleProgress />
@@ -940,8 +1034,8 @@ export default function TheLab() {
                   })}
                 </div>
                 {/* Lista de todos los supporters */}
-                <div>
-                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide">All Supporters</span>
+                <div className="mt-12">
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide mt-8">All Supporters</span>
                   <ul className="divide-y divide-yellow-100/10 max-h-[320px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
                       <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
@@ -949,7 +1043,7 @@ export default function TheLab() {
                     {supporters.map((s, i) => (
                       <li key={(s.address ? s.address : 'noaddress') + '-' + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
                         <div className="flex items-center gap-3">
-                          <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.name[0]}</span>
+                          <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-base ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.emoji}</span>
                           <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
                             {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
                             {s.amount > 0 && (
@@ -1080,6 +1174,7 @@ export default function TheLab() {
 
       {/* MoneyRain animation overlay */}
       <MoneyRain show={showMoneyRain} />
+
     </div>
   );
 } 
