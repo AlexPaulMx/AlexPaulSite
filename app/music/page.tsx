@@ -12,6 +12,7 @@ import { FloatingPlayer } from './components/FloatingPlayer'
 import NoiseBg from "../../components/NoiseBg"
 import HeatmapBackground from "../../components/HeatmapBackground"
 import Autoplay from 'embla-carousel-autoplay'
+import PresaveModal from "../components/PresaveModal"
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -463,6 +464,8 @@ export default function Home() {
   const [showFloating, setShowFloating] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
+  const [presaveModalOpen, setPresaveModalOpen] = useState(false);
+  const [selectedSong, setSelectedSong] = useState<string | null>(null);
 
   const handlePlay = (idx: number) => {
     setActiveIndex(idx)
@@ -670,22 +673,50 @@ export default function Home() {
                   <tr className="border-b border-white/10">
                     <td className="py-3 px-2">TBD</td>
                     <td className="py-3 px-2">Nadie como tú</td>
-                    <td className="py-3 px-2"><button className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all">Pre-save</button></td>
+                    <td className="py-3 px-2">
+                      <button
+                        className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all"
+                        onClick={() => { setSelectedSong("Nadie como tú"); setPresaveModalOpen(true); }}
+                      >
+                        Pre-save
+                      </button>
+                    </td>
                   </tr>
                   <tr className="border-b border-white/10">
                     <td className="py-3 px-2">TBD</td>
                     <td className="py-3 px-2">Tu Nombre</td>
-                    <td className="py-3 px-2"><button className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all">Pre-save</button></td>
+                    <td className="py-3 px-2">
+                      <button
+                        className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all"
+                        onClick={() => { setSelectedSong("Tu Nombre"); setPresaveModalOpen(true); }}
+                      >
+                        Pre-save
+                      </button>
+                    </td>
                   </tr>
                   <tr className="border-b border-white/10">
                     <td className="py-3 px-2">TBD</td>
                     <td className="py-3 px-2">Una Mejor</td>
-                    <td className="py-3 px-2"><button className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all">Pre-save</button></td>
+                    <td className="py-3 px-2">
+                      <button
+                        className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all"
+                        onClick={() => { setSelectedSong("Una Mejor"); setPresaveModalOpen(true); }}
+                      >
+                        Pre-save
+                      </button>
+                    </td>
                   </tr>
                   <tr className="border-b border-white/10">
                     <td className="py-3 px-2">TBD</td>
                     <td className="py-3 px-2">The Lab Album</td>
-                    <td className="py-3 px-2"><button className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all">Pre-save</button></td>
+                    <td className="py-3 px-2">
+                      <button
+                        className="px-4 py-1 bg-yellow-400 text-black rounded-md text-xs font-semibold uppercase tracking-wider hover:bg-yellow-500 transition-all"
+                        onClick={() => { setSelectedSong("The Lab Album"); setPresaveModalOpen(true); }}
+                      >
+                        Pre-save
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -896,6 +927,13 @@ export default function Home() {
       </main>
       {/* Mini reproductor solo si está sonando música */}
       {showFloating && <FloatingPlayer minimal />}
+      {presaveModalOpen && selectedSong && (
+        <PresaveModal
+          isOpen={presaveModalOpen}
+          onClose={() => setPresaveModalOpen(false)}
+          songTitle={selectedSong}
+        />
+      )}
     </PlayerProvider>
   );
 }
