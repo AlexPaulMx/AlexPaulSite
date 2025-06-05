@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabaseClient';
 import Image from "next/image";
 
 const GOAL_AMOUNT = 10000; // $10,000 USD
+const MIN_DONATION = 0.88; // Minimum donation amount in USDC
 
 type Currency = "USDC" | "ETH";
 
@@ -257,7 +258,7 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
 
     setCustomAmount(value);
     const num = parseFloat(value);
-    if (!isNaN(num) && num > 0) {
+    if (!isNaN(num) && num >= MIN_DONATION) {
       setSelected(num);
     } else {
       setSelected(null);
@@ -313,23 +314,39 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
       </div>
       {status === "success" && (
         <div className="flex flex-col items-center gap-2 mt-2">
-          <div className="text-green-400 font-bold">Thank you for your support! 🎉</div>
+          <div className="text-green-400 font-bold">Thank you for your support!<br />Share on:</div>
           <div className="flex gap-2 mt-1">
             <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("I just contributed to @alexpaulmx's The Lab crowdfund! 🚀🎶 Join me: https://alexpaul.xyz/thelab")}`}
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("I just preminted The lab Crew badge by @alexpaulmx. Lets Build The Lab! 🚀🎶  @https://www.thelab.cfd/")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1 rounded-full bg-blue-500 text-white font-bold hover:bg-blue-600 transition"
+              className="px-3 py-1 rounded-full bg-blue-500 text-white font-bold hover:bg-blue-600 transition flex items-center justify-center w-10 h-10"
             >
-              Share on X
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
             </a>
             <a
-              href={`https://warpcast.com/~/compose?text=${encodeURIComponent("I just contributed to @alexpaul's The Lab crowdfund! 🚀🎶 Join me: https://alexpaul.xyz/thelab")}`}
+              href={`https://warpcast.com/~/compose?text=${encodeURIComponent("I just preminted The lab Crew badge by @alexpaul. Lets Build The Lab! 🚀🎶  @https://www.thelab.cfd/")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1 rounded-full bg-purple-600 text-white font-bold hover:bg-purple-700 transition"
+              className="px-3 py-1 rounded-full bg-purple-600 text-white font-bold hover:bg-purple-700 transition flex items-center justify-center w-10 h-10"
             >
-              Share on Warpcast
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+              </svg>
+            </a>
+            <a
+              href={`https://orb.club/post?text=${encodeURIComponent("I just preminted The lab Crew badge by @alexpaul. Lets Build The Lab! 🚀🎶  @https://www.thelab.cfd/")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1 rounded-full bg-yellow-500 text-black font-bold hover:bg-yellow-600 transition flex items-center justify-center w-10 h-10"
+            >
+              <img 
+                src="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeihitgwcgukma6hb7pfrjcwiwdby6zgmllw7snzijl5hd2jopaxzdi/Logo%20Lens%20Blanco.png" 
+                alt="Orb" 
+                className="w-5 h-5 object-contain"
+              />
             </a>
           </div>
         </div>
