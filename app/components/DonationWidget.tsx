@@ -303,7 +303,7 @@ export default function DonationWidget({ onDonateClick }: { onDonateClick: (data
             disabled={!selected || isPending || status === "pending"}
             className={`px-6 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg whitespace-nowrap relative overflow-hidden group text-white bg-gradient-to-r from-red-500 via-pink-500 to-yellow-400 focus:outline-none z-50 donation-compact-btn ${(!selected || isPending || status === "pending") ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105 hover:shadow-[0_0_20px_4px_rgba(255,80,80,0.35)]'}`}
           >
-            {(isPending || status === "pending") ? "Processing..." : "Support"}
+            {(isPending || status === "pending") ? "Processing..." : "Pre-mint"}
           </button>
         </div>
         {/* Mensajes de error y balance */}
