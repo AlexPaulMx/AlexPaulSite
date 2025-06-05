@@ -9,7 +9,6 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { Carousel, CarouselContent, CarouselItem } from "../components/ui/carousel"
 import { usePlayer, PlayerProvider } from './context/PlayerContext'
 import { FloatingPlayer } from './components/FloatingPlayer'
-import NoiseBg from "../../components/NoiseBg"
 import HeatmapBackground from "../../components/HeatmapBackground"
 import Autoplay from 'embla-carousel-autoplay'
 import PresaveModal from "../components/PresaveModal"
@@ -375,6 +374,18 @@ function PlayerUI({
     setTracks(tracks);
   }, [tracks, setTracks]);
 
+  // Manejar errores de carga de audio
+  React.useEffect(() => {
+    if (error) {
+      console.error('Player error:', error);
+      // Mostrar el error por 3 segundos y luego limpiarlo
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, setError]);
+
   return (
     <>
       <div ref={playerRef} className="w-full max-w-4xl bg-neutral-950 rounded-xl shadow-xl flex flex-col md:flex-row overflow-hidden border border-neutral-800">
@@ -382,8 +393,8 @@ function PlayerUI({
         <div className="flex-shrink-0 flex flex-col items-center justify-center p-4 bg-neutral-900 w-full md:w-72">
           <div className="w-40 h-40 md:w-48 md:h-48 rounded-lg overflow-hidden shadow border border-neutral-800 mb-4 relative">
             <img 
-              src={tracks[current].cover} 
-              alt={tracks[current].title} 
+              src={tracks[current]?.cover} 
+              alt={tracks[current]?.title} 
               className="object-cover w-full h-full"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = "/images/default-cover.jpg";
@@ -405,8 +416,8 @@ function PlayerUI({
         {/* Info & Controls */}
         <div className="flex-1 flex flex-col justify-between p-6 gap-4">
           <div>
-            <div className="text-xl md:text-2xl font-bold uppercase tracking-wide text-white mb-2 truncate">{tracks[current].title}</div>
-            <div className="text-base text-neutral-400 mb-2 truncate">{tracks[current].artist}</div>
+            <div className="text-xl md:text-2xl font-bold uppercase tracking-wide text-white mb-2 truncate">{tracks[current]?.title}</div>
+            <div className="text-base text-neutral-400 mb-2 truncate">{tracks[current]?.artist}</div>
             {error && (
               <div className="text-red-500 text-sm mb-2">{error}</div>
             )}
@@ -414,13 +425,31 @@ function PlayerUI({
           {/* Progress bar */}
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs text-neutral-500 min-w-[36px] text-right">{formatTime(progress)}</span>
-            <input type="range" min={0} max={duration} value={progress} onChange={handleSeek} className="flex-1 accent-red-500 h-1" />
+            <input 
+              type="range" 
+              min={0} 
+              max={duration || 100} 
+              value={progress} 
+              onChange={handleSeek} 
+              className="flex-1 accent-red-500 h-1" 
+            />
             <span className="text-xs text-neutral-500 min-w-[36px]">{formatTime(duration)}</span>
           </div>
           {/* Controls */}
           <div className="flex items-center gap-3 mb-2">
-            <button onClick={handlePrev} className="bg-transparent text-red-500 rounded-full w-10 h-10 flex items-center justify-center text-xl hover:bg-neutral-800 transition-colors" aria-label="Prev"><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-            <button onClick={handlePlayPause} className="bg-red-600 hover:bg-red-700 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl shadow transition-colors" aria-label="Play/Pause">
+            <button 
+              onClick={handlePrev} 
+              className="bg-transparent text-red-500 rounded-full w-10 h-10 flex items-center justify-center text-xl hover:bg-neutral-800 transition-colors" 
+              aria-label="Prev"
+            >
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button 
+              onClick={handlePlayPause} 
+              className="bg-red-600 hover:bg-red-700 text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl shadow transition-colors" 
+              aria-label="Play/Pause"
+              disabled={loading}
+            >
               {loading ? (
                 <div className="w-7 h-7 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : playing ? (
@@ -429,16 +458,31 @@ function PlayerUI({
                 <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="6,4 24,14 6,24"/></svg>
               )}
             </button>
-            <button onClick={handleNext} className="bg-transparent text-red-500 rounded-full w-10 h-10 flex items-center justify-center text-xl hover:bg-neutral-800 transition-colors" aria-label="Next"><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <button 
+              onClick={handleNext} 
+              className="bg-transparent text-red-500 rounded-full w-10 h-10 flex items-center justify-center text-xl hover:bg-neutral-800 transition-colors" 
+              aria-label="Next"
+            >
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
             <span className="text-xs text-neutral-400 ml-2">Vol</span>
-            <input type="range" min={0} max={1} step={0.01} value={volume} onChange={handleVolume} className="accent-red-500 h-1" style={{width:80}} />
+            <input 
+              type="range" 
+              min={0} 
+              max={1} 
+              step={0.01} 
+              value={volume} 
+              onChange={handleVolume} 
+              className="accent-red-500 h-1" 
+              style={{width:80}} 
+            />
           </div>
           {/* Song list */}
           <div className="w-full flex flex-col gap-1 bg-neutral-900/80 rounded-lg p-2 border border-neutral-800 max-h-48 overflow-y-auto mt-2">
             {tracks.map((t, i) => (
               <button 
                 key={i} 
-                onClick={() =>{
+                onClick={() => {
                   setCurrent(i);
                   setPlaying(true);
                 }} 
@@ -462,7 +506,7 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const [showFloating, setShowFloating] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const mousePositionRef = useRef({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const [presaveModalOpen, setPresaveModalOpen] = useState(false);
   const [selectedSong, setSelectedSong] = useState<string | null>(null);
@@ -590,14 +634,18 @@ export default function Home() {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      // Actualizar la posición del mouse sin causar re-renderizado
+      mousePositionRef.current = { x: e.clientX, y: e.clientY };
     };
+    
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
+    
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('resize', checkMobile);
     checkMobile();
+    
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', checkMobile);
@@ -615,7 +663,6 @@ export default function Home() {
         overflow: 'hidden',
       }}>
         <HeatmapBackground />
-        <NoiseBg />
       </div>
       <main className="min-h-screen text-white relative bg-transparent overflow-hidden" style={{zIndex:10}}>
         {/* Hero Section: Spotify Player */}
