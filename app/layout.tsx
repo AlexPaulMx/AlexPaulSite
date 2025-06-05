@@ -17,10 +17,10 @@ export const metadata = {
     description: 'Explore the music and production of AlexPaul. Discover his latest releases, projects, and experiments in The Lab.',
     images: [
       {
-        url: 'https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafkreigmy27qrmcjkoehtjelzsozclsgehthtisfg6nsp2nmwavifxnnju',
+        url: '/vista previa.png',
         width: 1200,
         height: 630,
-        alt: 'The Lab Album Art',
+        alt: 'AlexPaul Music Preview',
       },
     ],
     type: 'website',
@@ -29,7 +29,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'AlexPaul - Music & Production',
     description: 'Explore the music and production of AlexPaul. Discover his latest releases, projects, and experiments in The Lab.',
-    images: ['https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafkreigmy27qrmcjkoehtjelzsozclsgehthtisfg6nsp2nmwavifxnnju'],
+    images: ['/vista previa.png'],
   },
 }
 
