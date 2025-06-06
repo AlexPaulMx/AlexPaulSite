@@ -71,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Farcaster Frame Metatags */}
         <meta name="fc:frame" content="vNext" />
-        <meta name="fc:frame:image" content="https://jade-tropical-puma-660.mypinata.cloud/ipfs/bafybeidk27skasybhac7iienkqdxvyzxvpkofpjwhsmsdtjob2fi3z3u3i" />
+        <meta name="fc:frame:image" content="https://alex-paul-site.vercel.app/vista previa.png" />
         <meta name="fc:frame:button:1" content="Premint" />
         <meta name="fc:frame:button:1:action" content="link" />
         <meta name="fc:frame:button:1:target" content="https://alex-paul-site.vercel.app/" />
