@@ -17,19 +17,31 @@ export const metadata = {
     description: 'Explore the music and production of AlexPaul. Discover his latest releases, projects, and experiments in The Lab.',
     images: [
       {
-        url: '/vista previa.png',
+        url: 'https://alex-paul-site.vercel.app/vista previa.png',
         width: 1200,
         height: 630,
         alt: 'AlexPaul Music Preview',
       },
     ],
     type: 'website',
+    siteName: 'AlexPaul',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AlexPaul - Music & Production',
     description: 'Explore the music and production of AlexPaul. Discover his latest releases, projects, and experiments in The Lab.',
-    images: ['/vista previa.png'],
+    images: ['https://alex-paul-site.vercel.app/vista previa.png'],
+    creator: '@alexpaul',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
@@ -56,6 +68,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="twitter:title" content={metadata.twitter.title} />
         <meta name="twitter:description" content={metadata.twitter.description} />
         <meta name="twitter:image" content={metadata.twitter.images[0]} />
+
+        {/* Farcaster Frame Metatags */}
+        <meta name="fc:frame" content="vNext" />
+        <meta name="fc:frame:image" content="https://alex-paul-site.vercel.app/vista previa.png" />
+        <meta name="fc:frame:button:1" content="Support Project" />
+        <meta name="fc:frame:button:1:action" content="link" />
+        <meta name="fc:frame:button:1:target" content="https://alex-paul-site.vercel.app/" />
+        <meta name="fc:frame:button:2" content="View Rewards" />
+        <meta name="fc:frame:button:2:action" content="link" />
+        <meta name="fc:frame:button:2:target" content="https://alex-paul-site.vercel.app/" />
       </head>
       <body>
         <PlayerProvider>

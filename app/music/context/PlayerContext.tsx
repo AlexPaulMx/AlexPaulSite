@@ -50,31 +50,98 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
+
+  // Función auxiliar para manejar la reproducción
+  const handlePlay = async () => {
+    if (!audioRef.current) {
+      console.log('No audio element available');
+      return;
+    }
+    
+    try {
+      console.log('Attempting to play audio...');
+      // Si hay una promesa de reproducción pendiente, esperamos a que termine
+      if (playPromiseRef.current) {
+        console.log('Waiting for pending play promise...');
+        await playPromiseRef.current;
+      }
+      
+      // Intentamos reproducir
+      console.log('Starting playback...');
+      playPromiseRef.current = audioRef.current.play();
+      await playPromiseRef.current;
+      console.log('Playback started successfully');
+      setPlaying(true);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error playing audio:', err);
+      setError(err instanceof Error ? err.message : 'Error playing audio');
+      setPlaying(false);
+      setLoading(false);
+    } finally {
+      playPromiseRef.current = null;
+    }
+  };
 
   // Cargar nueva canción cuando cambia el track actual
   useEffect(() => {
-    if (audioRef.current && tracks[current]) {
-      audioRef.current.src = tracks[current].src;
-      audioRef.current.load();
-      setProgress(0);
-      setDuration(0);
-      if (playing) {
-        audioRef.current.play().catch(err => {
-          setError(err.message);
-          setPlaying(false);
-        });
-      }
+    if (!audioRef.current || !tracks[current]) {
+      console.log('No audio element or track available');
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    console.log('Loading new track:', tracks[current].title);
+    setLoading(true);
+    setError(null);
+
+    const audio = audioRef.current;
+    audio.src = tracks[current].src;
+    
+    // Manejar eventos de carga
+    const handleCanPlay = () => {
+      console.log('Audio can play');
+      setLoading(false);
+      if (playing) {
+        handlePlay();
+      }
+    };
+
+    const handleLoadError = (e: Event) => {
+      console.error('Error loading audio:', e);
+      setError('Error loading audio file');
+      setLoading(false);
+          setPlaying(false);
+    };
+
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('error', handleLoadError);
+
+    // Cargar el audio
+    audio.load();
+    setProgress(0);
+    setDuration(0);
+
+    return () => {
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('error', handleLoadError);
+    };
   }, [current, tracks]);
 
   // Play/Pause control
   useEffect(() => {
-    if (audioRef.current) {
+    if (!audioRef.current) return;
+    
       if (playing) {
-        audioRef.current.play().catch(err => {
-          setError(err.message);
-          setPlaying(false);
+      handlePlay();
+    } else {
+      console.log('Pausing audio...');
+      // Si hay una promesa de reproducción pendiente, esperamos a que termine
+      if (playPromiseRef.current) {
+        playPromiseRef.current.then(() => {
+          audioRef.current?.pause();
+        }).catch(() => {
+          // Ignoramos errores al pausar
         });
       } else {
         audioRef.current.pause();
@@ -82,29 +149,40 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   }, [playing]);
 
-  const handleNext = () => {
-    setCurrent((prev) => (prev + 1) % tracks.length);
-    setPlaying(true);
-  };
-
   // Actualizar progreso y duración
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
     const updateProgress = () => {
       setProgress(audio.currentTime);
       setDuration(audio.duration || 0);
     };
+
+    const handleEnded = () => {
+      console.log('Track ended, playing next...');
+      handleNext();
+    };
+
+    const handleError = (e: Event) => {
+      console.error('Audio error:', e);
+      setError('Error playing audio');
+      setPlaying(false);
+      setLoading(false);
+    };
+
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', updateProgress);
-    audio.addEventListener('ended', handleNext);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
+
     return () => {
       audio.removeEventListener('timeupdate', updateProgress);
       audio.removeEventListener('loadedmetadata', updateProgress);
-      audio.removeEventListener('ended', handleNext);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioRef, handleNext]);
+  }, []);
 
   // Volumen
   useEffect(() => {
@@ -114,17 +192,26 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [volume]);
 
   const handlePlayPause = () => {
-    setPlaying((prev) => !prev);
+    console.log('Play/Pause clicked, current state:', playing);
+    setPlaying(prev => !prev);
+  };
+
+  const handleNext = () => {
+    console.log('Next track requested');
+    setCurrent(prev => (prev + 1) % tracks.length);
+    setPlaying(true);
   };
 
   const handlePrev = () => {
-    setCurrent((prev) => (prev - 1 + tracks.length) % tracks.length);
+    console.log('Previous track requested');
+    setCurrent(prev => (prev - 1 + tracks.length) % tracks.length);
     setPlaying(true);
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
       const seekTime = Number(e.target.value);
+      console.log('Seeking to:', seekTime);
       audioRef.current.currentTime = seekTime;
       setProgress(seekTime);
     }
@@ -132,10 +219,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const vol = Number(e.target.value);
+    console.log('Setting volume to:', vol);
     setVolume(vol);
-    if (audioRef.current) {
-      audioRef.current.volume = vol;
-    }
   };
 
   return (
@@ -164,7 +249,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       audioRef
     }}>
       {children}
-      <audio ref={audioRef} />
+      <audio ref={audioRef} preload="metadata" crossOrigin="anonymous" />
     </PlayerContext.Provider>
   );
 }
