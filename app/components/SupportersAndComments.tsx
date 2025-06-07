@@ -160,7 +160,7 @@ export default function SupportersAndComments({
     <div className="space-y-8">
       {/* Supporters */}
       <div>
-        <h3 className="text-xl font-bold mb-4">Supporters</h3>
+        <h3 className="text-xl font-bold mb-4">The Lab Crew</h3>
         <div className="space-y-4">
           {supporters.map((supporter, index) => (
             <div

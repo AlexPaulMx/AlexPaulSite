@@ -192,7 +192,7 @@ export default function TheLabContent() {
                   <p>Executive Producer credits, exclusive merch, and full album airdrop</p>
                 </li>
                 <li>
-                  <strong style={{color: '#fbbf24'}}>Top 3 Supporters</strong>
+                  <strong style={{color: '#fbbf24'}}>Top 3 The Lab Crew</strong>
                   <p>Curator credits, exclusive merch, and album airdrop</p>
                 </li>
                 <li>
@@ -250,7 +250,7 @@ export default function TheLabContent() {
               <h2 className="lab-card-title">Merchandise</h2>
             </div>
             <div className="lab-card-content">
-              <p>Limited edition merchandise designed exclusively for The Lab supporters.</p>
+              <p className="text-gray-400 text-sm md:text-base">Limited edition merchandise designed exclusively for The Lab Crew.</p>
               <ul>
                 <li>Limited edition t-shirts</li>
                 <li>Exclusive hoodies</li>
@@ -266,7 +266,7 @@ export default function TheLabContent() {
               <h2 className="lab-card-title">Community</h2>
             </div>
             <div className="lab-card-content">
-              <p>Join our growing community of supporters and be part of The Lab's journey.</p>
+              <p className="text-gray-400 text-sm md:text-base">Join our growing community of The Lab Crew and be part of The Lab's journey.</p>
               <button 
                 className="support-button"
                 onClick={() => window.open('https://t.me/thelabcommunity', '_blank')}

@@ -4,10 +4,10 @@ async function main() {
   // Deploy the contract
   const TheLabNFT = await hre.ethers.getContractFactory("TheLabNFT");
   const nft = await TheLabNFT.deploy(
-    "The Lab CD Idea",
+    "The Lab Genesis NFT",
     "THELAB",
-    "ipfs://bafybeiejsacb6bqh3nkrcidhrxvh2m3uzepuc6omqgogpuq66ttb4urxc4/",
-    "An exclusive NFT for The Lab supporters."
+    "ipfs://QmbyXv282D2x5wW4L5B8H9B6c4z1A3E6F7G8H9I0J1K",
+    "An exclusive NFT for The Lab Crew."
   );
 
   await nft.waitForDeployment();

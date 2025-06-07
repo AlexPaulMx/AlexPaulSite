@@ -1,116 +1,74 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
-type Supporter = {
-  id?: number;
-  address: string;
-  display_name: string;
-  comment: string | null;
+interface Supporter {
+  name: string;
   amount: number;
-  currency: "USDC" | "ETH";
-  created_at?: string;
-};
+  comment?: string;
+  address: string;
+  emoji: string;
+}
 
-const SupportersList: React.FC = () => {
-  const [mounted, setMounted] = useState(false);
-  const [supporters, setSupporters] = useState<Supporter[]>([]);
+const TheLabCrewList: React.FC = () => {
+  const [theLabCrew, setTheLabCrew] = useState<Supporter[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    const fetchSupporters = async () => {
+    const fetchTheLabCrew = async () => {
       try {
         const { data, error } = await supabase
-          .from("supporters")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        console.log("[SUPPORTERS FETCH] Data:", data);
-        console.log("[SUPPORTERS FETCH] Error:", error);
+          .from("thelabcrew")
+          .select('name, amount, comment, address, emoji')
+          .order('amount', { ascending: false })
+          .limit(10);
 
         if (error) {
-          console.error("Error fetching supporters:", error);
-          setError("Error al cargar los supporters");
+          console.error("[THE LAB CREW FETCH] Error:", error);
+          setError("Error al cargar The Lab Crew");
           return;
         }
 
         if (!data || data.length === 0) {
-          console.log("No supporters found");
-          setSupporters([]);
+          console.log("No The Lab Crew found");
+          setTheLabCrew([]);
           return;
         }
 
-        console.log("Fetched supporters:", data);
-        setSupporters(data);
-      } catch (error) {
-        console.error("Error in fetchSupporters:", error);
-        setError("Error al cargar los supporters");
-      } finally {
-        setIsLoading(false);
+        console.log("Fetched The Lab Crew:", data);
+        setTheLabCrew(data);
+      } catch (err) {
+        console.error("Error fetching The Lab Crew:", err);
+        setError("Error al cargar The Lab Crew");
       }
     };
 
-    fetchSupporters();
+    fetchTheLabCrew();
+  }, []);
 
-    // Subscribe to new supporters
-    const channel = supabase
-      .channel("supporters_changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "supporters",
-        },
-        (payload: any) => {
-          console.log("New supporter received:", payload);
-          setSupporters((current) => [payload.new as Supporter, ...current]);
-        }
-      )
-      .subscribe((status: any) => {
-        console.log("Subscription status:", status);
-      });
-
-    // Listener para refresco manual
-    const refreshHandler = () => fetchSupporters();
-    window.addEventListener('refresh-supporters', refreshHandler);
-
-    return () => {
-      supabase.removeChannel(channel);
-      window.removeEventListener('refresh-supporters', refreshHandler);
-    };
-  }, [mounted]);
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold text-white mb-6">Supporters</h2>
-      {isLoading ? (
-        <div className="text-gray-400">Loading...</div>
-      ) : supporters.length === 0 ? (
-        <div className="text-gray-400">¡Sé el primero en apoyar este proyecto!</div>
+    <div className="p-4 border border-gray-700 rounded-lg">
+      <h2 className="text-xl font-bold mb-4">The Lab Crew</h2>
+      {theLabCrew.length === 0 ? (
+        <p className="text-gray-400">Aún no hay The Lab Crew.</p>
       ) : (
-        <div className="space-y-4">
-          {supporters.map((supporter, i) => (
-            <div key={i} className="p-4 bg-black/30 rounded-xl border border-white/10">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-white">{supporter.display_name}</span>
-                <span className="text-sm text-gray-400">{supporter.amount} {supporter.currency}</span>
+        <ul className="space-y-2">
+          {theLabCrew.map((theLabCrewMember) => (
+            <li key={theLabCrewMember.address} className="flex items-center justify-between bg-gray-800 p-2 rounded-md">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">{theLabCrewMember.emoji}</span>
+                <span className="font-medium text-white">{theLabCrewMember.name || theLabCrewMember.address}</span>
               </div>
-              {supporter.comment && (
-                <div className="text-gray-300 mt-2 italic">"{supporter.comment}"</div>
-              )}
-            </div>
+              <span className="text-yellow-400 font-bold">${theLabCrewMember.amount}</span>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
 };
 
-export default SupportersList; 
+export default TheLabCrewList; 
