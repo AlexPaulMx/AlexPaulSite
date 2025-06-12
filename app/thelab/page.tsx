@@ -201,7 +201,7 @@ export default function TheLab() {
             <strong>Premint</strong> will define your role in the project, ensuring a tailored experience for each participant.
           </p>
           <p>
-            The Lab Crew will soon receive a unique collectible, enhancing their engagement within the community.
+            Supporters will soon receive a unique collectible, enhancing their engagement within the community.
           </p>
           <p>
             Your collectible will serve as the key to access future apps, create personalized avatars, and receive exclusive airdrops, unlocking additional features and benefits as the project evolves.
@@ -233,7 +233,7 @@ export default function TheLab() {
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Crew Character
+                Supporter Character
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -241,7 +241,7 @@ export default function TheLab() {
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Gang Badge
+                Supporter Badge
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -250,8 +250,7 @@ export default function TheLab() {
                 </ul>
               </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
-            <h3 className="text-xl font-bold mb-4 text-white">Top 3 The Lab Crew</h3>
-            <p className="text-gray-400 text-sm mb-2">Discover the leading supporters</p>
+            <h3 className="text-xl font-bold mb-4 text-white">Top 3 Supporters</h3>
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -267,7 +266,7 @@ export default function TheLab() {
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Crew Character
+                Supporter Character
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -275,7 +274,7 @@ export default function TheLab() {
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Gang Badge
+                Supporter Badge
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -284,12 +283,11 @@ export default function TheLab() {
                 </ul>
               </div>
           <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
-            <h3 className="text-xl font-bold mb-4 text-white">Top 10 The Lab Crew</h3>
-            <p className="text-gray-400 text-sm mb-2">Discover the leading supporters</p>
+            <h3 className="text-xl font-bold mb-4 text-white">Top 10 Supporters</h3>
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Crew Character
+                Supporter Character
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -297,7 +295,7 @@ export default function TheLab() {
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Gang Badge
+                Supporter Badge
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -310,7 +308,7 @@ export default function TheLab() {
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Gang Badge
+                Supporter Badge
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -318,7 +316,7 @@ export default function TheLab() {
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
-                The Lab Crew Character
+                Supporter Character
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mr-2 text-blue-400" />
@@ -777,28 +775,21 @@ export default function TheLab() {
             {isMobile && (
               <div className="block sm:hidden mt-6">
                 <hr className="border-t border-white/10 mb-4" />
-                <h2 className="text-xl font-bold text-white mb-4 text-center">The Lab Crew</h2>
-                {/* Podio de Top The Lab Crew compacto */}
-                <div className="flex justify-center items-end space-x-4 mb-8">
+                <h2 className="text-xl font-bold text-white mb-4 text-center">Supporters</h2>
+                {/* Podio de Top Supporters compacto */}
+                <div className="flex flex-col items-center gap-2 mb-4 w-full">
                   {topSupporters.map((s, i) => {
                     const podium = [
                       'from-yellow-400 to-yellow-200', // oro
                       'from-gray-300 to-gray-100',      // plata
                       'from-orange-700 to-yellow-400'   // bronce
                     ];
-                    const size = i === 0 ? 'h-28 w-20' : 'h-20 w-16';
-                    const textSize = i === 0 ? 'text-xl' : 'text-base';
-                    const fontWeight = i === 0 ? 'font-extrabold' : 'font-bold';
                     const icon = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
                     return (
-                      <div key={(s.address ? s.address : 'noaddress') + '-' + i} className={`flex flex-col items-center justify-end relative ${i === 0 ? 'z-10' : 'opacity-90'}` }>
-                        <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center ${size} mb-2 relative animate-pulse`}
-                          style={{ boxShadow: i === 0 ? '0 0 24px 4px #FFD70055' : undefined }}>
-                          <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-3xl drop-shadow">{icon}</span>
-                          <span
-                            className="text-black font-extrabold drop-shadow truncate max-w-[90px] text-center block overflow-hidden whitespace-nowrap text-ellipsis text-base"
-                            title={s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
-                          >
+                      <div key={(s.address ? s.address : 'noaddress') + '-' + i} className={`flex flex-col items-center w-full max-w-[180px]`}>
+                        <div className={`rounded-xl shadow-lg border-2 border-yellow-200/40 bg-gradient-to-b ${podium[i]} flex flex-col items-center justify-center h-16 w-full mb-1 relative animate-pulse`}>
+                          <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl drop-shadow">{icon}</span>
+                          <span className="text-black font-extrabold truncate max-w-[80px] text-center block overflow-hidden whitespace-nowrap text-sm" title={s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}>
                             {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
                           </span>
                           <span className="text-yellow-900 text-xs font-mono mt-1">${s.amount}</span>
@@ -807,40 +798,37 @@ export default function TheLab() {
                     );
                   })}
                 </div>
-                {/* Lista de todos los The Lab Crew */}
+                {/* Lista de todos los supporters */}
                 <div className="mt-12">
-                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide mt-8">All The Lab Crew</span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide mt-8">All Supporters</span>
+                  <ul className="divide-y divide-yellow-100/10 max-h-[320px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
                       <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
                     )}
                     {supporters.map((s, i) => (
-                      <div key={(s.address ? s.address : 'noaddress') + '-' + i} className="p-4 bg-gray-800 rounded-lg shadow-lg relative h-full flex flex-col justify-between">
-                        <h3 className="text-lg font-bold tracking-widest text-yellow-100 uppercase">The Lab Crew</h3>
-                        {/* Top The Lab Crew Podium */}
-                        <div className="flex justify-center items-end space-x-4 mb-6">
+                      <li key={(s.address ? s.address : 'noaddress') + '-' + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                        <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-base ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.emoji}</span>
-                          <span className="text-xs text-gray-400 font-semibold">#{i+1}</span>
-                        </div>
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-gray-100 font-medium">
+                          <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
                             {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
-                          </span>
-                          {s.amount > 0 && (
-                            <span className="group relative">
-                              <BadgeCheck className="w-4 h-4 text-blue-400" />
-                              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                NFT Holder
+                            {s.amount > 0 && (
+                              <span className="group relative">
+                                <BadgeCheck className="w-4 h-4 text-blue-400" />
+                                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                  NFT Holder
+                                </span>
                               </span>
-                            </span>
-                          )}
+                            )}
+                          </span>
+                          <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
+                          <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
                         </div>
                         {s.comment && (
-                          <div className="text-xs text-gray-400 italic mt-1">"{s.comment}"</div>
+                          <div className="pl-10 text-xs text-gray-400 italic mt-1">"{s.comment}"</div>
                         )}
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </div>
             )}
@@ -1013,11 +1001,11 @@ export default function TheLab() {
                 {/* Header minimalista */}
                 <div className="flex items-center gap-3 mb-2">
                   <Star className="w-6 h-6 text-yellow-300 animate-pulse" />
-                  <h3 className="text-lg font-bold tracking-widest text-yellow-100 uppercase">The Lab Crew</h3>
+                  <h3 className="text-lg font-bold tracking-widest text-yellow-100 uppercase">Supporters</h3>
                 </div>
                 <div className="border-b border-yellow-100/10 mb-4" />
-                {/* Top The Lab Crew Podium */}
-                <div className="flex justify-center items-end space-x-4 mb-6">
+                {/* Top Supporters Podium */}
+                <div className="flex justify-center items-end gap-2 mb-6">
                   {topSupporters.map((s, i) => {
                     const podium = [
                       'from-yellow-400 to-yellow-200', // oro
@@ -1045,40 +1033,37 @@ export default function TheLab() {
                     );
                   })}
                 </div>
-                {/* Lista de todos los The Lab Crew */}
+                {/* Lista de todos los supporters */}
                 <div className="mt-12">
-                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide mt-8">All The Lab Crew</span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <span className="text-xs text-gray-400 font-semibold block mb-1 tracking-wide mt-8">All Supporters</span>
+                  <ul className="divide-y divide-yellow-100/10 max-h-[320px] overflow-y-auto pr-1">
                     {supporters.length === 0 && (
                       <li className="text-center text-gray-400 py-4">Be the first to support this project!</li>
                     )}
                     {supporters.map((s, i) => (
-                      <div key={(s.address ? s.address : 'noaddress') + '-' + i} className="p-4 bg-gray-800 rounded-lg shadow-lg relative h-full flex flex-col justify-between">
-                        <h3 className="text-lg font-bold tracking-widest text-yellow-100 uppercase">The Lab Crew</h3>
-                        {/* Top The Lab Crew Podium */}
-                        <div className="flex justify-center items-end space-x-4 mb-6">
+                      <li key={(s.address ? s.address : 'noaddress') + '-' + i} className="flex flex-col py-2 hover:bg-yellow-100/5 transition rounded-lg">
+                        <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-base ${i === 0 ? 'bg-yellow-300 text-black' : i === 1 ? 'bg-gray-300 text-black' : i === 2 ? 'bg-orange-700 text-white' : 'bg-gray-800 text-yellow-200'}`}>{s.emoji}</span>
-                          <span className="text-xs text-gray-400 font-semibold">#{i+1}</span>
-                        </div>
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-gray-100 font-medium">
+                          <span className="flex-1 font-medium text-gray-100 flex items-center gap-2">
                             {s.name && s.name !== (s.address || '') ? s.name : formatAddress(s.address || '')}
-                          </span>
-                          {s.amount > 0 && (
-                            <span className="group relative">
-                              <BadgeCheck className="w-4 h-4 text-blue-400" />
-                              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                NFT Holder
+                            {s.amount > 0 && (
+                              <span className="group relative">
+                                <BadgeCheck className="w-4 h-4 text-blue-400" />
+                                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                  NFT Holder
+                                </span>
                               </span>
-                            </span>
-                          )}
+                            )}
+                          </span>
+                          <span className="text-xs text-yellow-200 font-mono">${s.amount}</span>
+                          <span className="text-[10px] text-yellow-400 font-bold">#{i+1}</span>
                         </div>
                         {s.comment && (
-                          <div className="text-xs text-gray-400 italic mt-1">"{s.comment}"</div>
+                          <div className="pl-10 text-xs text-gray-400 italic mt-1">"{s.comment}"</div>
                         )}
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </div>
             </div>
